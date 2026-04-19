@@ -1,11 +1,23 @@
 Position,Driver,Team,CarNumber,Points
-1,Max Verstappen,Red Bull Racing,1,136
-2,Lando Norris,McLaren,4,113
-3,Charles Leclerc,Ferrari,16,98
-4,Oscar Piastri,McLaren,81,87
-5,Carlos Sainz,Williams,55,76
-6,George Russell,Mercedes,63,65
-7,Lewis Hamilton,Ferrari,44,54
-8,Fernando Alonso,Aston Martin,14,43
-9,Lance Stroll,Aston Martin,18,32
-10,Yuki Tsunoda,Red Bull Racing,22,21
+1,Kimi Antonelli,Mercedes,12,72
+2,George Russell,Mercedes,63,63
+3,Charles Leclerc,Ferrari,16,49
+4,Lewis Hamilton,Ferrari,44,41
+5,Lando Norris,McLaren,1,25
+6,Oscar Piastri,McLaren,81,21
+7,Oliver Bearman,Haas F1 Team,87,17
+8,Pierre Gasley,Alpine,10,15
+9,Max Verstappen,Red Bull Racing,3,12
+10,Liam Lawson,Racing Bulls,30,10
+11,Arvid Lindblad,Racing Bulls,41,4
+12,Isack Hadjar,Red Bull Racing,6,4
+13,Gabriel Bortoleto,Audi,5,2
+14,Carlos Sainz,Williams,55,2
+15,Esteban Ocon,Haas F1 Team,31,1
+16,Franco Colapinto,Alpine,43,1
+17,Nico Hulkenberg,Audi,27,0
+18,Alexander Albon,Williams,23,0
+19,Valtteri Bottas,Cadillac,77,0
+20,Sergio Perez,Cadillac,11,0
+21,Fernando Alonso,Aston Martin,14,0
+22,Lance Stroll,Aston Martin,18,0
