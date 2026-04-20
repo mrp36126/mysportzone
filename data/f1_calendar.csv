@@ -1,11 +1,2 @@
 Round,RaceName,Circuit,Country,Date,FP1_Date,FP1,FP2_Date,FP2,FP3_Date,FP3,Quali_Date,QualiTime,SprintQuali_Date,SprintQualiTime,Sprint_Date,SprintTime,Race_Date,RaceTime,TrackImage
-6,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,
-2026-05-01,18:30:00,
-2026-05-01,22:00:00,
-,,
-2026-05-02,18:00:00,
-2026-05-02,14:00:00,
-2026-05-02,20:30:00,
-2026-05-03,22:00:00,
-images/tracks/miami.jpg
-
+6,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,2026-05-01,18:30:00,2026-05-01,22:00:00,,,2026-05-02,18:00:00,2026-05-02,14:00:00,2026-05-02,20:30:00,2026-05-03,22:00:00,images/tracks/miami.jpg
