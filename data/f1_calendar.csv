@@ -10,13 +10,19 @@ Round,RaceName,Circuit,Country,FP1Date,FP1Time,FP2Date,FP2Time,SprintQualiDate,S
 
 5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-22,18:30,,,2026-05-22,22:30,2026-05-23,18:00,,,2026-05-23,22:00,2026-05-24,22:00,images/tracks/canada.jpg
 
+6,Monaco Grand Prix,Circuit de Monaco,Monaco,2026-06-05,13:30,2026-06-05,17:00,,,,,2026-06-06,12:30,2026-06-06,16:00,2026-06-07,15:00,images/tracks/monaco.jpg
+
+7,Spanish Grand Prix,Circuit de Barcelona-Catalunya,Spain,2026-06-12,13:30,2026-06-12,17:00,,,,,2026-06-13,12:30,2026-06-13,16:00,2026-06-14,15:00,images/tracks/spain.jpg
+
+
+
 7,Emilia Romagna Grand Prix,Imola Circuit,Italy,2026-05-15,13:30,2026-05-15,17:00,,,,,2026-05-16,12:30,2026-05-16,16:00,2026-05-17,15:00,images/tracks/imola.jpg
 
-8,Monaco Grand Prix,Circuit de Monaco,Monaco,2026-05-22,13:30,2026-05-22,17:00,,,,,2026-05-23,12:30,2026-05-23,16:00,2026-05-24,15:00,images/tracks/monaco.jpg
 
 
 
-10,Spanish Grand Prix,Circuit de Barcelona-Catalunya,Spain,2026-06-19,13:30,2026-06-19,17:00,,,,,2026-06-20,12:30,2026-06-20,16:00,2026-06-21,15:00,images/tracks/spain.jpg
+
+
 
 11,Austrian Grand Prix (Sprint),Red Bull Ring,Austria,2026-06-26,13:30,,,,2026-06-26,17:00,2026-06-27,13:30,,,,2026-06-27,17:00,2026-06-28,15:00,images/tracks/austria.jpg
 
