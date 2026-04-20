@@ -2182,12 +2182,13 @@
       // Sessions with an empty time column are skipped.
       function buildSessions(row) {
         const sessionDefs = [
-          { label: 'Practice 1',   col: 'FP1'       },
-          { label: 'Practice 2',   col: 'FP2'       },
-          { label: 'Sprint',       col: 'SprintTime' },
-          { label: 'Practice 3',   col: 'FP3'       },
-          { label: 'Qualifying',   col: 'QualiTime'  },
-          { label: 'Race',         col: 'RaceTime'   },
+          { label: 'Practice 1',         col: 'FP1'               col: 'FP1Date'},
+          { label: 'Practice 2',         col: 'FP2'               col: 'FP2Date'},
+          { label: 'Sprint Qualifying',  col: 'SprintQualyTime'   col: 'SprintQualyDate'},  
+          { label: 'Sprint',             col: 'SprintTime'        col: 'SprintDate'},
+          { label: 'Practice 3',         col: 'FP3'               col: 'FP3Date'},
+          { label: 'Qualifying',         col: 'QualiTime'         col: 'QualiDate'},
+          { label: 'Race',               col: 'RaceTime'          col: 'RaceDate'},
         ];
         return sessionDefs
           .filter(s => row[s.col] && row[s.col].trim() !== '')
