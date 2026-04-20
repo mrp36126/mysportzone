@@ -2180,23 +2180,38 @@
       // Build the ordered list of sessions for a race weekend row.
       // Each session is { label, dateTimeStr, dt (Date object) }.
       // Sessions with an empty time column are skipped.
-      function buildSessions(row) {
-        const sessionDefs = [
-          { label: 'Practice 1',   col: 'FP1'       },
-          { label: 'Practice 2',   col: 'FP2'       },
-          { label: 'Sprint',       col: 'SprintTime' },
-          { label: 'Practice 3',   col: 'FP3'       },
-          { label: 'Qualifying',   col: 'QualiTime'  },
-          { label: 'Race',         col: 'RaceTime'   },
-        ];
-        return sessionDefs
-          .filter(s => row[s.col] && row[s.col].trim() !== '')
-          .map(s => {
-            const dtStr = `${row.Date}T${row[s.col]}+02:00`; // SAST = UTC+2
-            return { label: s.label, dtStr, dt: new Date(dtStr) };
-          })
-          .sort((a, b) => a.dt - b.dt); // Ensure chronological order
-      }
+     function buildSessions(row) {
+  const sessions = [];
+
+  function addSession(label, dateField, timeField) {
+    if (row[dateField] && row[timeField]) {
+      const dtStr = row[dateField] + 'T' + row[timeField];
+      sessions.push({
+        label: label,
+        dtStr: dtStr,
+        dt: new Date(dtStr)
+      });
+    }
+  }
+
+  // Friday
+  addSession("Practice 1", "FP1_Date", "FP1");
+  addSession("Practice 2", "FP2_Date", "FP2");
+
+  // Saturday
+  addSession("Practice 3", "FP3_Date", "FP3");
+  addSession("Sprint Qualifying", "SprintQuali_Date", "SprintQualiTime");
+  addSession("Qualifying", "Quali_Date", "QualiTime");
+  addSession("Sprint", "Sprint_Date", "SprintTime");
+
+  // Sunday
+  addSession("Race", "Race_Date", "RaceTime");
+
+  // Sort chronologically
+  sessions.sort((a, b) => a.dt - b.dt);
+
+  return sessions;
+}
 
       // ── FIND NEXT UPCOMING RACE WEEKEND ──────────────────────────────
       // A weekend is "upcoming" if its Race session hasn't happened yet.
@@ -2248,7 +2263,9 @@
                 const isNext = i === nextSessionIdx;
                 const cls = isPast ? 'session-past' : isNext ? 'session-next' : '';
                 return `<tr class="${cls}">
-                  <td>${s.label}</td>
+                  <td>${s.label}<br><span style="font-size:0.7rem; color: var(--text-secondary);">
+${new Date(s.dtStr).toLocaleDateString()}
+</span></td>
                   <td>${s.dt.toLocaleTimeString('en-ZA', {
                     hour: '2-digit', minute: '2-digit',
                     timeZone: 'Africa/Johannesburg'  // SAST
