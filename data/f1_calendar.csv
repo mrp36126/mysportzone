@@ -1,25 +1,26 @@
-Round,RaceName,Circuit,Country,Date,FP1,FP2,FP3,QualiTime,SprintTime,RaceTime,TrackImage,FP1_Date,FP2_Date,FP3_Date,Quali_Date,SprintQuali_Date,SprintQualiTime,Sprint_Date,Race_Date
-1,Bahrain Grand Prix,Bahrain International Circuit,Bahrain,2026-03-01,14:30:00,18:00:00,15:30:00,19:00:00,,18:00:00,images/tracks/bahrain.jpg,2026-02-27,2026-02-27,2026-02-28,2026-02-28,,,,2026-03-01
-2,Saudi Arabian Grand Prix,Jeddah Corniche Circuit,Saudi Arabia,2026-03-15,15:30:00,19:00:00,16:30:00,20:00:00,,20:00:00,images/tracks/saudi.jpg,2026-03-13,2026-03-13,2026-03-14,2026-03-14,,,,2026-03-15
-3,Australian Grand Prix,Albert Park,Australia,2026-03-29,03:30:00,07:00:00,04:30:00,08:00:00,,07:00:00,images/tracks/australia.jpg,2026-03-27,2026-03-27,2026-03-28,2026-03-28,,,,2026-03-29
-4,Japanese Grand Prix,Suzuka,Japan,2026-04-05,04:30:00,08:00:00,05:30:00,09:00:00,,08:00:00,images/tracks/japan.jpg,2026-04-03,2026-04-03,2026-04-04,2026-04-04,,,,2026-04-05
-5,Chinese Grand Prix,Shanghai International Circuit,China,2026-04-19,05:30:00,09:00:00,,09:00:00,06:30:00,10:00:00,images/tracks/china.jpg,2026-04-17,2026-04-17,,2026-04-18,2026-04-17,09:00:00,2026-04-18,2026-04-19
-6,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,18:30:00,22:00:00,,22:00:00,19:30:00,22:00:00,images/tracks/miami.jpg,2026-05-01,2026-05-01,,2026-05-02,2026-05-01,22:00:00,2026-05-02,2026-05-03
-7,Emilia Romagna Grand Prix,Autodromo Enzo e Dino Ferrari,Italy,2026-05-17,11:30:00,15:00:00,10:30:00,14:00:00,,15:00:00,images/tracks/imola.jpg,2026-05-15,2026-05-15,2026-05-16,2026-05-16,,,,2026-05-17
-8,Monaco Grand Prix,Circuit de Monaco,Monaco,2026-05-24,11:30:00,15:00:00,10:30:00,14:00:00,,15:00:00,images/tracks/monaco.jpg,2026-05-22,2026-05-22,2026-05-23,2026-05-23,,,,2026-05-24
-9,Spanish Grand Prix,Circuit de Barcelona-Catalunya,Spain,2026-06-07,11:30:00,15:00:00,10:30:00,14:00:00,,15:00:00,images/tracks/spain.jpg,2026-06-05,2026-06-05,2026-06-06,2026-06-06,,,,2026-06-07
-10,Canadian Grand Prix,Circuit Gilles-Villeneuve,Canada,2026-06-14,17:30:00,21:00:00,16:30:00,20:00:00,,21:00:00,images/tracks/canada.jpg,2026-06-12,2026-06-12,2026-06-13,2026-06-13,,,,2026-06-14
-11,Austrian Grand Prix,Red Bull Ring,Austria,2026-06-28,11:30:00,15:00:00,10:30:00,14:00:00,,15:00:00,images/tracks/austria.jpg,2026-06-26,2026-06-26,2026-06-27,2026-06-27,,,,2026-06-28
-12,British Grand Prix,Silverstone,UK,2026-07-05,11:30:00,15:00:00,10:30:00,14:00:00,,15:00:00,images/tracks/silverstone.jpg,2026-07-03,2026-07-03,2026-07-04,2026-07-04,,,,2026-07-05
-13,Belgian Grand Prix,Circuit de Spa-Francorchamps,Belgium,2026-07-26,11:30:00,15:00:00,10:30:00,14:00:00,,15:00:00,images/tracks/spa.jpg,2026-07-24,2026-07-24,2026-07-25,2026-07-25,,,,2026-07-26
-14,Hungarian Grand Prix,Hungaroring,Hungary,2026-08-02,11:30:00,15:00:00,10:30:00,14:00:00,,15:00:00,images/tracks/hungary.jpg,2026-07-31,2026-07-31,2026-08-01,2026-08-01,,,,2026-08-02
-15,Dutch Grand Prix,Circuit Zandvoort,Netherlands,2026-08-30,11:30:00,15:00:00,10:30:00,14:00:00,,15:00:00,images/tracks/zandvoort.jpg,2026-08-28,2026-08-28,2026-08-29,2026-08-29,,,,2026-08-30
-16,Italian Grand Prix,Autodromo Nazionale Monza,Italy,2026-09-06,11:30:00,15:00:00,10:30:00,14:00:00,,15:00:00,images/tracks/monza.jpg,2026-09-04,2026-09-04,2026-09-05,2026-09-05,,,,2026-09-06
-17,Azerbaijan Grand Prix,Baku City Circuit,Azerbaijan,2026-09-20,10:30:00,14:00:00,09:30:00,13:00:00,,14:00:00,images/tracks/baku.jpg,2026-09-18,2026-09-18,2026-09-19,2026-09-19,,,,2026-09-20
-18,Singapore Grand Prix,Marina Bay Street Circuit,Singapore,2026-10-04,11:30:00,15:00:00,10:30:00,14:00:00,,14:00:00,images/tracks/singapore.jpg,2026-10-02,2026-10-02,2026-10-03,2026-10-03,,,,2026-10-04
-19,United States Grand Prix,Circuit of the Americas,USA,2026-10-18,17:30:00,21:00:00,,21:00:00,18:30:00,21:00:00,images/tracks/cota.jpg,2026-10-16,2026-10-16,,2026-10-17,2026-10-16,21:00:00,2026-10-17,2026-10-18
-20,Mexico City Grand Prix,Autodromo Hermanos Rodriguez,Mexico,2026-10-25,18:30:00,22:00:00,17:30:00,21:00:00,,21:00:00,images/tracks/mexico.jpg,2026-10-23,2026-10-23,2026-10-24,2026-10-24,,,,2026-10-25
-21,São Paulo Grand Prix,Autodromo Jose Carlos Pace,Brazil,2026-11-08,14:30:00,18:00:00,,18:00:00,15:30:00,18:00:00,images/tracks/brazil.jpg,2026-11-06,2026-11-06,,2026-11-07,2026-11-06,18:00:00,2026-11-07,2026-11-08
-22,Las Vegas Grand Prix,Las Vegas Strip Circuit,USA,2026-11-21,04:30:00,08:00:00,03:30:00,07:00:00,,07:00:00,images/tracks/lasvegas.jpg,2026-11-19,2026-11-19,2026-11-20,2026-11-20,,,,2026-11-21
-23,Qatar Grand Prix,Lusail International Circuit,Qatar,2026-11-29,16:30:00,20:00:00,,20:00:00,17:30:00,20:00:00,images/tracks/qatar.jpg,2026-11-27,2026-11-27,,2026-11-28,2026-11-27,20:00:00,2026-11-28,2026-11-29
-24,Abu Dhabi Grand Prix,Yas Marina Circuit,UAE,2026-12-06,12:30:00,16:00:00,11:30:00,15:00:00,,16:00:00,images/tracks/abudhabi.jpg,2026-12-04,2026-12-04,2026-12-05,2026-12-05,,,,2026-12-06
+Round,RaceName,Circuit,Country,Date,FP1,FP2,FP3,QualiTime,SprintTime,RaceTime,TrackImage
+1,Bahrain Grand Prix,Bahrain International Circuit,Bahrain,2026-03-01,14:30:00,18:00:00,15:30:00,19:00:00,,18:00:00,images/tracks/bahrain.jpg
+2,Saudi Arabian Grand Prix,Jeddah Corniche Circuit,Saudi Arabia,2026-03-15,15:30:00,19:00:00,16:30:00,20:00:00,,20:00:00,images/tracks/saudi.jpg
+3,Australian Grand Prix,Albert Park,Australia,2026-03-29,03:30:00,07:00:00,04:30:00,08:00:00,,07:00:00,images/tracks/australia.jpg
+4,Japanese Grand Prix,Suzuka,Japan,2026-04-05,04:30:00,08:00:00,05:30:00,09:00:00,,08:00:00,images/tracks/japan.jpg
+5,Chinese Grand Prix,Shanghai International Circuit,China,2026-04-19,05:30:00,09:00:00,,09:00:00,06:30:00,10:00:00,images/tracks/china.jpg
+6,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,18:30:00,22:00:00,,22:00:00,19:30:00,22:00:00,images/tracks/miami.jpg
+7,Emilia Romagna Grand Prix,Autodromo Enzo e Dino Ferrari,Italy,2026-05-17,11:30:00,15:00:00,10:30:00,14:00:00,,15:00:00,images/tracks/imola.jpg
+8,Monaco Grand Prix,Circuit de Monaco,Monaco,2026-05-24,11:30:00,15:00:00,10:30:00,14:00:00,,15:00:00,images/tracks/monaco.jpg
+9,Spanish Grand Prix,Circuit de Barcelona-Catalunya,Spain,2026-06-07,11:30:00,15:00:00,10:30:00,14:00:00,,15:00:00,images/tracks/spain.jpg
+10,Canadian Grand Prix,Circuit Gilles-Villeneuve,Canada,2026-06-14,17:30:00,21:00:00,16:30:00,20:00:00,,21:00:00,images/tracks/canada.jpg
+11,Austrian Grand Prix,Red Bull Ring,Austria,2026-06-28,11:30:00,15:00:00,10:30:00,14:00:00,,15:00:00,images/tracks/austria.jpg
+12,British Grand Prix,Silverstone,UK,2026-07-05,11:30:00,15:00:00,10:30:00,14:00:00,,15:00:00,images/tracks/silverstone.jpg
+13,Belgian Grand Prix,Circuit de Spa-Francorchamps,Belgium,2026-07-26,11:30:00,15:00:00,10:30:00,14:00:00,,15:00:00,images/tracks/spa.jpg
+14,Hungarian Grand Prix,Hungaroring,Hungary,2026-08-02,11:30:00,15:00:00,10:30:00,14:00:00,,15:00:00,images/tracks/hungary.jpg
+15,Dutch Grand Prix,Circuit Zandvoort,Netherlands,2026-08-30,11:30:00,15:00:00,10:30:00,14:00:00,,15:00:00,images/tracks/zandvoort.jpg
+16,Italian Grand Prix,Autodromo Nazionale Monza,Italy,2026-09-06,11:30:00,15:00:00,10:30:00,14:00:00,,15:00:00,images/tracks/monza.jpg
+17,Azerbaijan Grand Prix,Baku City Circuit,Azerbaijan,2026-09-20,10:30:00,14:00:00,09:30:00,13:00:00,,14:00:00,images/tracks/baku.jpg
+18,Singapore Grand Prix,Marina Bay Street Circuit,Singapore,2026-10-04,11:30:00,15:00:00,10:30:00,14:00:00,,14:00:00,images/tracks/singapore.jpg
+19,United States Grand Prix,Circuit of the Americas,USA,2026-10-18,17:30:00,21:00:00,,21:00:00,18:30:00,21:00:00,images/tracks/cota.jpg
+20,Mexico City Grand Prix,Autodromo Hermanos Rodriguez,Mexico,2026-10-25,18:30:00,22:00:00,17:30:00,21:00:00,,21:00:00,images/tracks/mexico.jpg
+21,SÃ£o Paulo Grand Prix,Autodromo Jose Carlos Pace,Brazil,2026-11-08,14:30:00,18:00:00,,18:00:00,15:30:00,18:00:00,images/tracks/brazil.jpg
+22,Las Vegas Grand Prix,Las Vegas Strip Circuit,USA,2026-11-21,04:30:00,08:00:00,03:30:00,07:00:00,,07:00:00,images/tracks/lasvegas.jpg
+23,Qatar Grand Prix,Lusail International Circuit,Qatar,2026-11-29,16:30:00,20:00:00,,20:00:00,17:30:00,20:00:00,images/tracks/qatar.jpg
+24,Abu Dhabi Grand Prix,Yas Marina Circuit,UAE,2026-12-06,12:30:00,16:00:00,11:30:00,15:00:00,,16:00:00,images/tracks/abudhabi.jpg
+
