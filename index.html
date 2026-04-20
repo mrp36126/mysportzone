@@ -365,7 +365,7 @@
   color: var(--accent);
   display: block;
   line-height: 1;
-  min-width: 2ch;
+  min-width: 2.8ch;
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
@@ -2185,41 +2185,13 @@
       // Sessions with an empty time column are skipped.
 function buildSessions(row) {
   const sessionDefs = [
-    {
-      label: 'Practice 1',
-      dateCol: 'FP1Date',
-      timeCol: 'FP1Time'
-    },
-    {
-      label: 'Practice 2',
-      dateCol: 'FP2Date',
-      timeCol: 'FP2Time'
-    },
-    {
-      label: 'Practice 3',
-      dateCol: 'FP3Date',
-      timeCol: 'FP3Time'
-    },
-    {
-      label: 'Sprint Qualifying',
-      dateCol: 'SprintQualiDate',
-      timeCol: 'SprintQualiTime'
-    },
-    {
-      label: 'Sprint',
-      dateCol: 'SprintDate',
-      timeCol: 'SprintTime'
-    },
-    {
-      label: 'Qualifying',
-      dateCol: 'QualiDate',
-      timeCol: 'QualiTime'
-    },
-    {
-      label: 'Race',
-      dateCol: 'RaceDate',
-      timeCol: 'RaceTime'
-    }
+    { label: 'Practice 1',       dateCol: 'FP1Date',         timeCol: 'FP1Time' },
+    { label: 'Practice 2',       dateCol: 'FP2Date',         timeCol: 'FP2Time' },
+    { label: 'Sprint Qualifying',dateCol: 'SprintQualiDate', timeCol: 'SprintQualiTime' },
+    { label: 'Sprint',           dateCol: 'SprintDate',      timeCol: 'SprintTime' },
+    { label: 'Practice 3',       dateCol: 'FP3Date',         timeCol: 'FP3Time' },
+    { label: 'Qualifying',       dateCol: 'QualiDate',       timeCol: 'QualiTime' },
+    { label: 'Race',             dateCol: 'RaceDate',        timeCol: 'RaceTime' }
   ];
 
   return sessionDefs
@@ -2231,10 +2203,8 @@ function buildSessions(row) {
     )
     .map(s => {
       const dtStr = `${row[s.dateCol]}T${row[s.timeCol]}+02:00`;
-
       return {
         label: s.label,
-        dtStr,
         dt: new Date(dtStr)
       };
     })
@@ -2245,11 +2215,11 @@ function buildSessions(row) {
       // A weekend is "upcoming" if its Race session hasn't happened yet.
 const upcomingF1 = calendar
   .filter(r => {
-    const raceTime = r.RaceTime
+    const raceTime = r.RaceDate && r.RaceTime
       ? `${r.RaceDate}T${r.RaceTime}+02:00`
-      : `${r.RaceDate}T23:59:00+02:00`;
+      : null;
 
-    return new Date(raceTime) >= now;
+    return raceTime && new Date(raceTime) >= now;
   })
   .sort((a, b) => new Date(a.RaceDate) - new Date(b.RaceDate));
 
@@ -2295,13 +2265,20 @@ const upcomingF1 = calendar
                 const cls = isPast ? 'session-past' : isNext ? 'session-next' : '';
                 return `<tr class="${cls}">
                   <td>${s.label}</td>
-                  <td>${s.dt.toLocaleTimeString('en-ZA', {
-                    hour: '2-digit', minute: '2-digit',
-                    timeZone: 'Africa/Johannesburg'  // SAST
-                  })} SAST — ${s.dt.toLocaleDateString('en-ZA', {
-                    day: 'numeric', month: 'short',
-                    timeZone: 'Africa/Johannesburg'
-                  })}</td>
+<td>
+  ${s.dt.toLocaleDateString('en-ZA', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    timeZone: 'Africa/Johannesburg'
+  })}
+  —
+  ${s.dt.toLocaleTimeString('en-ZA', {
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'Africa/Johannesburg'
+  })} SAST
+</td>
                 </tr>`;
               }).join('')}
             </tbody>
