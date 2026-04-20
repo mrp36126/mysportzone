@@ -2501,8 +2501,8 @@ const upcomingF1 = calendar
             <tbody>
               ${calendar.map(r => {
                 const raceDateTime = r.RaceTime
-                  ? new Date(`${r.Date}T${r.RaceTime}+02:00`)
-                  : new Date(`${r.Date}T23:59:00+02:00`);
+                  ? new Date(`${r.RaceDate}T${r.RaceTime}+02:00`)
+                  : new Date(`${r.RaceDate}T23:59:00+02:00`);
                 const isPast = raceDateTime < now;
                 const isNext = !isPast && upcomingF1[0] && r.Round === upcomingF1[0].Round;
                 return `
@@ -2511,7 +2511,7 @@ const upcomingF1 = calendar
                     <td style="font-weight:700;">${r.RaceName}${isNext ? ' <span style="color:var(--accent);font-size:0.75rem;">▶ NEXT</span>' : ''}</td>
                     <td style="color:var(--text-secondary);">${r.Circuit}</td>
                     <td>${r.Country}</td>
-                    <td>${r.Date}</td>
+                    <td>${r.RaceDate}</td>
                     <td>${r.RaceTime || '—'}</td>
                   </tr>`;
               }).join('')}
