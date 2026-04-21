@@ -14,6 +14,12 @@ Round,RaceName,Circuit,Country,FP1Date,FP1Time,FP2Date,FP2Time,SprintQualiDate,S
 
 7,Spanish Grand Prix,Circuit de Barcelona-Catalunya,Spain,2026-06-12,13:30,2026-06-12,17:00,,,,,2026-06-13,12:30,2026-06-13,16:00,2026-06-14,15:00,images/tracks/spain.jpg
 
+8,Austrian Grand Prix,Red Bull Ring,Austria,2026-06-26,13:30,2026-06-26,17:00,,,,,2026-06-27,12:30,2026-06-27,16:00,2026-06-28,15:00,images/tracks/austria.jpg
+
+9,British Grand Prix,Silverstone Circuit,UK,2026-07-03,13:30,,,2026-07-03,17:30,2026-07-04,13:00,,,2026-07-04,17:00,2026-07-05,16:00,images/tracks/uk.jpg
+
+10,Belgian Grand Prix,Spa-Francorchamps,Belgium,2026-07-17,13:30,2026-07-17,17:00,,,,,2026-07-18,12:30,2026-07-18,16:00,2026-07-19,15:00,images/tracks/spa.jpg
+
 
 
 7,Emilia Romagna Grand Prix,Imola Circuit,Italy,2026-05-15,13:30,2026-05-15,17:00,,,,,2026-05-16,12:30,2026-05-16,16:00,2026-05-17,15:00,images/tracks/imola.jpg
@@ -24,13 +30,13 @@ Round,RaceName,Circuit,Country,FP1Date,FP1Time,FP2Date,FP2Time,SprintQualiDate,S
 
 
 
-11,Austrian Grand Prix (Sprint),Red Bull Ring,Austria,2026-06-26,13:30,,,,2026-06-26,17:00,2026-06-27,13:30,,,,2026-06-27,17:00,2026-06-28,15:00,images/tracks/austria.jpg
 
-12,British Grand Prix,Silverstone Circuit,UK,2026-07-03,13:30,2026-07-03,17:00,,,,,2026-07-04,12:30,2026-07-04,16:00,2026-07-05,16:00,images/tracks/uk.jpg
+
+
 
 13,Hungarian Grand Prix,Hungaroring,Hungary,2026-07-17,13:30,2026-07-17,17:00,,,,,2026-07-18,12:30,2026-07-18,16:00,2026-07-19,15:00,images/tracks/hungary.jpg
 
-14,Belgian Grand Prix (Sprint),Spa-Francorchamps,Belgium,2026-07-24,13:30,,,,2026-07-24,17:00,2026-07-25,13:30,,,,2026-07-25,17:00,2026-07-26,15:00,images/tracks/spa.jpg
+
 
 15,Dutch Grand Prix,Zandvoort Circuit,Netherlands,2026-08-28,13:30,2026-08-28,17:00,,,,,2026-08-29,12:30,2026-08-29,16:00,2026-08-30,15:00,images/tracks/netherlands.jpg
 
