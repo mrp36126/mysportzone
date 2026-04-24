@@ -1200,9 +1200,16 @@
     */
 .rugby-flag-img {
   width: 100%;
-  max-width: 35px;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 3px;
+  border: 1px solid rgba(255,255,255,0.15);
+  display: block;
+}
+    .flag-wrap {
+  width: clamp(20px, 5vw, 36px);
   aspect-ratio: 3 / 2;
+  flex-shrink: 0;
 }
 
     /*
@@ -2598,12 +2605,16 @@ const upcomingF1 = calendar
     function rugbyFlag(teamName) {
       const code = RUGBY_FLAGS[teamName];
       if (!code) return ''; // No mapping found — return empty string (no flag shown)
-      return `<img
-        src="flags/${code}.png"
-        alt="${teamName} flag"
-        class="rugby-flag-img"
-        onerror="this.style.display='none'"
-      />`;
+return `
+  <div class="flag-wrap">
+    <img
+      src="flags/${code}.png"
+      alt="${teamName} flag"
+      class="rugby-flag-img"
+      onerror="this.style.display='none'"
+    />
+  </div>
+`;
     }
 
     // ────────────────────────────────────────────────────────────────────
