@@ -1198,15 +1198,16 @@
        against the dark table background.
        flex-shrink: 0 prevents the flag from squishing when the name is long.
     */
-    .rugby-flag-img {
-      width: 30px;
-      height: 20px;
-      object-fit: cover;
-      border-radius: 3px;
-      border: 1px solid rgba(255,255,255,0.15);
-      flex-shrink: 0;
-      display: block;
-    }
+.rugby-flag-img {
+  width: clamp(20px, 5vw, 36px);
+  height: auto;
+  aspect-ratio: 3 / 2;   /* keeps proper flag shape */
+  object-fit: cover;
+  border-radius: 3px;
+  border: 1px solid rgba(255,255,255,0.15);
+  flex-shrink: 0;
+  display: block;
+}
 
     /*
        .result-icon-block
