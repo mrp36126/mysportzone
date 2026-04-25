@@ -24,23 +24,10 @@
 
 const NEWS_API_KEY = '00f830d4d3ab417f86dc71daea685c34';
 
-// Keywords covering all desired topics.
-// NewsAPI 'everything' endpoint supports OR logic using spaces between terms.
-// sortBy=publishedAt ensures newest articles appear first.
-// pageSize=18 fetches more raw results so after deduplication you still have ~9 good ones.
-const TOPICS = [
-  'Formula 1 OR F1 OR Grand Prix',
-  'South African motorsport OR SA motorsport OR Zwartkops OR Mahem Raceway',
-  'boxing',
-  'UFC OR MMA',
-  'rugby OR Springboks OR Super Rugby',
-  'tennis OR ATP OR WTA',
-  'MotoGP OR motorcycle racing',
-  'South Africa music event OR South Africa concert OR SA festival'
-].join(' OR ');
-
+// Short keyword list — NewsAPI free plan works best with concise OR queries
+// top-headlines + q= filters within the sports category reliably
 const NEWS_API_URL =
-  `https://newsapi.org/v2/everything?q=${encodeURIComponent(TOPICS)}&language=en&sortBy=publishedAt&pageSize=18&apiKey=${NEWS_API_KEY}`;
+  `https://newsapi.org/v2/top-headlines?category=sports&q=Formula1 OR boxing OR rugby OR tennis OR UFC OR MotoGP OR motorsport OR concert&language=en&pageSize=9&apiKey=${NEWS_API_KEY}`;
 
 // handler() is called by Vercel every time the browser hits /api/news
 // req = incoming request  |  res = response we send back
