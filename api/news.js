@@ -22,7 +22,7 @@
 //   so there is ZERO cross-origin issue.
 // =============================================================================
 
-const NEWS_API_KEY = 'cd0036d802097242c095659ca9f8873b';
+const NEWS_API_KEY = '00f830d4d3ab417f86dc71daea685c34';
 
 // NewsAPI endpoint — returns top sports headlines in English, 9 articles
 const NEWS_API_URL =
