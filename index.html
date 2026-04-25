@@ -2751,10 +2751,10 @@ return `
           `📍 ${nextRugbyFixture.Venue} | 📅 ${nextRugbyFixture.Date} | ${nextRugbyFixture.Competition}`;
         // Default kick-off 15:00 SAST — add a KickoffTime column to rugby_fixtures.csv to override
         const kickoffTime = nextRugbyFixture.KickoffTime || '15:00';
-        startCountdown(
-          nextRugbyFixture.Date + 'T' + kickoffTime + ':00',
-          'rugby-cd-days', 'rugby-cd-hrs', 'rugby-cd-min', 'rugby-cd-sec'
-        );
+startCountdown(
+  nextRugbyFixture.Date + 'T' + (nextRugbyFixture.KickoffTime || '15:00') + ':00',
+  'rugby-cd-days', 'rugby-cd-hrs', 'rugby-cd-min', 'rugby-cd-sec'
+);
       } else {
         document.getElementById('rugbyNextFixtureName').textContent = 'No upcoming fixtures';
         document.getElementById('rugbyNextFixtureDetails').textContent = 'Check back soon';
