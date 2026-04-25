@@ -1588,7 +1588,37 @@
          TAB 3: INTERNATIONAL RUGBY
     ================================================================ -->
     <section id="rugby" class="tab-panel" role="tabpanel">
+      <!-- ================================================================
+         TAB 3: INTERNATIONAL RUGBY
+    ================================================================ -->
+    <section id="rugby" class="tab-panel" role="tabpanel">
 
+      <!-- Next Fixture Banner + Countdown -->
+      <div class="next-race-banner" id="rugbyNextFixtureBanner">
+        <div class="next-race-info">
+          <div class="next-race-label">▶ NEXT INTERNATIONAL RUGBY FIXTURE</div>
+          <div class="next-race-name" id="rugbyNextFixtureName">Loading...</div>
+          <div class="next-race-details" id="rugbyNextFixtureDetails">–</div>
+        </div>
+        <div class="countdown-grid" style="flex:1; min-width:280px;">
+          <div class="countdown-block">
+            <span class="countdown-number" id="rugby-cd-days">--</span>
+            <span class="countdown-label">DAYS</span>
+          </div>
+          <div class="countdown-block">
+            <span class="countdown-number" id="rugby-cd-hrs">--</span>
+            <span class="countdown-label">HRS</span>
+          </div>
+          <div class="countdown-block">
+            <span class="countdown-number" id="rugby-cd-min">--</span>
+            <span class="countdown-label">MIN</span>
+          </div>
+          <div class="countdown-block">
+            <span class="countdown-number" id="rugby-cd-sec">--</span>
+            <span class="countdown-label">SEC</span>
+          </div>
+        </div>
+      </div>
       <!-- Recent Rugby Results -->
       <div class="section-card">
         <div class="section-title">
@@ -1627,7 +1657,34 @@
     <!-- ================================================================
          TAB 4: GENERAL SPORTS
     ================================================================ -->
-    <section id="general" class="tab-panel" role="tabpanel">
+        <section id="general" class="tab-panel" role="tabpanel">
+
+      <!-- Next Event Banner + Countdown -->
+      <div class="next-race-banner" id="generalNextEventBanner">
+        <div class="next-race-info">
+          <div class="next-race-label">▶ NEXT GENERAL SPORTS EVENT</div>
+          <div class="next-race-name" id="generalNextEventName">Loading...</div>
+          <div class="next-race-details" id="generalNextEventDetails">–</div>
+        </div>
+        <div class="countdown-grid" style="flex:1; min-width:280px;">
+          <div class="countdown-block">
+            <span class="countdown-number" id="gen-cd-days">--</span>
+            <span class="countdown-label">DAYS</span>
+          </div>
+          <div class="countdown-block">
+            <span class="countdown-number" id="gen-cd-hrs">--</span>
+            <span class="countdown-label">HRS</span>
+          </div>
+          <div class="countdown-block">
+            <span class="countdown-number" id="gen-cd-min">--</span>
+            <span class="countdown-label">MIN</span>
+          </div>
+          <div class="countdown-block">
+            <span class="countdown-number" id="gen-cd-sec">--</span>
+            <span class="countdown-label">SEC</span>
+          </div>
+        </div>
+      </div>
 
       <!-- Latest Sports News (via Vercel Serverless Function → NewsAPI) -->
       <div class="section-card">
@@ -2681,7 +2738,30 @@ return `
       </div>`;
     }
 
-    async function initRugby() {
+async function initRugby() {
+
+      // --- NEXT FIXTURE BANNER + COUNTDOWN ---
+      const fixturesForBanner = await fetchCSV('data/rugby_fixtures.csv');
+      const todayRugby = new Date();
+      const nextRugbyFixture = fixturesForBanner
+        .filter(r => new Date(r.Date) >= todayRugby)
+        .sort((a, b) => new Date(a.Date) - new Date(b.Date))[0];
+
+      if (nextRugbyFixture) {
+        // "South Africa vs New Zealand" as the headline
+        document.getElementById('rugbyNextFixtureName').textContent =
+          `${nextRugbyFixture.HomeTeam} vs ${nextRugbyFixture.AwayTeam}`;
+        document.getElementById('rugbyNextFixtureDetails').textContent =
+          `📍 ${nextRugbyFixture.Venue} | 📅 ${nextRugbyFixture.Date} | ${nextRugbyFixture.Competition}`;
+        // Kick off at 15:00 SAST by default (fixtures CSV has no time column)
+        startCountdown(
+          nextRugbyFixture.Date + 'T15:00:00',
+          'rugby-cd-days', 'rugby-cd-hrs', 'rugby-cd-min', 'rugby-cd-sec'
+        );
+      } else {
+        document.getElementById('rugbyNextFixtureName').textContent = 'No upcoming fixtures';
+        document.getElementById('rugbyNextFixtureDetails').textContent = 'Check back soon';
+      }
 
       // --- RESULTS ---
       // CSV columns: Date, HomeTeam, HomeScore, AwayScore, AwayTeam, Competition
@@ -2921,10 +3001,32 @@ return `
       const schedule = await fetchCSV('data/general_schedule.csv');
       // CSV columns: Date, Event, Sport, Venue, Notes
 
-      const today = new Date();
-      const upcoming = schedule
-        .filter(r => new Date(r.Date) >= today)
-        .sort((a, b) => new Date(a.Date) - new Date(b.Date));
+     async function initRugby() {
+
+      // --- NEXT FIXTURE BANNER + COUNTDOWN ---
+      const fixturesForBanner = await fetchCSV('data/rugby_fixtures.csv');
+      const todayRugby = new Date();
+      const nextRugbyFixture = fixturesForBanner
+        .filter(r => new Date(r.Date) >= todayRugby)
+        .sort((a, b) => new Date(a.Date) - new Date(b.Date))[0];
+
+      if (nextRugbyFixture) {
+        // "South Africa vs New Zealand" as the headline
+        document.getElementById('rugbyNextFixtureName').textContent =
+          `${nextRugbyFixture.HomeTeam} vs ${nextRugbyFixture.AwayTeam}`;
+        document.getElementById('rugbyNextFixtureDetails').textContent =
+          `📍 ${nextRugbyFixture.Venue} | 📅 ${nextRugbyFixture.Date} | ${nextRugbyFixture.Competition}`;
+        // Kick off at 15:00 SAST by default (fixtures CSV has no time column)
+        startCountdown(
+          nextRugbyFixture.Date + 'T15:00:00',
+          'rugby-cd-days', 'rugby-cd-hrs', 'rugby-cd-min', 'rugby-cd-sec'
+        );
+      } else {
+        document.getElementById('rugbyNextFixtureName').textContent = 'No upcoming fixtures';
+        document.getElementById('rugbyNextFixtureDetails').textContent = 'Check back soon';
+      }
+
+      // --- RESULTS ---
 
       document.getElementById('generalScheduleGrid').innerHTML = upcoming.length === 0
         ? '<p style="color:var(--text-secondary);text-align:center;padding:20px;">Update general_schedule.csv</p>'
