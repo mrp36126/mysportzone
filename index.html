@@ -2098,7 +2098,7 @@
 
       // Find the overall next event for the Next Race banner
       const upcoming = schedule
-        .filter(r => new Date(r.Date) >= today) // Only future events
+        .filter(r => new Date(r.Date + 'T18:00:00+02:00') >= today) // Only future events
         .sort((a, b) => new Date(a.Date) - new Date(b.Date)); // Ascending date order
 
       if (upcoming.length > 0) {
@@ -2107,7 +2107,7 @@
         document.getElementById('saNextRaceDetails').textContent =
           `📍 ${next.Venue} | 📅 ${next.Date}`;
         // Start the countdown clock targeting this event's date
-        startCountdown(next.Date + 'T12:00:00', 'sa-cd-days', 'sa-cd-hrs', 'sa-cd-min', 'sa-cd-sec');
+        startCountdown(next.Date + 'T18:00:00', 'sa-cd-days', 'sa-cd-hrs', 'sa-cd-min', 'sa-cd-sec');
       } else {
         document.getElementById('saNextRaceName').textContent = 'No upcoming events';
         document.getElementById('saNextRaceDetails').textContent = 'Check back soon';
