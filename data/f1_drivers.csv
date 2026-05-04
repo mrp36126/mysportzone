@@ -1,22 +1,22 @@
 Position,Driver,Team,CarNumber,Points
-1,Kimi Antonelli,Mercedes,12,75
-2,George Russell,Mercedes,63,68
-3,Charles Leclerc,Ferrari,16,55
-4,Lewis Hamilton,Ferrari,44,43
-5,Lando Norris,McLaren,1,33
-6,Oscar Piastri,McLaren,81,28
-7,Oliver Bearman,Haas F1 Team,87,17
-8,Pierre Gasley,Alpine,10,16
-9,Max Verstappen,Red Bull Racing,3,16
+1,Kimi Antonelli,Mercedes,12,100
+2,George Russell,Mercedes,63,80
+3,Charles Leclerc,Ferrari,16,59
+4,Lando Norris,McLaren,1,51
+5,Lewis Hamilton,Ferrari,44,51
+6,Oscar Piastri,McLaren,81,43
+7,Max Verstappen,Red Bull Racing,3,26
+8,Oliver Bearman,Haas F1 Team,87,17
+9,Pierre Gasley,Alpine,10,16
 10,Liam Lawson,Racing Bulls,30,10
-11,Arvid Lindblad,Racing Bulls,41,4
-12,Isack Hadjar,Red Bull Racing,6,4
-13,Gabriel Bortoleto,Audi,5,2
-14,Carlos Sainz,Williams,55,2
-15,Esteban Ocon,Haas F1 Team,31,1
-16,Franco Colapinto,Alpine,43,1
-17,Nico Hulkenberg,Audi,27,0
-18,Alexander Albon,Williams,23,0
+11,Franco Colapinto,Alpine,43,7
+12,Arvid Lindblad,Racing Bulls,41,4
+13,Isack Hadjar,Red Bull Racing,6,4
+14,Carlos Sainz,Williams,55,4
+15,Gabriel Bortoleto,Audi,5,2
+16,Esteban Ocon,Haas F1 Team,31,1
+17,Alexander Albon,Williams,23,1
+18,Nico Hulkenberg,Audi,27,0
 19,Valtteri Bottas,Cadillac,77,0
 20,Sergio Perez,Cadillac,11,0
 21,Fernando Alonso,Aston Martin,14,0
