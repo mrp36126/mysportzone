@@ -763,7 +763,7 @@
     }
 
     .f1-watch-wrapper {
-      width: min(260px, 100%);
+      width: min(290px, 100%);
       display: grid;
       place-items: center;
       gap: 10px;
@@ -771,8 +771,8 @@
       padding: 0 4px;
     }
     .f1-watch-shell {
-      width: 220px;
-      height: 220px;
+      width: min(270px, 72vw);
+      aspect-ratio: 1;
       position: relative;
       display: grid;
       place-items: center;
@@ -782,74 +782,89 @@
       width: 100%;
       height: 100%;
       border-radius: 50%;
-      background: radial-gradient(circle at 50% 50%, #e8001e 0%, #b9001b 58%, #8e0018 100%);
-      box-shadow: inset 0 0 0 2px rgba(255,255,255,0.12), inset 0 0 20px rgba(0,0,0,0.45), 0 20px 50px rgba(0,0,0,0.25);
+      background:
+        radial-gradient(circle at 50% 48%, transparent 0 73%, rgba(255,255,255,0.1) 73.5%, transparent 74.5%),
+        radial-gradient(circle at 50% 50%, #f7f5f2 0 69%, transparent 69.5%),
+        radial-gradient(circle at 50% 48%, #f5f3f0 0%, #e7e2dd 72%, #b6aea8 100%);
+      box-shadow:
+        inset 0 -16px 24px rgba(54,31,26,0.18),
+        inset 0 0 0 2px rgba(38,18,18,0.2),
+        0 18px 35px rgba(0,0,0,0.28);
       overflow: hidden;
     }
     .f1-watch-bezel-outer,
     .f1-watch-bezel-inner {
       position: absolute;
-      inset: 12px;
+      inset: 8px;
       border-radius: 50%;
-      box-shadow: inset 0 0 0 2px rgba(255,255,255,0.2);
+      box-shadow: inset 0 0 0 2px rgba(92,72,68,0.2);
     }
     .f1-watch-bezel-inner {
-      inset: 20px;
-      box-shadow: inset 0 0 0 4px rgba(255,255,255,0.08);
+      inset: 16px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.65);
     }
     .f1-watch-bezel-marks {
       position: absolute;
       inset: 0;
-      background-image:
-        radial-gradient(circle at 50% 5%, rgba(255,255,255,0.85) 2px, transparent 0),
-        radial-gradient(circle at 50% 95%, rgba(255,255,255,0.85) 2px, transparent 0),
-        radial-gradient(circle at 5% 50%, rgba(255,255,255,0.85) 2px, transparent 0),
-        radial-gradient(circle at 95% 50%, rgba(255,255,255,0.85) 2px, transparent 0);
-      background-size: 100% 100%;
-      background-repeat: no-repeat;
-      mask-image: radial-gradient(circle 110px at center, transparent 0%, black 20%, black 100%);
+      background:
+        radial-gradient(circle at 50% 7.1%, #fff 0 2px, transparent 2.3px),
+        radial-gradient(circle at 50% 92.9%, #fff 0 2px, transparent 2.3px),
+        radial-gradient(circle at 7.1% 50%, #fff 0 2px, transparent 2.3px),
+        radial-gradient(circle at 92.9% 50%, #fff 0 2px, transparent 2.3px),
+        repeating-conic-gradient(
+          from -3deg,
+          #cf0717 0deg 4.8deg,
+          transparent 4.8deg 6deg
+        );
+      mask-image: radial-gradient(circle, transparent 0 72.8%, #000 73.2% 84.8%, transparent 85.1%);
     }
     .f1-watch-bezel-logo {
-      position: absolute;
-      bottom: 14px;
-      left: 50%;
-      transform: translateX(-50%);
-      color: #fff;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.7rem;
-      letter-spacing: 0.3em;
-      text-transform: uppercase;
-      opacity: 0.95;
+      display: none;
     }
     .f1-watch-dial {
       position: absolute;
-      width: 180px;
-      height: 180px;
+      width: 84%;
+      height: 84%;
       border-radius: 50%;
-      background: radial-gradient(circle at 50% 50%, #111117 0%, #09090f 60%, #05050a 100%);
-      box-shadow: inset 0 0 20px rgba(255,255,255,0.04), inset 0 0 0 1px rgba(255,255,255,0.05);
+      background:
+        radial-gradient(circle at 50% 42%, rgba(255,255,255,0.98), rgba(246,243,241,0.98) 64%, #ece7e2 100%);
+      box-shadow:
+        inset 0 0 0 1px rgba(33,22,22,0.14),
+        inset 0 -18px 24px rgba(59,38,34,0.08);
       overflow: hidden;
     }
     .f1-watch-ticks {
       position: absolute;
       inset: 0;
       border-radius: 50%;
-      background-image:
-        linear-gradient(0deg, transparent 45%, rgba(255,255,255,0.12) 45%, rgba(255,255,255,0.12) 47%, transparent 47%),
-        linear-gradient(90deg, transparent 45%, rgba(255,255,255,0.12) 45%, rgba(255,255,255,0.12) 47%, transparent 47%);
-      opacity: 0.35;
+      background:
+        radial-gradient(circle at 50% 4.5%, #f7f4f1 0 2px, transparent 2.3px),
+        repeating-conic-gradient(
+          from -1.5deg,
+          #d40b16 0deg 1.5deg,
+          transparent 1.5deg 6deg
+        );
+      mask-image: radial-gradient(circle, transparent 0 78%, #000 78.5% 86%, transparent 86.5%);
     }
     .f1-watch-logo {
       position: absolute;
-      top: 18px;
+      top: 27px;
       left: 50%;
       transform: translateX(-50%);
-      font-family: 'Orbitron', sans-serif;
-      letter-spacing: 0.18em;
-      font-size: 0.8rem;
+      width: 49px;
+      height: 43px;
+      background: linear-gradient(to bottom, #14734c 0 42%, #d60b1c 42% 100%);
       color: #fff;
-      text-transform: uppercase;
-      opacity: 0.85;
+      clip-path: polygon(10% 0, 90% 0, 96% 68%, 50% 100%, 4% 68%);
+      display: grid;
+      place-items: center;
+      font-family: Arial, sans-serif;
+      font-weight: 700;
+      font-size: 0.6rem;
+      line-height: 0.9;
+      text-align: center;
+      border: 2px solid rgba(25,18,17,0.9);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
     }
     .f1-watch-hands {
       position: absolute;
@@ -866,49 +881,124 @@
       transition: transform 0.15s ease-out;
     }
     .f1-watch-hand-hour {
-      width: 6px;
-      height: 50px;
-      background: linear-gradient(to top, #fff 0%, #ddd 100%);
-      box-shadow: 0 0 8px rgba(255,255,255,0.1);
+      width: 15px;
+      height: 62px;
+      background: #080808;
+      clip-path: polygon(34% 100%, 66% 100%, 78% 38%, 100% 24%, 84% 9%, 50% 0, 16% 9%, 0 24%, 22% 38%);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+    .f1-watch-hand-hour::before,
+    .f1-watch-hand-minute::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #f7f4f1;
+      clip-path: inherit;
+    }
+    .f1-watch-hand-hour::before {
+      bottom: 14px;
+      width: 7px;
+      height: 27px;
     }
     .f1-watch-hand-minute {
-      width: 4px;
-      height: 68px;
-      background: linear-gradient(to top, #fff 0%, #ccc 100%);
-      box-shadow: 0 0 10px rgba(255,255,255,0.12);
+      width: 14px;
+      height: 91px;
+      background: #080808;
+      clip-path: polygon(36% 100%, 64% 100%, 84% 14%, 50% 0, 16% 14%);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+    .f1-watch-hand-minute::before {
+      bottom: 15px;
+      width: 6px;
+      height: 60px;
     }
     .f1-watch-hand-second {
       width: 2px;
-      height: 80px;
-      background: #e8001e;
-      box-shadow: 0 0 15px rgba(232,0,30,0.8);
+      height: 102px;
+      background: #d90b18;
+      box-shadow: none;
+    }
+    .f1-watch-hand-second::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      width: 2px;
+      height: 87px;
+      transform: translateX(-50%);
+      background: #d90b18;
     }
     .f1-watch-center {
       position: absolute;
-      width: 14px;
-      height: 14px;
-      background: radial-gradient(circle, #fff 0%, #e8001e 35%, #111 100%);
+      width: 16px;
+      height: 16px;
+      background: #d90b18;
       border-radius: 50%;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      box-shadow: 0 0 8px rgba(232,0,30,0.35);
+      box-shadow: 0 0 0 4px #0b0b0b;
     }
     .f1-watch-date-window {
       position: absolute;
-      right: 20px;
-      bottom: 26px;
-      width: 52px;
-      padding: 6px 4px;
-      border-radius: 6px;
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.14);
-      color: #fff;
-      font-family: 'Arial', sans-serif;
-      font-size: 0.75rem;
+      right: 15px;
+      top: 50%;
+      width: 42px;
+      height: 30px;
+      transform: translateY(-50%);
+      padding: 0;
+      border-radius: 1px;
+      background: #f8f6f4;
+      border: 3px solid #111;
+      color: #111;
+      display: grid;
+      place-items: center;
+      font-family: Arial, sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
       text-align: center;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0;
+    }
+    .f1-watch-marker {
+      position: absolute;
+      width: 27px;
+      height: 27px;
+      border: 3px solid #111;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.5);
+      transform: translate(-50%, -50%);
+    }
+    .f1-watch-marker.shield {
+      width: 38px;
+      height: 35px;
+      border-radius: 0;
+      clip-path: polygon(12% 0, 88% 0, 94% 62%, 50% 100%, 6% 62%);
+    }
+    .f1-watch-marker.m12 { left: 50%; top: 10.5%; }
+    .f1-watch-marker.m1  { left: 75%; top: 18%; }
+    .f1-watch-marker.m2  { left: 88%; top: 36%; }
+    .f1-watch-marker.m4  { left: 84%; top: 72%; }
+    .f1-watch-marker.m5  { left: 67%; top: 87%; }
+    .f1-watch-marker.m6  { left: 50%; top: 92%; }
+    .f1-watch-marker.m7  { left: 31%; top: 87%; }
+    .f1-watch-marker.m8  { left: 16%; top: 72%; }
+    .f1-watch-marker.m9  { left: 10.5%; top: 50%; }
+    .f1-watch-marker.m10 { left: 16%; top: 29%; }
+    .f1-watch-marker.m11 { left: 31%; top: 14%; }
+    .f1-watch-brand-copy {
+      position: absolute;
+      left: 50%;
+      bottom: 37px;
+      transform: translateX(-50%);
+      color: #202020;
+      font-family: Arial, sans-serif;
+      font-size: 0.6rem;
+      font-weight: 700;
+      line-height: 1.02;
+      letter-spacing: 0.1em;
+      text-align: center;
+      white-space: nowrap;
     }
     .f1-watch-details {
       display: flex;
@@ -1665,13 +1755,29 @@
               </div>
               <div class="f1-watch-dial">
                 <div class="f1-watch-ticks"></div>
-                <div class="f1-watch-logo">TAG</div>
+                <div class="f1-watch-marker shield m12"></div>
+                <div class="f1-watch-marker m1"></div>
+                <div class="f1-watch-marker m2"></div>
+                <div class="f1-watch-marker m4"></div>
+                <div class="f1-watch-marker m5"></div>
+                <div class="f1-watch-marker shield m6"></div>
+                <div class="f1-watch-marker m7"></div>
+                <div class="f1-watch-marker m8"></div>
+                <div class="f1-watch-marker shield m9"></div>
+                <div class="f1-watch-marker m10"></div>
+                <div class="f1-watch-marker m11"></div>
+                <div class="f1-watch-logo">TAG<br>HEUER</div>
                 <div class="f1-watch-hands">
                   <div class="f1-watch-hand f1-watch-hand-hour" id="f1WatchHour"></div>
                   <div class="f1-watch-hand f1-watch-hand-minute" id="f1WatchMinute"></div>
                   <div class="f1-watch-hand f1-watch-hand-second" id="f1WatchSecond"></div>
                 </div>
                 <div class="f1-watch-center"></div>
+                <div class="f1-watch-brand-copy">
+                  FORMULA 1<br>
+                  SOLARGRAPH<br>
+                  SWISS MADE
+                </div>
                 <div class="f1-watch-date-window">
                   <span id="f1WatchDate">---</span>
                 </div>
@@ -1679,7 +1785,7 @@
             </div>
             <div class="f1-watch-details">
               <span class="f1-watch-time" id="f1WatchTime">--:--:--</span>
-              <span class="f1-watch-date-label" id="f1WatchDateLabel">Local time</span>
+              <span class="f1-watch-date-label" id="f1WatchDateLabel">---</span>
             </div>
           </div>
         </div>
@@ -2600,13 +2706,15 @@ const upcomingF1 = calendar
           const secondHand = document.getElementById('f1WatchSecond');
           const timeLabel = document.getElementById('f1WatchTime');
           const dateLabel = document.getElementById('f1WatchDate');
+          const fullDateLabel = document.getElementById('f1WatchDateLabel');
 
-          if (hourHand && minuteHand && secondHand && timeLabel && dateLabel) {
+          if (hourHand && minuteHand && secondHand && timeLabel && dateLabel && fullDateLabel) {
             hourHand.style.transform = `translateX(-50%) rotate(${hourAngle}deg)`;
             minuteHand.style.transform = `translateX(-50%) rotate(${minuteAngle}deg)`;
             secondHand.style.transform = `translateX(-50%) rotate(${secondAngle}deg)`;
             timeLabel.textContent = `${padTwo(hours)}:${padTwo(minutes)}:${padTwo(seconds)}`;
-            dateLabel.textContent = now.toLocaleDateString(undefined, {
+            dateLabel.textContent = padTwo(now.getDate());
+            fullDateLabel.textContent = now.toLocaleDateString(undefined, {
               weekday: 'short', day: '2-digit', month: 'short', year: 'numeric'
             });
           }
