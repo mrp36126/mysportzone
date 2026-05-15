@@ -762,6 +762,172 @@
       text-transform: uppercase;
     }
 
+    .f1-watch-wrapper {
+      width: min(260px, 100%);
+      display: grid;
+      place-items: center;
+      gap: 10px;
+      margin-top: 12px;
+      padding: 0 4px;
+    }
+    .f1-watch-shell {
+      width: 220px;
+      height: 220px;
+      position: relative;
+      display: grid;
+      place-items: center;
+    }
+    .f1-watch-bezel {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 50%, #e8001e 0%, #b9001b 58%, #8e0018 100%);
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,0.12), inset 0 0 20px rgba(0,0,0,0.45), 0 20px 50px rgba(0,0,0,0.25);
+      overflow: hidden;
+    }
+    .f1-watch-bezel-outer,
+    .f1-watch-bezel-inner {
+      position: absolute;
+      inset: 12px;
+      border-radius: 50%;
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,0.2);
+    }
+    .f1-watch-bezel-inner {
+      inset: 20px;
+      box-shadow: inset 0 0 0 4px rgba(255,255,255,0.08);
+    }
+    .f1-watch-bezel-marks {
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 50% 5%, rgba(255,255,255,0.85) 2px, transparent 0),
+        radial-gradient(circle at 50% 95%, rgba(255,255,255,0.85) 2px, transparent 0),
+        radial-gradient(circle at 5% 50%, rgba(255,255,255,0.85) 2px, transparent 0),
+        radial-gradient(circle at 95% 50%, rgba(255,255,255,0.85) 2px, transparent 0);
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      mask-image: radial-gradient(circle 110px at center, transparent 0%, black 20%, black 100%);
+    }
+    .f1-watch-bezel-logo {
+      position: absolute;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #fff;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      opacity: 0.95;
+    }
+    .f1-watch-dial {
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 50%, #111117 0%, #09090f 60%, #05050a 100%);
+      box-shadow: inset 0 0 20px rgba(255,255,255,0.04), inset 0 0 0 1px rgba(255,255,255,0.05);
+      overflow: hidden;
+    }
+    .f1-watch-ticks {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background-image:
+        linear-gradient(0deg, transparent 45%, rgba(255,255,255,0.12) 45%, rgba(255,255,255,0.12) 47%, transparent 47%),
+        linear-gradient(90deg, transparent 45%, rgba(255,255,255,0.12) 45%, rgba(255,255,255,0.12) 47%, transparent 47%);
+      opacity: 0.35;
+    }
+    .f1-watch-logo {
+      position: absolute;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Orbitron', sans-serif;
+      letter-spacing: 0.18em;
+      font-size: 0.8rem;
+      color: #fff;
+      text-transform: uppercase;
+      opacity: 0.85;
+    }
+    .f1-watch-hands {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+    }
+    .f1-watch-hand {
+      position: absolute;
+      left: 50%;
+      bottom: 50%;
+      transform-origin: center bottom;
+      border-radius: 999px;
+      transition: transform 0.15s ease-out;
+    }
+    .f1-watch-hand-hour {
+      width: 6px;
+      height: 50px;
+      background: linear-gradient(to top, #fff 0%, #ddd 100%);
+      box-shadow: 0 0 8px rgba(255,255,255,0.1);
+    }
+    .f1-watch-hand-minute {
+      width: 4px;
+      height: 68px;
+      background: linear-gradient(to top, #fff 0%, #ccc 100%);
+      box-shadow: 0 0 10px rgba(255,255,255,0.12);
+    }
+    .f1-watch-hand-second {
+      width: 2px;
+      height: 80px;
+      background: #e8001e;
+      box-shadow: 0 0 15px rgba(232,0,30,0.8);
+    }
+    .f1-watch-center {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: radial-gradient(circle, #fff 0%, #e8001e 35%, #111 100%);
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 8px rgba(232,0,30,0.35);
+    }
+    .f1-watch-date-window {
+      position: absolute;
+      right: 20px;
+      bottom: 26px;
+      width: 52px;
+      padding: 6px 4px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: #fff;
+      font-family: 'Arial', sans-serif;
+      font-size: 0.75rem;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .f1-watch-details {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      color: #fff;
+      text-align: center;
+      font-family: 'Orbitron', sans-serif;
+    }
+    .f1-watch-time {
+      font-size: 1rem;
+      letter-spacing: 0.12em;
+    }
+    .f1-watch-date-label {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.72);
+    }
+
     /* Session schedule table inside the banner */
     .session-table {
       width: 100%;
@@ -1486,6 +1652,34 @@
             <div class="countdown-block">
               <span class="countdown-number" id="f1-cd-sec">--</span>
               <span class="countdown-label">SEC</span>
+            </div>
+          </div>
+
+          <div class="f1-watch-wrapper" aria-label="Formula 1 watch display">
+            <div class="f1-watch-shell">
+              <div class="f1-watch-bezel">
+                <div class="f1-watch-bezel-outer"></div>
+                <div class="f1-watch-bezel-inner"></div>
+                <div class="f1-watch-bezel-marks"></div>
+                <div class="f1-watch-bezel-logo">TAG Heuer</div>
+              </div>
+              <div class="f1-watch-dial">
+                <div class="f1-watch-ticks"></div>
+                <div class="f1-watch-logo">TAG</div>
+                <div class="f1-watch-hands">
+                  <div class="f1-watch-hand f1-watch-hand-hour" id="f1WatchHour"></div>
+                  <div class="f1-watch-hand f1-watch-hand-minute" id="f1WatchMinute"></div>
+                  <div class="f1-watch-hand f1-watch-hand-second" id="f1WatchSecond"></div>
+                </div>
+                <div class="f1-watch-center"></div>
+                <div class="f1-watch-date-window">
+                  <span id="f1WatchDate">---</span>
+                </div>
+              </div>
+            </div>
+            <div class="f1-watch-details">
+              <span class="f1-watch-time" id="f1WatchTime">--:--:--</span>
+              <span class="f1-watch-date-label" id="f1WatchDateLabel">Local time</span>
             </div>
           </div>
         </div>
@@ -2391,6 +2585,35 @@ const upcomingF1 = calendar
 
         advanceCountdown(); // Run immediately
         setInterval(advanceCountdown, 1000); // Update every second
+
+        function updateF1Watch() {
+          const now = new Date();
+          const hours = now.getHours();
+          const minutes = now.getMinutes();
+          const seconds = now.getSeconds();
+          const hourAngle = ((hours % 12) + minutes / 60) * 30;
+          const minuteAngle = (minutes + seconds / 60) * 6;
+          const secondAngle = seconds * 6;
+
+          const hourHand = document.getElementById('f1WatchHour');
+          const minuteHand = document.getElementById('f1WatchMinute');
+          const secondHand = document.getElementById('f1WatchSecond');
+          const timeLabel = document.getElementById('f1WatchTime');
+          const dateLabel = document.getElementById('f1WatchDate');
+
+          if (hourHand && minuteHand && secondHand && timeLabel && dateLabel) {
+            hourHand.style.transform = `translateX(-50%) rotate(${hourAngle}deg)`;
+            minuteHand.style.transform = `translateX(-50%) rotate(${minuteAngle}deg)`;
+            secondHand.style.transform = `translateX(-50%) rotate(${secondAngle}deg)`;
+            timeLabel.textContent = `${padTwo(hours)}:${padTwo(minutes)}:${padTwo(seconds)}`;
+            dateLabel.textContent = now.toLocaleDateString(undefined, {
+              weekday: 'short', day: '2-digit', month: 'short', year: 'numeric'
+            });
+          }
+        }
+
+        updateF1Watch();
+        setInterval(updateF1Watch, 1000);
 
       } else {
         // No upcoming races — season is over
