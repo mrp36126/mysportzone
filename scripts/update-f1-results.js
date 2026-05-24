@@ -69,7 +69,7 @@ const RESULT_HEADERS = [
   'Points'
 ];
 
-const DRIVER_HEADERS = ['Position', 'Change', 'Driver', 'Team', 'CarNumber', 'Points'];
+const DRIVER_HEADERS = ['Position', 'Change', 'Driver', 'Team', 'CarNumber', 'Points', 'PointsChange'];
 const CONSTRUCTOR_HEADERS = ['Position', 'Change', 'Constructor', 'Driver1', 'Driver1Points', 'Driver2', 'Driver2Points', 'Points'];
 
 const DRIVER_NAME_ALIASES = {
@@ -326,22 +326,51 @@ function mapDriverStandings(payload, previousRows = []) {
       .filter(row => row.Driver && row.Position)
       .map(row => [row.Driver, Number(row.Position)])
   );
+  const previousPointsByDriver = new Map(
+    previousRows
+      .filter(row => row.Driver && row.Points !== '')
+      .map(row => [row.Driver, Number(row.Points)])
+  );
+  const previousRowByDriver = new Map(
+    previousRows
+      .filter(row => row.Driver)
+      .map(row => [row.Driver, row])
+  );
 
-  return driverStandings.map(item => ({
-    Position: item.positionText || item.position || '',
-    Change: positionChange(item.position, previousPositionByDriver.get(formatDriverName(item.Driver || {}))),
-    Driver: formatDriverName(item.Driver || {}),
-    Team: normalizeTeamName(item.Constructors?.[0]?.name || ''),
-    CarNumber: item.Driver?.permanentNumber || '',
-    Points: item.points || '0'
-  }));
+  return driverStandings.map(item => {
+    const driverName = formatDriverName(item.Driver || {});
+    const previousRow = previousRowByDriver.get(driverName);
+
+    return {
+      Position: item.positionText || item.position || '',
+      Change: positionChange(item.position, previousPositionByDriver.get(driverName), previousRow?.Change),
+      Driver: driverName,
+      Team: normalizeTeamName(item.Constructors?.[0]?.name || ''),
+      CarNumber: item.Driver?.permanentNumber || '',
+      Points: item.points || '0',
+      PointsChange: pointsChange(item.points, previousPointsByDriver.get(driverName), previousRow?.PointsChange)
+    };
+  });
 }
 
-function positionChange(currentPosition, previousPosition) {
+function positionChange(currentPosition, previousPosition, previousChange = '') {
   const current = Number(currentPosition);
   const previous = Number(previousPosition);
   if (!Number.isFinite(current) || !Number.isFinite(previous)) return '0';
-  return String(previous - current);
+  const change = previous - current;
+  return change === 0 && previousChange !== '' ? String(previousChange) : String(change);
+}
+
+function pointsChange(currentPoints, previousPoints, previousChange = '') {
+  const current = Number(currentPoints);
+  const previous = Number(previousPoints);
+  if (!Number.isFinite(current) || !Number.isFinite(previous)) return '0';
+  const change = current - previous;
+  return change === 0 && previousChange !== '' ? String(previousChange) : formatNumber(change);
+}
+
+function formatNumber(value) {
+  return Number.isInteger(value) ? String(value) : String(Number(value.toFixed(3)));
 }
 
 function mapConstructorStandings(payload, driverRows, previousRows = []) {
@@ -355,14 +384,20 @@ function mapConstructorStandings(payload, driverRows, previousRows = []) {
       .filter(row => row.Constructor && row.Position)
       .map(row => [row.Constructor, Number(row.Position)])
   );
+  const previousRowByConstructor = new Map(
+    previousRows
+      .filter(row => row.Constructor)
+      .map(row => [row.Constructor, row])
+  );
 
   return constructorStandings.map(item => {
     const constructorName = normalizeTeamName(item.Constructor?.name || '');
     const drivers = driversByTeam.get(constructorName) || [];
+    const previousRow = previousRowByConstructor.get(constructorName);
 
     return {
       Position: item.positionText || item.position || '',
-      Change: positionChange(item.position, previousPositionByConstructor.get(constructorName)),
+      Change: positionChange(item.position, previousPositionByConstructor.get(constructorName), previousRow?.Change),
       Constructor: constructorName,
       Driver1: drivers[0]?.Driver || '',
       Driver1Points: drivers[0]?.Points || '0',

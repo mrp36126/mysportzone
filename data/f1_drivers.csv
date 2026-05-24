@@ -1,23 +1,23 @@
-Position,Change,Driver,Team,CarNumber,Points
-1,0,Kimi Antonelli,Mercedes,12,106
-2,0,George Russell,Mercedes,63,88
-3,0,Charles Leclerc,Ferrari,16,63
-4,0,Lando Norris,McLaren,1,58
-5,0,Lewis Hamilton,Ferrari,44,54
-6,0,Oscar Piastri,McLaren,81,48
-7,0,Max Verstappen,Red Bull Racing,3,28
-8,0,Oliver Bearman,Haas F1 Team,87,17
-9,0,Pierre Gasly,Alpine,10,16
-10,0,Liam Lawson,Racing Bulls,30,10
-11,0,Franco Colapinto,Alpine,43,7
-12,0,Arvid Lindblad,Racing Bulls,41,5
-13,0,Isack Hadjar,Red Bull Racing,6,4
-14,0,Carlos Sainz,Williams,55,4
-15,0,Gabriel Bortoleto,Audi,5,2
-16,0,Esteban Ocon,Haas F1 Team,31,1
-17,0,Alexander Albon,Williams,23,1
-18,0,Nico Hulkenberg,Audi,27,0
-19,0,Valtteri Bottas,Cadillac,77,0
-20,0,Sergio Perez,Cadillac,11,0
-21,0,Fernando Alonso,Aston Martin,14,0
-22,0,Lance Stroll,Aston Martin,18,0
+Position,Change,Driver,Team,CarNumber,Points,PointsChange
+1,0,Kimi Antonelli,Mercedes,12,106,6
+2,0,George Russell,Mercedes,63,88,8
+3,0,Charles Leclerc,Ferrari,16,63,4
+4,0,Lando Norris,McLaren,1,58,7
+5,0,Lewis Hamilton,Ferrari,44,54,3
+6,0,Oscar Piastri,McLaren,81,48,5
+7,0,Max Verstappen,Red Bull Racing,3,28,2
+8,0,Oliver Bearman,Haas F1 Team,87,17,0
+9,0,Pierre Gasly,Alpine,10,16,0
+10,0,Liam Lawson,Racing Bulls,30,10,0
+11,0,Franco Colapinto,Alpine,43,7,0
+12,0,Arvid Lindblad,Racing Bulls,41,5,1
+13,0,Isack Hadjar,Red Bull Racing,6,4,0
+14,0,Carlos Sainz,Williams,55,4,0
+15,0,Gabriel Bortoleto,Audi,5,2,0
+16,0,Esteban Ocon,Haas F1 Team,31,1,0
+17,0,Alexander Albon,Williams,23,1,0
+18,0,Nico Hulkenberg,Audi,27,0,0
+19,0,Valtteri Bottas,Cadillac,77,0,0
+20,0,Sergio Perez,Cadillac,11,0,0
+21,0,Fernando Alonso,Aston Martin,14,0,0
+22,0,Lance Stroll,Aston Martin,18,0,0

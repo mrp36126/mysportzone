@@ -2884,6 +2884,14 @@ const upcomingF1 = calendar
           : `<span style="color:var(--text-secondary);">— ${escapeHTML(change || '0')}</span>`;
       }
 
+      function pointsChangeHTML(change) {
+        const changeNum = parseFloat(change);
+        if (!changeNum) return '';
+        const sign = changeNum > 0 ? '+' : '';
+        const color = changeNum > 0 ? '#00ff88' : 'var(--accent)';
+        return ` <span style="color:${color};font-size:0.8rem;font-weight:700;">${sign}${escapeHTML(change)}</span>`;
+      }
+
       const driversHTML = drivers.length === 0
         ? '<p style="color:var(--text-secondary);text-align:center;padding:20px;">Update f1_drivers.csv</p>'
         : `<table class="data-table">
@@ -2913,7 +2921,7 @@ const upcomingF1 = calendar
                   </td>
                   <td style="color:var(--text-secondary);">${escapeHTML(d.Team)}</td>
                   <td style="font-family:'Orbitron',sans-serif;">#${escapeHTML(d.CarNumber)}</td>
-                  <td><span class="points-badge">${escapeHTML(d.Points)}</span></td>
+                  <td><span class="points-badge">${escapeHTML(d.Points)}</span>${pointsChangeHTML(d.PointsChange)}</td>
                 </tr>`;
               }).join('')}
             </tbody>
