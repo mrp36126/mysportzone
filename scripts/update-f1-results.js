@@ -24,6 +24,9 @@
  * Run locally with:
  *   npm run update:f1
  *
+ * To seed driver position changes against a specific completed round:
+ *   F1_CHANGE_BASE_ROUND=4 npm run update:f1
+ *
  * GitHub Actions runs this script on a schedule and commits changed CSV files.
  * Vercel then redeploys from the GitHub commit. The frontend only reads CSVs.
  */
@@ -110,7 +113,7 @@ async function main() {
 
   const latestRaceRows = mapLatestRaceResults(latestResultsData);
   const latestSprintRows = mapLatestSprintResults(latestSprintData);
-  const previousDriverRows = await readCsvIfExists(FILES.drivers, DRIVER_HEADERS);
+  const previousDriverRows = await loadDriverChangeBaseline();
   const driverRows = mapDriverStandings(driverStandingsData, previousDriverRows);
   const constructorRows = mapConstructorStandings(constructorStandingsData, driverRows);
 
@@ -141,6 +144,20 @@ async function main() {
   }
 
   console.log(changed ? 'F1 CSV update complete. Changes were written.' : 'F1 CSV update complete. No CSV changes needed.');
+}
+
+async function loadDriverChangeBaseline() {
+  const baseRound = process.env.F1_CHANGE_BASE_ROUND;
+  if (!baseRound) return readCsvIfExists(FILES.drivers, DRIVER_HEADERS);
+
+  console.log(`Comparing driver standing changes against round ${baseRound}...`);
+  const baselinePayload = await fetchJson(`https://api.jolpi.ca/ergast/f1/current/${encodeURIComponent(baseRound)}/driverStandings.json`);
+  const baselineRows = mapDriverStandings(baselinePayload, []);
+  if (baselineRows.length === 0) {
+    console.log(`No baseline driver standings found for round ${baseRound}; falling back to existing CSV.`);
+    return readCsvIfExists(FILES.drivers, DRIVER_HEADERS);
+  }
+  return baselineRows;
 }
 
 function findLatestSprintRound(calendarRows) {
