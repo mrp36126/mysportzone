@@ -70,7 +70,7 @@ const RESULT_HEADERS = [
 ];
 
 const DRIVER_HEADERS = ['Position', 'Change', 'Driver', 'Team', 'CarNumber', 'Points'];
-const CONSTRUCTOR_HEADERS = ['Position', 'Constructor', 'Driver1', 'Driver1Points', 'Driver2', 'Driver2Points', 'Points'];
+const CONSTRUCTOR_HEADERS = ['Position', 'Change', 'Constructor', 'Driver1', 'Driver1Points', 'Driver2', 'Driver2Points', 'Points'];
 
 const DRIVER_NAME_ALIASES = {
   'Andrea Kimi Antonelli': 'Kimi Antonelli',
@@ -115,7 +115,8 @@ async function main() {
   const latestSprintRows = mapLatestSprintResults(latestSprintData);
   const previousDriverRows = await loadDriverChangeBaseline();
   const driverRows = mapDriverStandings(driverStandingsData, previousDriverRows);
-  const constructorRows = mapConstructorStandings(constructorStandingsData, driverRows);
+  const previousConstructorRows = await loadConstructorChangeBaseline();
+  const constructorRows = mapConstructorStandings(constructorStandingsData, driverRows, previousConstructorRows);
 
   let changed = false;
 
@@ -156,6 +157,20 @@ async function loadDriverChangeBaseline() {
   if (baselineRows.length === 0) {
     console.log(`No baseline driver standings found for round ${baseRound}; falling back to existing CSV.`);
     return readCsvIfExists(FILES.drivers, DRIVER_HEADERS);
+  }
+  return baselineRows;
+}
+
+async function loadConstructorChangeBaseline() {
+  const baseRound = process.env.F1_CHANGE_BASE_ROUND;
+  if (!baseRound) return readCsvIfExists(FILES.constructors, CONSTRUCTOR_HEADERS);
+
+  console.log(`Comparing constructor standing changes against round ${baseRound}...`);
+  const baselinePayload = await fetchJson(`https://api.jolpi.ca/ergast/f1/current/${encodeURIComponent(baseRound)}/constructorStandings.json`);
+  const baselineRows = mapConstructorStandings(baselinePayload, [], []);
+  if (baselineRows.length === 0) {
+    console.log(`No baseline constructor standings found for round ${baseRound}; falling back to existing CSV.`);
+    return readCsvIfExists(FILES.constructors, CONSTRUCTOR_HEADERS);
   }
   return baselineRows;
 }
@@ -329,12 +344,17 @@ function positionChange(currentPosition, previousPosition) {
   return String(previous - current);
 }
 
-function mapConstructorStandings(payload, driverRows) {
+function mapConstructorStandings(payload, driverRows, previousRows = []) {
   const standingsLists = payload?.MRData?.StandingsTable?.StandingsLists;
   const constructorStandings = standingsLists?.[0]?.ConstructorStandings;
   if (!Array.isArray(constructorStandings) || constructorStandings.length === 0) return [];
 
   const driversByTeam = groupDriversByTeam(driverRows);
+  const previousPositionByConstructor = new Map(
+    previousRows
+      .filter(row => row.Constructor && row.Position)
+      .map(row => [row.Constructor, Number(row.Position)])
+  );
 
   return constructorStandings.map(item => {
     const constructorName = normalizeTeamName(item.Constructor?.name || '');
@@ -342,6 +362,7 @@ function mapConstructorStandings(payload, driverRows) {
 
     return {
       Position: item.positionText || item.position || '',
+      Change: positionChange(item.position, previousPositionByConstructor.get(constructorName)),
       Constructor: constructorName,
       Driver1: drivers[0]?.Driver || '',
       Driver1Points: drivers[0]?.Points || '0',

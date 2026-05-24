@@ -2980,7 +2980,8 @@ const upcomingF1 = calendar
             driver1: { driver: row.Driver1 || '—', points: row.Driver1Points || driverPointsForName(row.Driver1) },
             driver2: { driver: row.Driver2 || '—', points: row.Driver2Points || driverPointsForName(row.Driver2) },
             total: parseFloat(row.Points) || 0,
-            position: row.Position
+            position: row.Position,
+            change: row.Change
           }))
         : buildConstructorsFromDrivers(drivers);
 
@@ -3002,7 +3003,7 @@ const upcomingF1 = calendar
                 const driver2Points = c.driver2.points !== '' ? ` <span class="points-badge" style="font-size:0.75rem;">${escapeHTML(c.driver2.points)}</span>` : '';
                 return `
                 <tr>
-                  <td><span class="${posClass(position)}">${escapeHTML(position)}</span></td>
+                  <td><span class="${posClass(position)}">${escapeHTML(position)}</span> ${standingChangeHTML(c.change)}</td>
                   <td>
                     <div class="constructor-cell">
                       <!--
