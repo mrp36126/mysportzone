@@ -2036,19 +2036,69 @@
     // Example output: [{ Position:"1", Driver:"Verstappen", Points:"400" }, ...]
     //
     function parseCSV(text) {
-      const lines = text.trim().split('\n').filter(l => l.trim() !== '');
-      if (lines.length < 2) return []; // No data rows — return empty
+      const rows = [];
+      let row = [];
+      let value = '';
+      let inQuotes = false;
 
-      // Split header row by comma, trim whitespace around each header name
-      const headers = lines[0].split(',').map(h => h.trim());
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        const next = text[i + 1];
 
-      // Map each data row into an object using headers as keys
-      return lines.slice(1).map(line => {
-        const values = line.split(',').map(v => v.trim());
+        if (ch === '"') {
+          if (inQuotes && next === '"') {
+            value += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (ch === ',' && !inQuotes) {
+          row.push(value.trim());
+          value = '';
+        } else if ((ch === '\n' || ch === '\r') && !inQuotes) {
+          if (ch === '\r' && next === '\n') i++;
+          row.push(value.trim());
+          value = '';
+          if (row.some(cell => cell !== '')) rows.push(row);
+          row = [];
+        } else {
+          value += ch;
+        }
+      }
+
+      row.push(value.trim());
+      if (row.some(cell => cell !== '')) rows.push(row);
+      if (rows.length < 2) return [];
+
+      const headers = rows[0].map(h => h.trim());
+      return rows.slice(1).map(values => {
         const obj = {};
         headers.forEach((h, i) => { obj[h] = values[i] || ''; });
         return obj;
       });
+    }
+
+    function escapeHTML(value) {
+      return String(value ?? '').replace(/[&<>"']/g, ch => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[ch]));
+    }
+
+    function safeAttr(value) {
+      return escapeHTML(value);
+    }
+
+    function safeUrl(value, fallback = '#') {
+      try {
+        const url = new URL(value, window.location.origin);
+        return ['http:', 'https:'].includes(url.protocol) ? escapeHTML(url.href) : fallback;
+      } catch {
+        return fallback;
+      }
     }
 
     // ====================================================================
@@ -2234,8 +2284,8 @@
       // Create one string of all ticker items
       const itemsHTML = tickerData.map(item => `
         <span class="ticker-item">
-          <span class="ticker-label">${item.label}:</span>
-          ${item.text}
+          <span class="ticker-label">${escapeHTML(item.label)}:</span>
+          ${escapeHTML(item.text)}
         </span>
         <span class="ticker-sep">|</span>
       `).join('');
@@ -2348,7 +2398,7 @@
 
       // Decide which icon to show: real uploaded image OR sample SVG
       const iconHTML = cfg.useRealImage
-        ? `<img src="${cfg.imgPath}" alt="${venue} logo" />`
+        ? `<img src="${safeAttr(cfg.imgPath)}" alt="${safeAttr(venue)} logo" />`
         : cfg.sampleSVG;
 
       return `
@@ -2361,11 +2411,11 @@
               3. Commit. Done.
           -->
           <div class="venue-icon">${iconHTML}</div>
-          <div class="venue-name">${venue}</div>
+          <div class="venue-name">${escapeHTML(venue)}</div>
           ${event
-            ? `<div class="venue-date">📅 ${event.Date}</div>
-               <div class="venue-event">${event.EventName || 'Race Day'}</div>
-               ${event.Notes ? `<div style="color:var(--text-secondary);font-size:0.8rem;margin-top:4px;">${event.Notes}</div>` : ''}`
+            ? `<div class="venue-date">📅 ${escapeHTML(event.Date)}</div>
+               <div class="venue-event">${escapeHTML(event.EventName || 'Race Day')}</div>
+               ${event.Notes ? `<div style="color:var(--text-secondary);font-size:0.8rem;margin-top:4px;">${escapeHTML(event.Notes)}</div>` : ''}`
             : `<div class="venue-date" style="color:var(--text-secondary);">No upcoming events</div>`
           }
         </div>
@@ -2490,11 +2540,11 @@
               // Build filename from driver name: remove spaces, lowercase
               const imgFilename = 'icons/car-' + (row.DriverName || '').replace(/\s+/g, '') + '.png';
               const carHTML = useCarImage
-                ? `<img src="${imgFilename}" alt="${row.DriverName} car" style="width:100%;height:100%;object-fit:contain;border-radius:inherit;" />`
+                ? `<img src="${safeAttr(imgFilename)}" alt="${safeAttr(row.DriverName)} car" style="width:100%;height:100%;object-fit:contain;border-radius:inherit;" />`
                 : sampleCarSVG(carColors[i % carColors.length]);
               return `
               <tr>
-                <td><span class="${posClass(row.Position)}">${row.Position}</span></td>
+                <td><span class="${posClass(row.Position)}">${escapeHTML(row.Position)}</span></td>
                 <td>
                   <div class="driver-cell">
                     <!--
@@ -2503,11 +2553,11 @@
                       then set  useCarImage = true  in the JS above.
                     -->
                     <div class="car-icon">${carHTML}</div>
-                    <span>${row.DriverName}</span>
+                    <span>${escapeHTML(row.DriverName)}</span>
                   </div>
                 </td>
-                <td style="font-family:'Orbitron',sans-serif;">#${row.CarNumber}</td>
-                <td><span class="points-badge">${row.Points}</span></td>
+                <td style="font-family:'Orbitron',sans-serif;">#${escapeHTML(row.CarNumber)}</td>
+                <td><span class="points-badge">${escapeHTML(row.Points)}</span></td>
               </tr>`;
             }).join('')}
           </tbody>
@@ -2763,11 +2813,11 @@ const upcomingF1 = calendar
               ${drivers.map((d, i) => {
                 const photoFile = 'icons/driver-' + (d.Driver || '').replace(/\s+/g,'') + '.png';
                 const avatarHTML = useDriverPhoto
-                  ? `<img src="${photoFile}" alt="${d.Driver}" />`
+                  ? `<img src="${safeAttr(photoFile)}" alt="${safeAttr(d.Driver)}" />`
                   : sampleDriverSVG(driverColors[i % driverColors.length]);
                 return `
                 <tr>
-                  <td><span class="${posClass(d.Position)}">${d.Position}</span></td>
+                  <td><span class="${posClass(d.Position)}">${escapeHTML(d.Position)}</span></td>
                   <td>
                     <div class="driver-cell">
                       <!--
@@ -2777,12 +2827,12 @@ const upcomingF1 = calendar
                           2. Set  useDriverPhoto = true  in the JS above.
                       -->
                       <div class="driver-avatar">${avatarHTML}</div>
-                      <span style="font-weight:700;">${d.Driver}</span>
+                      <span style="font-weight:700;">${escapeHTML(d.Driver)}</span>
                     </div>
                   </td>
-                  <td style="color:var(--text-secondary);">${d.Team}</td>
-                  <td style="font-family:'Orbitron',sans-serif;">#${d.CarNumber}</td>
-                  <td><span class="points-badge">${d.Points}</span></td>
+                  <td style="color:var(--text-secondary);">${escapeHTML(d.Team)}</td>
+                  <td style="font-family:'Orbitron',sans-serif;">#${escapeHTML(d.CarNumber)}</td>
+                  <td><span class="points-badge">${escapeHTML(d.Points)}</span></td>
                 </tr>`;
               }).join('')}
             </tbody>
@@ -2804,7 +2854,7 @@ const upcomingF1 = calendar
       function sampleTeamSVG(color, initials) {
         return `<svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
           <path d="M18,2 L34,10 L34,22 Q34,32 18,36 Q2,32 2,22 L2,10 Z" fill="${color}" opacity="0.85"/>
-          <text x="18" y="23" text-anchor="middle" font-family="Orbitron,Arial" font-size="${initials.length > 2 ? '7' : '9'}" font-weight="700" fill="white">${initials}</text>
+          <text x="18" y="23" text-anchor="middle" font-family="Orbitron,Arial" font-size="${initials.length > 2 ? '7' : '9'}" font-weight="700" fill="white">${escapeHTML(initials)}</text>
         </svg>`;
       }
 
@@ -2846,7 +2896,7 @@ const upcomingF1 = calendar
                 const style = TEAM_STYLES[c.team] || { color:'#888', init: c.team.substring(0,3).toUpperCase() };
                 const logoFile = 'icons/team-' + c.team.replace(/\s+/g,'') + '.png';
                 const logoHTML = useTeamLogo
-                  ? `<img src="${logoFile}" alt="${c.team} logo" />`
+                  ? `<img src="${safeAttr(logoFile)}" alt="${safeAttr(c.team)} logo" />`
                   : sampleTeamSVG(style.color, style.init);
                 return `
                 <tr>
@@ -2860,12 +2910,12 @@ const upcomingF1 = calendar
                           2. Set  useTeamLogo = true  in the JS above.
                       -->
                       <div class="team-logo">${logoHTML}</div>
-                      <span style="font-weight:700;">${c.team}</span>
+                      <span style="font-weight:700;">${escapeHTML(c.team)}</span>
                     </div>
                   </td>
-                  <td>${c.driver1.driver} <span class="points-badge" style="font-size:0.75rem;">${c.driver1.points}</span></td>
-                  <td>${c.driver2.driver} <span class="points-badge" style="font-size:0.75rem;">${c.driver2.points}</span></td>
-                  <td><span class="points-badge">${c.total}</span></td>
+                  <td>${escapeHTML(c.driver1.driver)} <span class="points-badge" style="font-size:0.75rem;">${escapeHTML(c.driver1.points)}</span></td>
+                  <td>${escapeHTML(c.driver2.driver)} <span class="points-badge" style="font-size:0.75rem;">${escapeHTML(c.driver2.points)}</span></td>
+                  <td><span class="points-badge">${escapeHTML(c.total)}</span></td>
                 </tr>`;
               }).join('')}
             </tbody>
@@ -2889,12 +2939,12 @@ const upcomingF1 = calendar
                 const isNext = !isPast && upcomingF1[0] && r.Round === upcomingF1[0].Round;
                 return `
                   <tr class="${isPast ? 'race-past' : ''} ${isNext ? 'race-next' : ''}">
-                    <td style="font-family:'Orbitron',sans-serif;font-weight:700;">${r.Round}</td>
-                    <td style="font-weight:700;">${r.RaceName}${isNext ? ' <span style="color:var(--accent);font-size:0.75rem;">▶ NEXT</span>' : ''}</td>
-                    <td style="color:var(--text-secondary);">${r.Circuit}</td>
-                    <td>${r.Country}</td>
-                    <td>${r.RaceDate}</td>
-                    <td>${r.RaceTime || '—'}</td>
+                    <td style="font-family:'Orbitron',sans-serif;font-weight:700;">${escapeHTML(r.Round)}</td>
+                    <td style="font-weight:700;">${escapeHTML(r.RaceName)}${isNext ? ' <span style="color:var(--accent);font-size:0.75rem;">▶ NEXT</span>' : ''}</td>
+                    <td style="color:var(--text-secondary);">${escapeHTML(r.Circuit)}</td>
+                    <td>${escapeHTML(r.Country)}</td>
+                    <td>${escapeHTML(r.RaceDate)}</td>
+                    <td>${escapeHTML(r.RaceTime || '—')}</td>
                   </tr>`;
               }).join('')}
             </tbody>
@@ -3070,10 +3120,10 @@ return `
           `${nextRugbyFixture.HomeTeam} vs ${nextRugbyFixture.AwayTeam}`;
         document.getElementById('rugbyNextFixtureDetails').textContent =
           `📍 ${nextRugbyFixture.Venue} | 📅 ${nextRugbyFixture.Date} | ${nextRugbyFixture.Competition}`;
-        // Default kick-off 15:00 SAST — add a KickoffTime column to rugby_fixtures.csv to override
-        const kickoffTime = nextRugbyFixture.KickoffTime || '15:00';
+        // Default kick-off 15:00 SAST; supports both historical spellings.
+        const kickoffTime = nextRugbyFixture.KickOffTime || nextRugbyFixture.KickoffTime || '15:00';
 startCountdown(
-  nextRugbyFixture.Date + 'T' + (nextRugbyFixture.KickoffTime || '15:00') + ':00',
+  nextRugbyFixture.Date + 'T' + kickoffTime + ':00',
   'rugby-cd-days', 'rugby-cd-hrs', 'rugby-cd-min', 'rugby-cd-sec'
 );
       } else {
@@ -3106,13 +3156,13 @@ startCountdown(
               ${results.map(r => `
                 <tr>
                   <!-- DATE column -->
-                  <td style="color:var(--text-secondary);white-space:nowrap;">${r.Date}</td>
+                  <td style="color:var(--text-secondary);white-space:nowrap;">${escapeHTML(r.Date)}</td>
 
                   <!-- HOME TEAM: flag image + team name side by side -->
                   <td>
                     <div class="rugby-team-cell">
                       ${rugbyFlag(r.HomeTeam)}
-                      <span style="font-weight:700;">${r.HomeTeam}</span>
+                      <span style="font-weight:700;">${escapeHTML(r.HomeTeam)}</span>
                     </div>
                   </td>
 
@@ -3123,7 +3173,7 @@ startCountdown(
 
                   <!-- SCORE: displayed in Orbitron font, centred -->
                   <td style="font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:700;text-align:center;white-space:nowrap;">
-                    ${r.HomeScore} – ${r.AwayScore}
+                    ${escapeHTML(r.HomeScore)} – ${escapeHTML(r.AwayScore)}
                   </td>
 
                   <!-- AWAY RESULT ICON: WIN / LOSS / DRAW from away team's view -->
@@ -3135,12 +3185,12 @@ startCountdown(
                   <td>
                     <div class="rugby-team-cell">
                       ${rugbyFlag(r.AwayTeam)}
-                      <span style="font-weight:700;">${r.AwayTeam}</span>
+                      <span style="font-weight:700;">${escapeHTML(r.AwayTeam)}</span>
                     </div>
                   </td>
 
                   <!-- COMPETITION -->
-                  <td style="color:var(--text-secondary);font-size:0.85rem;">${r.Competition}</td>
+                  <td style="color:var(--text-secondary);font-size:0.85rem;">${escapeHTML(r.Competition)}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -3169,13 +3219,13 @@ startCountdown(
               ${fixtures.map(f => `
                 <tr>
                   <!-- DATE in red accent colour to highlight upcoming match -->
-                  <td style="color:var(--accent);font-weight:700;white-space:nowrap;">${f.Date}</td>
+                  <td style="color:var(--accent);font-weight:700;white-space:nowrap;">${escapeHTML(f.Date)}</td>
 
                   <!-- HOME TEAM: flag + name -->
                   <td>
                     <div class="rugby-team-cell">
                       ${rugbyFlag(f.HomeTeam)}
-                      <span style="font-weight:700;">${f.HomeTeam}</span>
+                      <span style="font-weight:700;">${escapeHTML(f.HomeTeam)}</span>
                     </div>
                   </td>
 
@@ -3186,12 +3236,12 @@ startCountdown(
                   <td>
                     <div class="rugby-team-cell">
                       ${rugbyFlag(f.AwayTeam)}
-                      <span style="font-weight:700;">${f.AwayTeam}</span>
+                      <span style="font-weight:700;">${escapeHTML(f.AwayTeam)}</span>
                     </div>
                   </td>
 
-                  <td style="color:var(--text-secondary);font-size:0.85rem;">${f.Venue}</td>
-                  <td style="color:var(--text-secondary);font-size:0.85rem;">${f.Competition}</td>
+                  <td style="color:var(--text-secondary);font-size:0.85rem;">${escapeHTML(f.Venue)}</td>
+                  <td style="color:var(--text-secondary);font-size:0.85rem;">${escapeHTML(f.Competition)}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -3218,23 +3268,23 @@ startCountdown(
               ${rankings.map(r => {
                 const changeNum = parseFloat(r.Change);
                 const changeHTML = changeNum > 0
-                  ? `<span style="color:#00ff88;">▲ ${r.Change}</span>`
+                  ? `<span style="color:#00ff88;">▲ ${escapeHTML(r.Change)}</span>`
                   : changeNum < 0
-                  ? `<span style="color:var(--accent);">▼ ${Math.abs(r.Change)}</span>`
-                  : `<span style="color:var(--text-secondary);">— ${r.Change}</span>`;
+                  ? `<span style="color:var(--accent);">▼ ${escapeHTML(Math.abs(r.Change))}</span>`
+                  : `<span style="color:var(--text-secondary);">— ${escapeHTML(r.Change)}</span>`;
                 return `
                   <tr>
-                    <td><span class="${posClass(r.Position)}">${r.Position}</span></td>
+                    <td><span class="${posClass(r.Position)}">${escapeHTML(r.Position)}</span></td>
 
                     <!-- TEAM: flag + name side by side -->
                     <td>
                       <div class="rugby-team-cell">
                         ${rugbyFlag(r.Team)}
-                        <span style="font-weight:700;">${r.Team}</span>
+                        <span style="font-weight:700;">${escapeHTML(r.Team)}</span>
                       </div>
                     </td>
 
-                    <td><span class="points-badge">${r.Points}</span></td>
+                    <td><span class="points-badge">${escapeHTML(r.Points)}</span></td>
                     <td>${changeHTML}</td>
                   </tr>`;
               }).join('')}
@@ -3287,7 +3337,7 @@ startCountdown(
           // e.g. "Federer retires - BBC Sport" becomes "Federer retires"
           const title   = (article.title || 'No title').replace(/ - [^-]+$/, '');
 
-          const link    = article.url || '#';
+          const link    = safeUrl(article.url || '#');
 
           // Format the publish date in South African locale (e.g. "Fri, 25 Apr 2026")
           const dateStr = article.publishedAt
@@ -3299,9 +3349,9 @@ startCountdown(
           return `
             <div class="news-card">
               <div class="news-card-body">
-                <div class="news-source">${source}</div>
-                <div class="news-headline">${title}</div>
-                ${dateStr ? `<div class="news-date">${dateStr}</div>` : ''}
+                <div class="news-source">${escapeHTML(source)}</div>
+                <div class="news-headline">${escapeHTML(title)}</div>
+                ${dateStr ? `<div class="news-date">${escapeHTML(dateStr)}</div>` : ''}
                 <a class="news-link" href="${link}" target="_blank" rel="noopener">
                   Read more →
                 </a>
@@ -3355,10 +3405,10 @@ startCountdown(
         ? '<p style="color:var(--text-secondary);text-align:center;padding:20px;">Update general_schedule.csv</p>'
         : upcoming.map(evt => `
           <div class="schedule-card">
-            <div class="venue-name">${evt.Event}</div>
-            <div class="venue-date">📅 ${evt.Date}</div>
-            <div class="venue-event">${evt.Sport}${evt.Venue ? ' | 📍 ' + evt.Venue : ''}</div>
-            ${evt.Notes ? `<div style="color:var(--text-secondary);font-size:0.8rem;margin-top:6px;">${evt.Notes}</div>` : ''}
+            <div class="venue-name">${escapeHTML(evt.Event)}</div>
+            <div class="venue-date">📅 ${escapeHTML(evt.Date)}</div>
+            <div class="venue-event">${escapeHTML(evt.Sport)}${evt.Venue ? ' | 📍 ' + escapeHTML(evt.Venue) : ''}</div>
+            ${evt.Notes ? `<div style="color:var(--text-secondary);font-size:0.8rem;margin-top:6px;">${escapeHTML(evt.Notes)}</div>` : ''}
           </div>
         `).join('');
     }
@@ -3394,12 +3444,12 @@ startCountdown(
       // F1: Next race
       const f1Cal = await fetchCSV('data/f1_calendar.csv');
       const nextF1 = f1Cal
-        .filter(r => new Date(r.Date) >= today)
-        .sort((a, b) => new Date(a.Date) - new Date(b.Date))[0];
+        .filter(r => new Date(`${r.RaceDate}T${r.RaceTime || '23:59'}:00+02:00`) >= today)
+        .sort((a, b) => new Date(`${a.RaceDate}T${a.RaceTime || '23:59'}:00+02:00`) - new Date(`${b.RaceDate}T${b.RaceTime || '23:59'}:00+02:00`))[0];
       if (nextF1) {
         tickerItems.push({
           label: '🏁 FORMULA 1',
-          text: `Rd ${nextF1.Round}: ${nextF1.RaceName} — ${nextF1.Date} ${nextF1.RaceTime || ''} SAST`
+          text: `Rd ${nextF1.Round}: ${nextF1.RaceName} — ${nextF1.RaceDate} ${nextF1.RaceTime || ''} SAST`
         });
       }
 

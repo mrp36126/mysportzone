@@ -1,10 +1,17 @@
-const NEWS_API_KEY = '00f830d4d3ab417f86dc71daea685c34';
+const NEWS_API_KEY = process.env.NEWS_API_KEY;
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate');
   res.setHeader('Content-Type', 'application/json');
   if (req.method === 'OPTIONS') return res.status(200).end();
+
+  if (!NEWS_API_KEY) {
+    return res.status(500).json({
+      error: true,
+      message: 'News service is not configured'
+    });
+  }
 
   // Simple focused queries — one per topic group, merged server-side
   // This avoids long OR chains that confuse the free-plan API
@@ -45,6 +52,7 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ status: 'ok', totalResults: articles.length, articles });
 
   } catch (err) {
-    return res.status(500).json({ error: true, message: err.message });
+    console.error('News feed error:', err);
+    return res.status(500).json({ error: true, message: 'News service unavailable' });
   }
 };
