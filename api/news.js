@@ -1,4 +1,4 @@
-const NEWS_API_KEY = process.env.NEWS_API_KEY;
+const NEWS_API_KEY = process.env.NEWS_API_KEY || process.env.NEWSAPI_KEY || process.env.NEWS_API_TOKEN;
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -7,9 +7,9 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   if (!NEWS_API_KEY) {
-    return res.status(500).json({
+    return res.status(503).json({
       error: true,
-      message: 'News service is not configured'
+      message: 'News service is not configured. Set NEWS_API_KEY in Vercel environment variables.'
     });
   }
 

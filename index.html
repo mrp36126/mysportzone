@@ -3319,10 +3319,18 @@ startCountdown(
         // Fetch from our own serverless function — same domain, no CORS issues
         const res = await fetch('/api/news');
 
-        if (!res.ok) throw new Error(`Server responded with status ${res.status}`);
+        let data;
+        try {
+          data = await res.json();
+        } catch {
+          data = null;
+        }
 
-        // Parse the JSON — same structure as NewsAPI: { status, articles: [...] }
-        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data?.message || `Server responded with status ${res.status}`);
+        }
+
+        // Same structure as NewsAPI: { status, articles: [...] }
 
         if (data.error || data.status !== 'ok' || !data.articles || data.articles.length === 0) {
           throw new Error(data.message || 'No articles returned');
@@ -3364,7 +3372,7 @@ startCountdown(
         document.getElementById('newsGrid').innerHTML =
           `<div style="grid-column:1/-1;text-align:center;padding:30px;">
             <p style="color:var(--text-secondary);margin-bottom:8px;">⚠ Sports news unavailable right now.</p>
-            <p style="color:var(--border);font-size:0.8rem;">Check that api/news.js is deployed on Vercel.</p>
+            <p style="color:var(--border);font-size:0.8rem;">${escapeHTML(e.message)}</p>
           </div>`;
       }
 
