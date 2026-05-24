@@ -67,7 +67,7 @@ const RESULT_HEADERS = [
 ];
 
 const DRIVER_HEADERS = ['Position', 'Driver', 'Team', 'CarNumber', 'Points'];
-const CONSTRUCTOR_HEADERS = ['Position', 'Constructor', 'Driver1', 'Driver2', 'Points'];
+const CONSTRUCTOR_HEADERS = ['Position', 'Constructor', 'Driver1', 'Driver1Points', 'Driver2', 'Driver2Points', 'Points'];
 
 const DRIVER_NAME_ALIASES = {
   'Andrea Kimi Antonelli': 'Kimi Antonelli',
@@ -312,7 +312,9 @@ function mapConstructorStandings(payload, driverRows) {
       Position: item.positionText || item.position || '',
       Constructor: constructorName,
       Driver1: drivers[0]?.Driver || '',
+      Driver1Points: drivers[0]?.Points || '0',
       Driver2: drivers[1]?.Driver || '',
+      Driver2Points: drivers[1]?.Points || '0',
       Points: item.points || '0'
     };
   });

@@ -2959,12 +2959,17 @@ const upcomingF1 = calendar
         }).sort((a, b) => b.total - a.total);
       }
 
+      function driverPointsForName(driverName) {
+        const row = drivers.find(d => d.Driver === driverName);
+        return row ? row.Points : '';
+      }
+
       const constructorRows = await fetchCSV('data/f1_constructors.csv');
       const constructors = constructorRows.length > 0
         ? constructorRows.map(row => ({
             team: row.Constructor,
-            driver1: { driver: row.Driver1 || '—', points: '' },
-            driver2: { driver: row.Driver2 || '—', points: '' },
+            driver1: { driver: row.Driver1 || '—', points: row.Driver1Points || driverPointsForName(row.Driver1) },
+            driver2: { driver: row.Driver2 || '—', points: row.Driver2Points || driverPointsForName(row.Driver2) },
             total: parseFloat(row.Points) || 0,
             position: row.Position
           }))
