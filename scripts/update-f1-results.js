@@ -8,6 +8,8 @@
  *   https://api.jolpi.ca/ergast/f1/current/last/results.json
  * - Latest sprint result:
  *   https://api.jolpi.ca/ergast/f1/current/last/sprint.json
+ *   Sprint weekends are first checked by round from data/f1_calendar.csv,
+ *   for example https://api.jolpi.ca/ergast/f1/current/5/sprint.json
  * - Current driver standings:
  *   https://api.jolpi.ca/ergast/f1/current/driverStandings.json
  * - Current constructor standings:
@@ -33,6 +35,7 @@ const ROOT_DIR = path.resolve(__dirname, '..');
 const DATA_DIR = path.join(ROOT_DIR, 'data');
 
 const FILES = {
+  calendar: path.join(DATA_DIR, 'f1_calendar.csv'),
   results: path.join(DATA_DIR, 'f1_results.csv'),
   sprintResults: path.join(DATA_DIR, 'f1_sprint_results.csv'),
   drivers: path.join(DATA_DIR, 'f1_drivers.csv'),
@@ -88,9 +91,19 @@ async function main() {
   await assertDataDir();
 
   console.log('Fetching latest F1 data from Jolpica...');
+  const calendarRows = await readCsvIfExists(FILES.calendar, []);
+  const sprintRound = findLatestSprintRound(calendarRows);
+  const sprintUrl = sprintRound
+    ? `https://api.jolpi.ca/ergast/f1/current/${encodeURIComponent(sprintRound)}/sprint.json`
+    : ENDPOINTS.latestSprintResults;
+
+  if (sprintRound) {
+    console.log(`Checking sprint results for calendar round ${sprintRound}...`);
+  }
+
   const [latestResultsData, latestSprintData, driverStandingsData, constructorStandingsData] = await Promise.all([
     fetchJson(ENDPOINTS.latestResults),
-    fetchOptionalJson(ENDPOINTS.latestSprintResults),
+    fetchOptionalJson(sprintUrl),
     fetchJson(ENDPOINTS.driverStandings),
     fetchJson(ENDPOINTS.constructorStandings)
   ]);
@@ -127,6 +140,39 @@ async function main() {
   }
 
   console.log(changed ? 'F1 CSV update complete. Changes were written.' : 'F1 CSV update complete. No CSV changes needed.');
+}
+
+function findLatestSprintRound(calendarRows) {
+  const now = getUpdateNow();
+
+  const sprintRounds = calendarRows
+    .filter(row => row.Round && row.SprintDate && row.SprintTime)
+    .map(row => ({
+      round: row.Round,
+      dt: parseSastDateTime(row.SprintDate, row.SprintTime)
+    }))
+    .filter(row => row.dt && row.dt <= now)
+    .sort((a, b) => b.dt - a.dt);
+
+  return sprintRounds[0]?.round || '';
+}
+
+function parseSastDateTime(date, time) {
+  const dt = new Date(`${date}T${time}:00+02:00`);
+  return Number.isNaN(dt.getTime()) ? null : dt;
+}
+
+function getUpdateNow() {
+  const override = process.env.F1_UPDATE_NOW;
+  if (!override) return new Date();
+
+  const dt = new Date(override);
+  if (Number.isNaN(dt.getTime())) {
+    console.log(`Ignoring invalid F1_UPDATE_NOW value: ${override}`);
+    return new Date();
+  }
+
+  return dt;
 }
 
 async function assertDataDir() {
