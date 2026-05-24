@@ -1,0 +1,33 @@
+name: Update F1 Results
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Runs every Monday after most F1 race weekends have completed.
+    # Manual workflow_dispatch is available for unusual race schedules.
+    - cron: "30 6 * * 1"
+
+permissions:
+  contents: write
+
+jobs:
+  update-f1-results:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run F1 updater
+        run: npm run update:f1
+
+      - name: Commit updated CSV files
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Update F1 results and standings"
+          file_pattern: "data/f1_results.csv data/f1_drivers.csv data/f1_constructors.csv"

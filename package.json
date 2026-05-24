@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "update:f1": "node scripts/update-f1-results.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

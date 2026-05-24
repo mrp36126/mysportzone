@@ -1,0 +1,375 @@
+#!/usr/bin/env node
+
+/*
+ * Automatic F1 CSV updater for MYSPORTZONE.
+ *
+ * API source:
+ * - Latest race result:
+ *   https://api.jolpi.ca/ergast/f1/current/last/results.json
+ * - Current driver standings:
+ *   https://api.jolpi.ca/ergast/f1/current/driverStandings.json
+ * - Current constructor standings:
+ *   https://api.jolpi.ca/ergast/f1/current/constructorStandings.json
+ *
+ * CSV files updated:
+ * - data/f1_results.csv
+ * - data/f1_drivers.csv
+ * - data/f1_constructors.csv
+ *
+ * Run locally with:
+ *   npm run update:f1
+ *
+ * GitHub Actions runs this script on a schedule and commits changed CSV files.
+ * Vercel then redeploys from the GitHub commit. The frontend only reads CSVs.
+ */
+
+const fs = require('fs/promises');
+const path = require('path');
+
+const ROOT_DIR = path.resolve(__dirname, '..');
+const DATA_DIR = path.join(ROOT_DIR, 'data');
+
+const FILES = {
+  results: path.join(DATA_DIR, 'f1_results.csv'),
+  drivers: path.join(DATA_DIR, 'f1_drivers.csv'),
+  constructors: path.join(DATA_DIR, 'f1_constructors.csv')
+};
+
+const ENDPOINTS = {
+  latestResults: 'https://api.jolpi.ca/ergast/f1/current/last/results.json',
+  driverStandings: 'https://api.jolpi.ca/ergast/f1/current/driverStandings.json',
+  constructorStandings: 'https://api.jolpi.ca/ergast/f1/current/constructorStandings.json'
+};
+
+const RESULT_HEADERS = [
+  'Season',
+  'Round',
+  'RaceName',
+  'Circuit',
+  'Country',
+  'Date',
+  'Position',
+  'Driver',
+  'Team',
+  'Grid',
+  'Laps',
+  'Time',
+  'Status',
+  'Points'
+];
+
+const DRIVER_HEADERS = ['Position', 'Driver', 'Team', 'CarNumber', 'Points'];
+const CONSTRUCTOR_HEADERS = ['Position', 'Constructor', 'Driver1', 'Driver2', 'Points'];
+
+const DRIVER_NAME_ALIASES = {
+  'Andrea Kimi Antonelli': 'Kimi Antonelli',
+  'Nico Hülkenberg': 'Nico Hulkenberg',
+  'Sergio Pérez': 'Sergio Perez'
+};
+
+const TEAM_NAME_ALIASES = {
+  'Alpine F1 Team': 'Alpine',
+  'Cadillac F1 Team': 'Cadillac',
+  'RB F1 Team': 'Racing Bulls',
+  'Red Bull': 'Red Bull Racing'
+};
+
+main().catch(error => {
+  console.error(`F1 update failed: ${error.message}`);
+  process.exitCode = 1;
+});
+
+async function main() {
+  await assertDataDir();
+
+  console.log('Fetching latest F1 data from Jolpica...');
+  const [latestResultsData, driverStandingsData, constructorStandingsData] = await Promise.all([
+    fetchJson(ENDPOINTS.latestResults),
+    fetchJson(ENDPOINTS.driverStandings),
+    fetchJson(ENDPOINTS.constructorStandings)
+  ]);
+
+  const latestRaceRows = mapLatestRaceResults(latestResultsData);
+  const driverRows = mapDriverStandings(driverStandingsData);
+  const constructorRows = mapConstructorStandings(constructorStandingsData, driverRows);
+
+  let changed = false;
+
+  if (latestRaceRows.length > 0) {
+    changed = (await upsertLatestRaceResults(latestRaceRows)) || changed;
+  } else {
+    console.log('No latest race result available yet. Existing f1_results.csv was left unchanged.');
+  }
+
+  if (driverRows.length > 0) {
+    changed = (await writeCsvIfChanged(FILES.drivers, DRIVER_HEADERS, driverRows)) || changed;
+  } else {
+    console.log('No driver standings available. Existing f1_drivers.csv was left unchanged.');
+  }
+
+  if (constructorRows.length > 0) {
+    changed = (await writeCsvIfChanged(FILES.constructors, CONSTRUCTOR_HEADERS, constructorRows)) || changed;
+  } else {
+    console.log('No constructor standings available. Existing f1_constructors.csv was left unchanged.');
+  }
+
+  console.log(changed ? 'F1 CSV update complete. Changes were written.' : 'F1 CSV update complete. No CSV changes needed.');
+}
+
+async function assertDataDir() {
+  try {
+    const stat = await fs.stat(DATA_DIR);
+    if (!stat.isDirectory()) throw new Error();
+  } catch {
+    throw new Error(`Missing data directory: ${DATA_DIR}`);
+  }
+}
+
+async function fetchJson(url) {
+  let response;
+  try {
+    response = await fetch(url, {
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': 'mysportzone-f1-updater/1.0'
+      }
+    });
+  } catch (error) {
+    throw new Error(`Network error while fetching ${url}: ${error.message}`);
+  }
+
+  if (!response.ok) {
+    throw new Error(`Jolpica returned HTTP ${response.status} for ${url}`);
+  }
+
+  try {
+    return await response.json();
+  } catch (error) {
+    throw new Error(`Invalid JSON from ${url}: ${error.message}`);
+  }
+}
+
+function mapLatestRaceResults(payload) {
+  const races = payload?.MRData?.RaceTable?.Races;
+  if (!Array.isArray(races) || races.length === 0) return [];
+
+  const race = races[0];
+  const results = Array.isArray(race.Results) ? race.Results : [];
+  if (!results.length) return [];
+
+  return results.map(result => {
+    const driver = result.Driver || {};
+    const constructor = result.Constructor || {};
+    const circuit = race.Circuit || {};
+    const location = circuit.Location || {};
+
+    return {
+      Season: race.season || '',
+      Round: race.round || '',
+      RaceName: race.raceName || '',
+      Circuit: circuit.circuitName || '',
+      Country: location.country || '',
+      Date: race.date || '',
+      Position: result.positionText || result.position || '',
+      Driver: formatDriverName(driver),
+      Team: normalizeTeamName(constructor.name || ''),
+      Grid: result.grid || '',
+      Laps: result.laps || '',
+      Time: result.Time?.time || '',
+      Status: result.status || '',
+      Points: result.points || '0'
+    };
+  });
+}
+
+function mapDriverStandings(payload) {
+  const standingsLists = payload?.MRData?.StandingsTable?.StandingsLists;
+  const driverStandings = standingsLists?.[0]?.DriverStandings;
+  if (!Array.isArray(driverStandings) || driverStandings.length === 0) return [];
+
+  return driverStandings.map(item => ({
+    Position: item.positionText || item.position || '',
+    Driver: formatDriverName(item.Driver || {}),
+    Team: normalizeTeamName(item.Constructors?.[0]?.name || ''),
+    CarNumber: item.Driver?.permanentNumber || '',
+    Points: item.points || '0'
+  }));
+}
+
+function mapConstructorStandings(payload, driverRows) {
+  const standingsLists = payload?.MRData?.StandingsTable?.StandingsLists;
+  const constructorStandings = standingsLists?.[0]?.ConstructorStandings;
+  if (!Array.isArray(constructorStandings) || constructorStandings.length === 0) return [];
+
+  const driversByTeam = groupDriversByTeam(driverRows);
+
+  return constructorStandings.map(item => {
+    const constructorName = normalizeTeamName(item.Constructor?.name || '');
+    const drivers = driversByTeam.get(constructorName) || [];
+
+    return {
+      Position: item.positionText || item.position || '',
+      Constructor: constructorName,
+      Driver1: drivers[0]?.Driver || '',
+      Driver2: drivers[1]?.Driver || '',
+      Points: item.points || '0'
+    };
+  });
+}
+
+function groupDriversByTeam(driverRows) {
+  const grouped = new Map();
+
+  for (const row of driverRows) {
+    if (!row.Team) continue;
+    const current = grouped.get(row.Team) || [];
+    current.push(row);
+    grouped.set(row.Team, current);
+  }
+
+  for (const drivers of grouped.values()) {
+    drivers.sort((a, b) => Number(b.Points || 0) - Number(a.Points || 0));
+  }
+
+  return grouped;
+}
+
+async function upsertLatestRaceResults(latestRaceRows) {
+  const latestSeason = latestRaceRows[0]?.Season;
+  const latestRound = latestRaceRows[0]?.Round;
+
+  if (!latestSeason || !latestRound) {
+    console.log('Latest race result is missing season or round. Existing f1_results.csv was left unchanged.');
+    return false;
+  }
+
+  const existingRows = await readCsvIfExists(FILES.results, RESULT_HEADERS);
+  const retainedRows = existingRows.filter(row => row.Season !== latestSeason || row.Round !== latestRound);
+  const nextRows = [...retainedRows, ...latestRaceRows].sort(compareResultRows);
+
+  return writeCsvIfChanged(FILES.results, RESULT_HEADERS, nextRows);
+}
+
+async function readCsvIfExists(filePath, headers) {
+  try {
+    const content = await fs.readFile(filePath, 'utf8');
+    return parseCsv(content, headers);
+  } catch (error) {
+    if (error.code === 'ENOENT') return [];
+    throw new Error(`Could not read ${filePath}: ${error.message}`);
+  }
+}
+
+async function writeCsvIfChanged(filePath, headers, rows) {
+  if (!Array.isArray(rows) || rows.length === 0) {
+    console.log(`Skipped ${path.relative(ROOT_DIR, filePath)} because no rows were produced.`);
+    return false;
+  }
+
+  const nextContent = toCsv(headers, rows);
+  let currentContent = '';
+
+  try {
+    currentContent = await fs.readFile(filePath, 'utf8');
+  } catch (error) {
+    if (error.code !== 'ENOENT') {
+      throw new Error(`Could not read ${filePath}: ${error.message}`);
+    }
+  }
+
+  if (normalizeNewlines(currentContent) === normalizeNewlines(nextContent)) {
+    console.log(`No change: ${path.relative(ROOT_DIR, filePath)}`);
+    return false;
+  }
+
+  try {
+    await fs.writeFile(filePath, nextContent, 'utf8');
+  } catch (error) {
+    throw new Error(`Could not write ${filePath}: ${error.message}`);
+  }
+
+  console.log(`Updated: ${path.relative(ROOT_DIR, filePath)}`);
+  return true;
+}
+
+function parseCsv(content, fallbackHeaders) {
+  const rows = [];
+  let row = [];
+  let value = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < content.length; i++) {
+    const ch = content[i];
+    const next = content[i + 1];
+
+    if (ch === '"') {
+      if (inQuotes && next === '"') {
+        value += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (ch === ',' && !inQuotes) {
+      row.push(value);
+      value = '';
+    } else if ((ch === '\n' || ch === '\r') && !inQuotes) {
+      if (ch === '\r' && next === '\n') i++;
+      row.push(value);
+      value = '';
+      if (row.some(cell => cell.trim() !== '')) rows.push(row);
+      row = [];
+    } else {
+      value += ch;
+    }
+  }
+
+  row.push(value);
+  if (row.some(cell => cell.trim() !== '')) rows.push(row);
+  if (rows.length === 0) return [];
+
+  const headers = rows[0].length ? rows[0] : fallbackHeaders;
+  return rows.slice(1).map(values => {
+    const obj = {};
+    headers.forEach((header, index) => {
+      obj[header] = values[index] || '';
+    });
+    return obj;
+  });
+}
+
+function toCsv(headers, rows) {
+  const lines = [
+    headers.join(','),
+    ...rows.map(row => headers.map(header => escapeCsv(row[header] ?? '')).join(','))
+  ];
+
+  return `${lines.join('\n')}\n`;
+}
+
+function escapeCsv(value) {
+  const text = String(value);
+  return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
+
+function formatDriverName(driver) {
+  const name = [driver.givenName, driver.familyName].filter(Boolean).join(' ').trim() || driver.driverId || '';
+  return DRIVER_NAME_ALIASES[name] || name;
+}
+
+function normalizeTeamName(name) {
+  return TEAM_NAME_ALIASES[name] || name;
+}
+
+function compareResultRows(a, b) {
+  const seasonDiff = Number(a.Season || 0) - Number(b.Season || 0);
+  if (seasonDiff !== 0) return seasonDiff;
+
+  const roundDiff = Number(a.Round || 0) - Number(b.Round || 0);
+  if (roundDiff !== 0) return roundDiff;
+
+  return Number(a.Position || 999) - Number(b.Position || 999);
+}
+
+function normalizeNewlines(value) {
+  return value.replace(/\r\n/g, '\n');
+}

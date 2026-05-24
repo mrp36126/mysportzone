@@ -1828,6 +1828,9 @@
           <!-- SAMPLE IMAGE — replace the entire <svg> block below with your <img> tag -->
          <img src="images/race-result-round5S.png" alt="Race Result Round 4" />
         </div>
+        <div id="f1RaceResultsContainer" style="margin-top:16px;">
+          <div class="loading"><div class="spinner"></div>Loading latest result...</div>
+        </div>
       </div>
 
       <!-- F1 Drivers Championship -->
@@ -1850,11 +1853,8 @@
           <i class="fas fa-industry"></i> CONSTRUCTORS CHAMPIONSHIP
         </div>
         <!-- 
-          This is AUTOMATICALLY CALCULATED from the Drivers CSV.
-          JavaScript groups drivers by team, sums their points,
-          identifies which driver has more points (Driver 1 vs Driver 2),
-          and ranks the constructors.
-          NO manual CSV update is needed for this table.
+          Populated from data/f1_constructors.csv when available.
+          If that file is empty, JavaScript falls back to calculating from drivers.
         -->
         <div id="f1ConstructorsContainer">
           <div class="loading"><div class="spinner"></div>Calculating...</div>
@@ -2772,6 +2772,52 @@ const upcomingF1 = calendar
           '<p style="color:var(--text-secondary);font-size:0.85rem;margin-top:8px;">No upcoming sessions</p>';
       }
 
+      // --- LATEST RACE RESULT ---
+      // Populated by scripts/update-f1-results.js from Jolpica's latest result endpoint.
+      const raceResults = await fetchCSV('data/f1_results.csv');
+      const latestRaceKey = raceResults.reduce((latest, row) => {
+        const season = Number(row.Season || 0);
+        const round = Number(row.Round || 0);
+        if (!latest || season > latest.season || (season === latest.season && round > latest.round)) {
+          return { season, round };
+        }
+        return latest;
+      }, null);
+
+      const latestRaceRows = latestRaceKey
+        ? raceResults
+            .filter(row => Number(row.Season || 0) === latestRaceKey.season && Number(row.Round || 0) === latestRaceKey.round)
+            .sort((a, b) => Number(a.Position || 999) - Number(b.Position || 999))
+        : [];
+
+      const raceResultsHTML = latestRaceRows.length === 0
+        ? '<p style="color:var(--text-secondary);text-align:center;padding:20px;">Latest F1 result will appear after the updater runs.</p>'
+        : `<table class="data-table">
+            <thead><tr>
+              <th>POS</th><th>DRIVER</th><th>TEAM</th><th>TIME / STATUS</th><th>POINTS</th>
+            </tr></thead>
+            <tbody>
+              <tr>
+                <td colspan="5" style="color:var(--text-secondary);font-size:0.85rem;">
+                  ${escapeHTML(latestRaceRows[0].Season)} Round ${escapeHTML(latestRaceRows[0].Round)}:
+                  ${escapeHTML(latestRaceRows[0].RaceName)}
+                  ${latestRaceRows[0].Date ? `— ${escapeHTML(latestRaceRows[0].Date)}` : ''}
+                </td>
+              </tr>
+              ${latestRaceRows.map(row => `
+                <tr>
+                  <td><span class="${posClass(row.Position)}">${escapeHTML(row.Position)}</span></td>
+                  <td style="font-weight:700;">${escapeHTML(row.Driver)}</td>
+                  <td style="color:var(--text-secondary);">${escapeHTML(row.Team)}</td>
+                  <td>${escapeHTML(row.Time || row.Status || '')}</td>
+                  <td><span class="points-badge">${escapeHTML(row.Points)}</span></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>`;
+
+      document.getElementById('f1RaceResultsContainer').innerHTML = raceResultsHTML;
+
       // --- DRIVERS CHAMPIONSHIP ---
       // CSV columns: Position, Driver, Team, CarNumber, Points
       //
@@ -2872,18 +2918,31 @@ const upcomingF1 = calendar
         'Haas':             { color:'#b6babd', init:'HAA' },
       };
 
-      const teams = {};
-      drivers.forEach(d => {
-        if (!teams[d.Team]) teams[d.Team] = [];
-        teams[d.Team].push({ driver: d.Driver, points: parseInt(d.Points) || 0 });
-      });
+      function buildConstructorsFromDrivers(driverRows) {
+        const teams = {};
+        driverRows.forEach(d => {
+          if (!teams[d.Team]) teams[d.Team] = [];
+          teams[d.Team].push({ driver: d.Driver, points: parseInt(d.Points) || 0 });
+        });
 
-      const constructors = Object.entries(teams).map(([teamName, driverList]) => {
-        driverList.sort((a, b) => b.points - a.points);
-        const total = driverList.reduce((sum, d) => sum + d.points, 0);
-        return { team: teamName, driver1: driverList[0] || { driver:'—', points:0 },
-                 driver2: driverList[1] || { driver:'—', points:0 }, total };
-      }).sort((a, b) => b.total - a.total);
+        return Object.entries(teams).map(([teamName, driverList]) => {
+          driverList.sort((a, b) => b.points - a.points);
+          const total = driverList.reduce((sum, d) => sum + d.points, 0);
+          return { team: teamName, driver1: driverList[0] || { driver:'—', points:0 },
+                   driver2: driverList[1] || { driver:'—', points:0 }, total };
+        }).sort((a, b) => b.total - a.total);
+      }
+
+      const constructorRows = await fetchCSV('data/f1_constructors.csv');
+      const constructors = constructorRows.length > 0
+        ? constructorRows.map(row => ({
+            team: row.Constructor,
+            driver1: { driver: row.Driver1 || '—', points: '' },
+            driver2: { driver: row.Driver2 || '—', points: '' },
+            total: parseFloat(row.Points) || 0,
+            position: row.Position
+          }))
+        : buildConstructorsFromDrivers(drivers);
 
       const constructorsHTML = constructors.length === 0
         ? '<p style="color:var(--text-secondary);text-align:center;padding:20px;">No data</p>'
@@ -2898,9 +2957,12 @@ const upcomingF1 = calendar
                 const logoHTML = useTeamLogo
                   ? `<img src="${safeAttr(logoFile)}" alt="${safeAttr(c.team)} logo" />`
                   : sampleTeamSVG(style.color, style.init);
+                const position = c.position || i + 1;
+                const driver1Points = c.driver1.points !== '' ? ` <span class="points-badge" style="font-size:0.75rem;">${escapeHTML(c.driver1.points)}</span>` : '';
+                const driver2Points = c.driver2.points !== '' ? ` <span class="points-badge" style="font-size:0.75rem;">${escapeHTML(c.driver2.points)}</span>` : '';
                 return `
                 <tr>
-                  <td><span class="${posClass(i + 1)}">${i + 1}</span></td>
+                  <td><span class="${posClass(position)}">${escapeHTML(position)}</span></td>
                   <td>
                     <div class="constructor-cell">
                       <!--
@@ -2913,8 +2975,8 @@ const upcomingF1 = calendar
                       <span style="font-weight:700;">${escapeHTML(c.team)}</span>
                     </div>
                   </td>
-                  <td>${escapeHTML(c.driver1.driver)} <span class="points-badge" style="font-size:0.75rem;">${escapeHTML(c.driver1.points)}</span></td>
-                  <td>${escapeHTML(c.driver2.driver)} <span class="points-badge" style="font-size:0.75rem;">${escapeHTML(c.driver2.points)}</span></td>
+                  <td>${escapeHTML(c.driver1.driver)}${driver1Points}</td>
+                  <td>${escapeHTML(c.driver2.driver)}${driver2Points}</td>
                   <td><span class="points-badge">${escapeHTML(c.total)}</span></td>
                 </tr>`;
               }).join('')}
