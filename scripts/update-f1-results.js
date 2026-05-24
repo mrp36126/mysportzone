@@ -66,7 +66,7 @@ const RESULT_HEADERS = [
   'Points'
 ];
 
-const DRIVER_HEADERS = ['Position', 'Driver', 'Team', 'CarNumber', 'Points'];
+const DRIVER_HEADERS = ['Position', 'Change', 'Driver', 'Team', 'CarNumber', 'Points'];
 const CONSTRUCTOR_HEADERS = ['Position', 'Constructor', 'Driver1', 'Driver1Points', 'Driver2', 'Driver2Points', 'Points'];
 
 const DRIVER_NAME_ALIASES = {
@@ -110,7 +110,8 @@ async function main() {
 
   const latestRaceRows = mapLatestRaceResults(latestResultsData);
   const latestSprintRows = mapLatestSprintResults(latestSprintData);
-  const driverRows = mapDriverStandings(driverStandingsData);
+  const previousDriverRows = await readCsvIfExists(FILES.drivers, DRIVER_HEADERS);
+  const driverRows = mapDriverStandings(driverStandingsData, previousDriverRows);
   const constructorRows = mapConstructorStandings(constructorStandingsData, driverRows);
 
   let changed = false;
@@ -283,18 +284,32 @@ function mapLatestSprintResults(payload) {
   });
 }
 
-function mapDriverStandings(payload) {
+function mapDriverStandings(payload, previousRows = []) {
   const standingsLists = payload?.MRData?.StandingsTable?.StandingsLists;
   const driverStandings = standingsLists?.[0]?.DriverStandings;
   if (!Array.isArray(driverStandings) || driverStandings.length === 0) return [];
 
+  const previousPositionByDriver = new Map(
+    previousRows
+      .filter(row => row.Driver && row.Position)
+      .map(row => [row.Driver, Number(row.Position)])
+  );
+
   return driverStandings.map(item => ({
     Position: item.positionText || item.position || '',
+    Change: positionChange(item.position, previousPositionByDriver.get(formatDriverName(item.Driver || {}))),
     Driver: formatDriverName(item.Driver || {}),
     Team: normalizeTeamName(item.Constructors?.[0]?.name || ''),
     CarNumber: item.Driver?.permanentNumber || '',
     Points: item.points || '0'
   }));
+}
+
+function positionChange(currentPosition, previousPosition) {
+  const current = Number(currentPosition);
+  const previous = Number(previousPosition);
+  if (!Number.isFinite(current) || !Number.isFinite(previous)) return '0';
+  return String(previous - current);
 }
 
 function mapConstructorStandings(payload, driverRows) {

@@ -2875,6 +2875,15 @@ const upcomingF1 = calendar
 
       const drivers = await fetchCSV('data/f1_drivers.csv');
 
+      function standingChangeHTML(change) {
+        const changeNum = parseFloat(change);
+        return changeNum > 0
+          ? `<span style="color:#00ff88;">▲ ${escapeHTML(change)}</span>`
+          : changeNum < 0
+          ? `<span style="color:var(--accent);">▼ ${escapeHTML(Math.abs(changeNum))}</span>`
+          : `<span style="color:var(--text-secondary);">— ${escapeHTML(change || '0')}</span>`;
+      }
+
       const driversHTML = drivers.length === 0
         ? '<p style="color:var(--text-secondary);text-align:center;padding:20px;">Update f1_drivers.csv</p>'
         : `<table class="data-table">
@@ -2889,7 +2898,7 @@ const upcomingF1 = calendar
                   : sampleDriverSVG(driverColors[i % driverColors.length]);
                 return `
                 <tr>
-                  <td><span class="${posClass(d.Position)}">${escapeHTML(d.Position)}</span></td>
+                  <td><span class="${posClass(d.Position)}">${escapeHTML(d.Position)}</span> ${standingChangeHTML(d.Change)}</td>
                   <td>
                     <div class="driver-cell">
                       <!--
