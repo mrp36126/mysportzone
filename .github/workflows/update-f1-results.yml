@@ -3,9 +3,9 @@ name: Update F1 Results
 on:
   workflow_dispatch:
   schedule:
-    # Runs every Monday after most F1 race weekends have completed.
+    # Runs through race weekends so sprint results can publish before the Grand Prix.
     # Manual workflow_dispatch is available for unusual race schedules.
-    - cron: "30 6 * * 1"
+    - cron: "30 6,12,18 * * 6,0,1"
 
 permissions:
   contents: write
@@ -30,4 +30,4 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Update F1 results and standings"
-          file_pattern: "data/f1_results.csv data/f1_drivers.csv data/f1_constructors.csv"
+          file_pattern: "data/f1_results.csv data/f1_sprint_results.csv data/f1_drivers.csv data/f1_constructors.csv"

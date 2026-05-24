@@ -7,6 +7,7 @@ This project can update Formula 1 race results and standings automatically from 
 The automation updates these CSV files:
 
 - `data/f1_results.csv` - latest race classification, stored by season and round
+- `data/f1_sprint_results.csv` - latest sprint classification, stored by season and round
 - `data/f1_drivers.csv` - current driver standings
 - `data/f1_constructors.csv` - current constructor standings
 
@@ -17,6 +18,7 @@ The frontend only reads CSV files from `data/`. It does not write to GitHub, exp
 - `scripts/update-f1-results.js`
 - `.github/workflows/update-f1-results.yml`
 - `data/f1_results.csv`
+- `data/f1_sprint_results.csv`
 - `data/f1_constructors.csv`
 - `package.json`
 
@@ -25,10 +27,13 @@ The frontend only reads CSV files from `data/`. It does not write to GitHub, exp
 The updater script fetches:
 
 - latest race results from `https://api.jolpi.ca/ergast/f1/current/last/results.json`
+- latest sprint results from `https://api.jolpi.ca/ergast/f1/current/last/sprint.json`
 - driver standings from `https://api.jolpi.ca/ergast/f1/current/driverStandings.json`
 - constructor standings from `https://api.jolpi.ca/ergast/f1/current/constructorStandings.json`
 
-It converts the API response into CSV, safely escapes CSV values, and writes only valid non-empty data. For race results, it replaces rows for the same season and round instead of duplicating them.
+It converts the API response into CSV, safely escapes CSV values, and writes only valid non-empty data. For race and sprint results, it replaces rows for the same season and round instead of duplicating them.
+
+On sprint weekends, the Formula 1 tab displays the sprint result if it belongs to a newer round than the latest completed Grand Prix. Once the Grand Prix result is available for that same round, the Grand Prix result becomes the displayed result.
 
 When GitHub Actions commits changed CSV files, Vercel should redeploy automatically from the GitHub commit.
 
@@ -40,7 +45,7 @@ Use Node.js 18 or newer.
 npm run update:f1
 ```
 
-If Jolpica has not published the newest race result yet, the script leaves the existing CSV data unchanged.
+If Jolpica has not published the newest race or sprint result yet, the script leaves the existing CSV data unchanged.
 
 ### Run Manually In GitHub Actions
 
@@ -51,7 +56,7 @@ If Jolpica has not published the newest race result yet, the script leaves the e
 
 ### Schedule
 
-The workflow runs every Monday at `06:30 UTC`, which is after most Formula 1 race weekends. Use the manual workflow trigger for unusual race schedules, sprint weekends, delayed classifications, or if Jolpica publishes data later than usual.
+The workflow runs at `06:30`, `12:30`, and `18:30 UTC` on Saturdays, Sundays, and Mondays. This lets sprint results publish during sprint weekends and lets the Grand Prix result replace the sprint result once the race is complete. Use the manual workflow trigger for unusual race schedules, delayed classifications, or if Jolpica publishes data later than usual.
 
 ### Troubleshooting
 

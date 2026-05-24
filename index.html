@@ -2772,25 +2772,50 @@ const upcomingF1 = calendar
           '<p style="color:var(--text-secondary);font-size:0.85rem;margin-top:8px;">No upcoming sessions</p>';
       }
 
-      // --- LATEST RACE RESULT ---
-      // Populated by scripts/update-f1-results.js from Jolpica's latest result endpoint.
+      // --- LATEST RACE / SPRINT RESULT ---
+      // Populated by scripts/update-f1-results.js from Jolpica race and sprint endpoints.
       const raceResults = await fetchCSV('data/f1_results.csv');
-      const latestRaceKey = raceResults.reduce((latest, row) => {
-        const season = Number(row.Season || 0);
-        const round = Number(row.Round || 0);
-        if (!latest || season > latest.season || (season === latest.season && round > latest.round)) {
-          return { season, round };
-        }
-        return latest;
-      }, null);
+      const sprintResults = await fetchCSV('data/f1_sprint_results.csv');
 
-      const latestRaceRows = latestRaceKey
-        ? raceResults
-            .filter(row => Number(row.Season || 0) === latestRaceKey.season && Number(row.Round || 0) === latestRaceKey.round)
+      function latestResultGroup(rows, label) {
+        const latestKey = rows.reduce((latest, row) => {
+          const season = Number(row.Season || 0);
+          const round = Number(row.Round || 0);
+          if (!latest || season > latest.season || (season === latest.season && round > latest.round)) {
+            return { season, round };
+          }
+          return latest;
+        }, null);
+
+        if (!latestKey) return null;
+
+        return {
+          label,
+          season: latestKey.season,
+          round: latestKey.round,
+          rows: rows
+            .filter(row => Number(row.Season || 0) === latestKey.season && Number(row.Round || 0) === latestKey.round)
             .sort((a, b) => Number(a.Position || 999) - Number(b.Position || 999))
-        : [];
+        };
+      }
 
-      const raceResultsHTML = latestRaceRows.length === 0
+      function chooseLatestDisplayResult(raceGroup, sprintGroup) {
+        if (!raceGroup) return sprintGroup;
+        if (!sprintGroup) return raceGroup;
+
+        if (sprintGroup.season > raceGroup.season) return sprintGroup;
+        if (sprintGroup.season === raceGroup.season && sprintGroup.round > raceGroup.round) return sprintGroup;
+        return raceGroup;
+      }
+
+      const resultGroup = chooseLatestDisplayResult(
+        latestResultGroup(raceResults, 'Race Result'),
+        latestResultGroup(sprintResults, 'Sprint Result')
+      );
+
+      const latestRows = resultGroup?.rows || [];
+
+      const raceResultsHTML = latestRows.length === 0
         ? '<p style="color:var(--text-secondary);text-align:center;padding:20px;">Latest F1 result will appear after the updater runs.</p>'
         : `<table class="data-table">
             <thead><tr>
@@ -2799,12 +2824,13 @@ const upcomingF1 = calendar
             <tbody>
               <tr>
                 <td colspan="5" style="color:var(--text-secondary);font-size:0.85rem;">
-                  ${escapeHTML(latestRaceRows[0].Season)} Round ${escapeHTML(latestRaceRows[0].Round)}:
-                  ${escapeHTML(latestRaceRows[0].RaceName)}
-                  ${latestRaceRows[0].Date ? `— ${escapeHTML(latestRaceRows[0].Date)}` : ''}
+                  ${escapeHTML(latestRows[0].Season)} Round ${escapeHTML(latestRows[0].Round)}
+                  ${resultGroup?.label ? `— ${escapeHTML(resultGroup.label)}` : ''}:
+                  ${escapeHTML(latestRows[0].RaceName)}
+                  ${latestRows[0].Date ? `— ${escapeHTML(latestRows[0].Date)}` : ''}
                 </td>
               </tr>
-              ${latestRaceRows.map(row => `
+              ${latestRows.map(row => `
                 <tr>
                   <td><span class="${posClass(row.Position)}">${escapeHTML(row.Position)}</span></td>
                   <td style="font-weight:700;">${escapeHTML(row.Driver)}</td>

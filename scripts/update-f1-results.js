@@ -6,6 +6,8 @@
  * API source:
  * - Latest race result:
  *   https://api.jolpi.ca/ergast/f1/current/last/results.json
+ * - Latest sprint result:
+ *   https://api.jolpi.ca/ergast/f1/current/last/sprint.json
  * - Current driver standings:
  *   https://api.jolpi.ca/ergast/f1/current/driverStandings.json
  * - Current constructor standings:
@@ -13,6 +15,7 @@
  *
  * CSV files updated:
  * - data/f1_results.csv
+ * - data/f1_sprint_results.csv
  * - data/f1_drivers.csv
  * - data/f1_constructors.csv
  *
@@ -31,12 +34,14 @@ const DATA_DIR = path.join(ROOT_DIR, 'data');
 
 const FILES = {
   results: path.join(DATA_DIR, 'f1_results.csv'),
+  sprintResults: path.join(DATA_DIR, 'f1_sprint_results.csv'),
   drivers: path.join(DATA_DIR, 'f1_drivers.csv'),
   constructors: path.join(DATA_DIR, 'f1_constructors.csv')
 };
 
 const ENDPOINTS = {
   latestResults: 'https://api.jolpi.ca/ergast/f1/current/last/results.json',
+  latestSprintResults: 'https://api.jolpi.ca/ergast/f1/current/last/sprint.json',
   driverStandings: 'https://api.jolpi.ca/ergast/f1/current/driverStandings.json',
   constructorStandings: 'https://api.jolpi.ca/ergast/f1/current/constructorStandings.json'
 };
@@ -83,22 +88,30 @@ async function main() {
   await assertDataDir();
 
   console.log('Fetching latest F1 data from Jolpica...');
-  const [latestResultsData, driverStandingsData, constructorStandingsData] = await Promise.all([
+  const [latestResultsData, latestSprintData, driverStandingsData, constructorStandingsData] = await Promise.all([
     fetchJson(ENDPOINTS.latestResults),
+    fetchOptionalJson(ENDPOINTS.latestSprintResults),
     fetchJson(ENDPOINTS.driverStandings),
     fetchJson(ENDPOINTS.constructorStandings)
   ]);
 
   const latestRaceRows = mapLatestRaceResults(latestResultsData);
+  const latestSprintRows = mapLatestSprintResults(latestSprintData);
   const driverRows = mapDriverStandings(driverStandingsData);
   const constructorRows = mapConstructorStandings(constructorStandingsData, driverRows);
 
   let changed = false;
 
   if (latestRaceRows.length > 0) {
-    changed = (await upsertLatestRaceResults(latestRaceRows)) || changed;
+    changed = (await upsertResultRows(FILES.results, latestRaceRows, RESULT_HEADERS, 'race')) || changed;
   } else {
     console.log('No latest race result available yet. Existing f1_results.csv was left unchanged.');
+  }
+
+  if (latestSprintRows.length > 0) {
+    changed = (await upsertResultRows(FILES.sprintResults, latestSprintRows, RESULT_HEADERS, 'sprint')) || changed;
+  } else {
+    console.log('No latest sprint result available. Existing f1_sprint_results.csv was left unchanged.');
   }
 
   if (driverRows.length > 0) {
@@ -149,6 +162,15 @@ async function fetchJson(url) {
   }
 }
 
+async function fetchOptionalJson(url) {
+  try {
+    return await fetchJson(url);
+  } catch (error) {
+    console.log(`Optional Jolpica data unavailable: ${error.message}`);
+    return null;
+  }
+}
+
 function mapLatestRaceResults(payload) {
   const races = payload?.MRData?.RaceTable?.Races;
   if (!Array.isArray(races) || races.length === 0) return [];
@@ -170,6 +192,39 @@ function mapLatestRaceResults(payload) {
       Circuit: circuit.circuitName || '',
       Country: location.country || '',
       Date: race.date || '',
+      Position: result.positionText || result.position || '',
+      Driver: formatDriverName(driver),
+      Team: normalizeTeamName(constructor.name || ''),
+      Grid: result.grid || '',
+      Laps: result.laps || '',
+      Time: result.Time?.time || '',
+      Status: result.status || '',
+      Points: result.points || '0'
+    };
+  });
+}
+
+function mapLatestSprintResults(payload) {
+  const races = payload?.MRData?.RaceTable?.Races;
+  if (!Array.isArray(races) || races.length === 0) return [];
+
+  const race = races[0];
+  const results = Array.isArray(race.SprintResults) ? race.SprintResults : [];
+  if (!results.length) return [];
+
+  return results.map(result => {
+    const driver = result.Driver || {};
+    const constructor = result.Constructor || {};
+    const circuit = race.Circuit || {};
+    const location = circuit.Location || {};
+
+    return {
+      Season: race.season || '',
+      Round: race.round || '',
+      RaceName: race.raceName || '',
+      Circuit: circuit.circuitName || '',
+      Country: location.country || '',
+      Date: race.Sprint?.date || race.date || '',
       Position: result.positionText || result.position || '',
       Driver: formatDriverName(driver),
       Team: normalizeTeamName(constructor.name || ''),
@@ -234,20 +289,20 @@ function groupDriversByTeam(driverRows) {
   return grouped;
 }
 
-async function upsertLatestRaceResults(latestRaceRows) {
-  const latestSeason = latestRaceRows[0]?.Season;
-  const latestRound = latestRaceRows[0]?.Round;
+async function upsertResultRows(filePath, latestRows, headers, label) {
+  const latestSeason = latestRows[0]?.Season;
+  const latestRound = latestRows[0]?.Round;
 
   if (!latestSeason || !latestRound) {
-    console.log('Latest race result is missing season or round. Existing f1_results.csv was left unchanged.');
+    console.log(`Latest ${label} result is missing season or round. Existing ${path.basename(filePath)} was left unchanged.`);
     return false;
   }
 
-  const existingRows = await readCsvIfExists(FILES.results, RESULT_HEADERS);
+  const existingRows = await readCsvIfExists(filePath, headers);
   const retainedRows = existingRows.filter(row => row.Season !== latestSeason || row.Round !== latestRound);
-  const nextRows = [...retainedRows, ...latestRaceRows].sort(compareResultRows);
+  const nextRows = [...retainedRows, ...latestRows].sort(compareResultRows);
 
-  return writeCsvIfChanged(FILES.results, RESULT_HEADERS, nextRows);
+  return writeCsvIfChanged(filePath, headers, nextRows);
 }
 
 async function readCsvIfExists(filePath, headers) {
