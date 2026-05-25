@@ -45,7 +45,7 @@ Use Node.js 18 or newer.
 npm run update:f1
 ```
 
-If Jolpica has not published the newest race or sprint result yet, the script leaves the existing CSV data unchanged.
+If Jolpica has not published the newest race or sprint result yet, the script leaves the existing CSV data unchanged. Scheduled automation will keep polling through the race weekend recovery window, so late-published results should be picked up without a manual run.
 
 ### Run Manually In GitHub Actions
 
@@ -56,12 +56,14 @@ If Jolpica has not published the newest race or sprint result yet, the script le
 
 ### Schedule
 
-The workflow runs at `06:30`, `12:30`, and `18:30 UTC` on Saturdays, Sundays, and Mondays. This lets sprint results publish during sprint weekends and lets the Grand Prix result replace the sprint result once the race is complete. Use the manual workflow trigger for unusual race schedules, delayed classifications, or if Jolpica publishes data later than usual.
+The workflow runs every two hours at minute `30` on Fridays, Saturdays, Sundays, Mondays, and Tuesdays. This lets sprint results publish during sprint weekends and gives late Grand Prix classifications extra chances to update automatically. Use the manual workflow trigger only for unusual race schedules or if you want to force an immediate check.
+
+Each API request is retried before the updater fails, which helps avoid missing updates because of short Jolpica or network outages.
 
 ### Troubleshooting
 
-- If no files change, Jolpica may not have published new data yet, or the CSV files may already be up to date.
-- If the workflow fails with a network or API error, rerun it later from GitHub Actions.
+- If no files change, Jolpica may not have published new data yet, or the CSV files may already be up to date. The schedule will keep checking every two hours from Friday through Tuesday.
+- If the workflow fails with a network or API error after retries, the next scheduled run should try again automatically.
 - If Vercel does not redeploy, check that Vercel is still connected to the GitHub repository and deploys from commits to the selected branch.
 - If a constructor table is empty, the frontend falls back to calculating constructors from `data/f1_drivers.csv`.
 - Do not use social media posts as the source of truth for official race results. The automation uses structured API data from Jolpica.

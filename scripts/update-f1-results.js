@@ -52,6 +52,9 @@ const ENDPOINTS = {
   constructorStandings: 'https://api.jolpi.ca/ergast/f1/current/constructorStandings.json'
 };
 
+const FETCH_ATTEMPTS = 4;
+const FETCH_RETRY_DELAY_MS = 15000;
+
 const RESULT_HEADERS = [
   'Season',
   'Round',
@@ -218,6 +221,27 @@ async function assertDataDir() {
 }
 
 async function fetchJson(url) {
+  let lastError;
+
+  for (let attempt = 1; attempt <= FETCH_ATTEMPTS; attempt++) {
+    try {
+      return await fetchJsonOnce(url);
+    } catch (error) {
+      lastError = error;
+
+      if (attempt === FETCH_ATTEMPTS) break;
+
+      console.log(
+        `Fetch attempt ${attempt}/${FETCH_ATTEMPTS} failed for ${url}: ${error.message}. Retrying in ${FETCH_RETRY_DELAY_MS / 1000}s...`
+      );
+      await sleep(FETCH_RETRY_DELAY_MS);
+    }
+  }
+
+  throw lastError;
+}
+
+async function fetchJsonOnce(url) {
   let response;
   try {
     response = await fetch(url, {
@@ -239,6 +263,10 @@ async function fetchJson(url) {
   } catch (error) {
     throw new Error(`Invalid JSON from ${url}: ${error.message}`);
   }
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 async function fetchOptionalJson(url) {
