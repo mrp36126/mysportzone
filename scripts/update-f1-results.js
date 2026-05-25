@@ -73,7 +73,7 @@ const RESULT_HEADERS = [
 ];
 
 const DRIVER_HEADERS = ['Position', 'Change', 'Driver', 'Team', 'CarNumber', 'Points', 'PointsChange'];
-const CONSTRUCTOR_HEADERS = ['Position', 'Change', 'Constructor', 'Driver1', 'Driver1Points', 'Driver2', 'Driver2Points', 'Points'];
+const CONSTRUCTOR_HEADERS = ['Position', 'Change', 'Constructor', 'Driver1', 'Driver1Points', 'Driver2', 'Driver2Points', 'Points', 'PointsChange'];
 
 const DRIVER_NAME_ALIASES = {
   'Andrea Kimi Antonelli': 'Kimi Antonelli',
@@ -120,7 +120,12 @@ async function main() {
   const previousDriverRows = await loadDriverChangeBaseline();
   const driverRows = mapDriverStandings(driverStandingsData, previousDriverRows, latestDisplayedResultRows);
   const previousConstructorRows = await loadConstructorChangeBaseline();
-  const constructorRows = mapConstructorStandings(constructorStandingsData, driverRows, previousConstructorRows);
+  const constructorRows = mapConstructorStandings(
+    constructorStandingsData,
+    driverRows,
+    previousConstructorRows,
+    latestDisplayedResultRows
+  );
 
   let changed = false;
 
@@ -410,7 +415,7 @@ function positionChange(currentPosition, previousPosition, previousChange = '') 
   return change === 0 && previousChange !== '' ? String(previousChange) : String(change);
 }
 
-function mapConstructorStandings(payload, driverRows, previousRows = []) {
+function mapConstructorStandings(payload, driverRows, previousRows = [], latestResultRows = []) {
   const standingsLists = payload?.MRData?.StandingsTable?.StandingsLists;
   const constructorStandings = standingsLists?.[0]?.ConstructorStandings;
   if (!Array.isArray(constructorStandings) || constructorStandings.length === 0) return [];
@@ -426,6 +431,14 @@ function mapConstructorStandings(payload, driverRows, previousRows = []) {
       .filter(row => row.Constructor)
       .map(row => [row.Constructor, row])
   );
+  const latestPointsByConstructor = new Map();
+
+  for (const row of latestResultRows) {
+    if (!row.Team) continue;
+    const team = normalizeTeamName(row.Team);
+    const previous = latestPointsByConstructor.get(team) || 0;
+    latestPointsByConstructor.set(team, previous + Number(row.Points || 0));
+  }
 
   return constructorStandings.map(item => {
     const constructorName = normalizeTeamName(item.Constructor?.name || '');
@@ -440,7 +453,8 @@ function mapConstructorStandings(payload, driverRows, previousRows = []) {
       Driver1Points: drivers[0]?.Points || '0',
       Driver2: drivers[1]?.Driver || '',
       Driver2Points: drivers[1]?.Points || '0',
-      Points: item.points || '0'
+      Points: item.points || '0',
+      PointsChange: String(latestPointsByConstructor.get(constructorName) || 0)
     };
   });
 }

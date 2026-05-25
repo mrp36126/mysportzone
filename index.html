@@ -2988,6 +2988,7 @@ const upcomingF1 = calendar
             driver1: { driver: row.Driver1 || '—', points: row.Driver1Points || driverPointsForName(row.Driver1) },
             driver2: { driver: row.Driver2 || '—', points: row.Driver2Points || driverPointsForName(row.Driver2) },
             total: parseFloat(row.Points) || 0,
+            pointsChange: row.PointsChange || '0',
             position: row.Position,
             change: row.Change
           }))
@@ -3026,7 +3027,7 @@ const upcomingF1 = calendar
                   </td>
                   <td>${escapeHTML(c.driver1.driver)}${driver1Points}</td>
                   <td>${escapeHTML(c.driver2.driver)}${driver2Points}</td>
-                  <td><span class="points-badge">${escapeHTML(c.total)}</span></td>
+                  <td><span class="points-badge">${escapeHTML(c.total)}</span>${pointsChangeHTML(c.pointsChange)}</td>
                 </tr>`;
               }).join('')}
             </tbody>
