@@ -116,8 +116,9 @@ async function main() {
 
   const latestRaceRows = mapLatestRaceResults(latestResultsData);
   const latestSprintRows = mapLatestSprintResults(latestSprintData);
+  const latestDisplayedResultRows = chooseLatestDisplayResultRows(latestRaceRows, latestSprintRows);
   const previousDriverRows = await loadDriverChangeBaseline();
-  const driverRows = mapDriverStandings(driverStandingsData, previousDriverRows);
+  const driverRows = mapDriverStandings(driverStandingsData, previousDriverRows, latestDisplayedResultRows);
   const previousConstructorRows = await loadConstructorChangeBaseline();
   const constructorRows = mapConstructorStandings(constructorStandingsData, driverRows, previousConstructorRows);
 
@@ -344,7 +345,27 @@ function mapLatestSprintResults(payload) {
   });
 }
 
-function mapDriverStandings(payload, previousRows = []) {
+function chooseLatestDisplayResultRows(raceRows, sprintRows) {
+  const raceKey = resultRowsKey(raceRows);
+  const sprintKey = resultRowsKey(sprintRows);
+
+  if (!raceKey) return sprintRows;
+  if (!sprintKey) return raceRows;
+  if (sprintKey.season > raceKey.season) return sprintRows;
+  if (sprintKey.season === raceKey.season && sprintKey.round > raceKey.round) return sprintRows;
+  return raceRows;
+}
+
+function resultRowsKey(rows) {
+  const firstRow = rows?.[0];
+  if (!firstRow) return null;
+
+  const season = Number(firstRow.Season || 0);
+  const round = Number(firstRow.Round || 0);
+  return Number.isFinite(season) && Number.isFinite(round) ? { season, round } : null;
+}
+
+function mapDriverStandings(payload, previousRows = [], latestResultRows = []) {
   const standingsLists = payload?.MRData?.StandingsTable?.StandingsLists;
   const driverStandings = standingsLists?.[0]?.DriverStandings;
   if (!Array.isArray(driverStandings) || driverStandings.length === 0) return [];
@@ -354,15 +375,15 @@ function mapDriverStandings(payload, previousRows = []) {
       .filter(row => row.Driver && row.Position)
       .map(row => [row.Driver, Number(row.Position)])
   );
-  const previousPointsByDriver = new Map(
-    previousRows
-      .filter(row => row.Driver && row.Points !== '')
-      .map(row => [row.Driver, Number(row.Points)])
-  );
   const previousRowByDriver = new Map(
     previousRows
       .filter(row => row.Driver)
       .map(row => [row.Driver, row])
+  );
+  const latestPointsByDriver = new Map(
+    latestResultRows
+      .filter(row => row.Driver)
+      .map(row => [row.Driver, row.Points || '0'])
   );
 
   return driverStandings.map(item => {
@@ -376,7 +397,7 @@ function mapDriverStandings(payload, previousRows = []) {
       Team: normalizeTeamName(item.Constructors?.[0]?.name || ''),
       CarNumber: item.Driver?.permanentNumber || '',
       Points: item.points || '0',
-      PointsChange: pointsChange(item.points, previousPointsByDriver.get(driverName), previousRow?.PointsChange)
+      PointsChange: latestPointsByDriver.get(driverName) || '0'
     };
   });
 }
@@ -387,18 +408,6 @@ function positionChange(currentPosition, previousPosition, previousChange = '') 
   if (!Number.isFinite(current) || !Number.isFinite(previous)) return '0';
   const change = previous - current;
   return change === 0 && previousChange !== '' ? String(previousChange) : String(change);
-}
-
-function pointsChange(currentPoints, previousPoints, previousChange = '') {
-  const current = Number(currentPoints);
-  const previous = Number(previousPoints);
-  if (!Number.isFinite(current) || !Number.isFinite(previous)) return '0';
-  const change = current - previous;
-  return change === 0 && previousChange !== '' ? String(previousChange) : formatNumber(change);
-}
-
-function formatNumber(value) {
-  return Number.isInteger(value) ? String(value) : String(Number(value.toFixed(3)));
 }
 
 function mapConstructorStandings(payload, driverRows, previousRows = []) {
