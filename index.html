@@ -80,6 +80,7 @@
       --bg-card2: #1a1a26;         /* Slightly lighter card for alternating rows */
       --accent: #e8001e;           /* Primary red accent — brand colour */
       --accent2: #ff4d00;          /* Secondary orange-red accent */
+      --f1-purple: #9b5cff;        /* F1 fastest lap purple */
       --gold: #ffd700;             /* Gold — used for standings/podium highlights */
       --text-primary: #ffffff;     /* Main text — white */
       --text-secondary: #a0a0b0;   /* Muted text — for labels, subtitles */
@@ -681,6 +682,14 @@
 
     /* Highlight the next upcoming race */
     .race-next td { border-left: 3px solid var(--accent); }
+
+    .f1-fastest-lap {
+      color: var(--f1-purple);
+      font-weight: 700;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
 
     /* =====================================================================
        LOADING SPINNER
@@ -2814,6 +2823,16 @@ const upcomingF1 = calendar
       );
 
       const latestRows = resultGroup?.rows || [];
+      const fastestLapRow = latestRows.find(row => Number(row.FastestLapRank || 0) === 1);
+      const fastestLapHTML = fastestLapRow && fastestLapRow.FastestLapTime
+        ? `<tr>
+            <td colspan="5" class="f1-fastest-lap">
+              FASTEST LAP: ${escapeHTML(fastestLapRow.Driver)}
+              &mdash; ${escapeHTML(fastestLapRow.FastestLapTime)}
+              ${fastestLapRow.FastestLapLap ? `on lap ${escapeHTML(fastestLapRow.FastestLapLap)}` : ''}
+            </td>
+          </tr>`
+        : '';
 
       const raceResultsHTML = latestRows.length === 0
         ? '<p style="color:var(--text-secondary);text-align:center;padding:20px;">Latest F1 result will appear after the updater runs.</p>'
@@ -2830,6 +2849,7 @@ const upcomingF1 = calendar
                   ${latestRows[0].Date ? `— ${escapeHTML(latestRows[0].Date)}` : ''}
                 </td>
               </tr>
+              ${fastestLapHTML}
               ${latestRows.map(row => `
                 <tr>
                   <td><span class="${posClass(row.Position)}">${escapeHTML(row.Position)}</span></td>

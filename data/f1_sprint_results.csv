@@ -1,45 +1,45 @@
-Season,Round,RaceName,Circuit,Country,Date,Position,Driver,Team,Grid,Laps,Time,Status,Points
-2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,1,Lando Norris,McLaren,1,19,29:15.045,Finished,8
-2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,2,Oscar Piastri,McLaren,3,19,+3.766,Finished,7
-2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,3,Charles Leclerc,Ferrari,4,19,+6.251,Finished,6
-2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,4,George Russell,Mercedes,6,19,+12.951,Finished,5
-2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,5,Max Verstappen,Red Bull Racing,5,19,+13.639,Finished,4
-2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,6,Kimi Antonelli,Mercedes,2,19,+13.777,Finished,3
-2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,7,Lewis Hamilton,Ferrari,7,19,+21.665,Finished,2
-2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,8,Pierre Gasly,Alpine,10,19,+30.525,Finished,1
-2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,9,Isack Hadjar,Red Bull Racing,9,19,+35.346,Finished,0
-2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,10,Franco Colapinto,Alpine,8,19,+36.970,Finished,0
-2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,11,Esteban Ocon,Haas F1 Team,16,19,+56.972,Finished,0
-2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,12,Oliver Bearman,Haas F1 Team,13,19,+57.365,Finished,0
-2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,13,Carlos Sainz,Williams,14,19,+58.504,Finished,0
-2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,14,Liam Lawson,Racing Bulls,15,19,+59.358,Finished,0
-2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,15,Fernando Alonso,Aston Martin,20,19,+1:16.067,Finished,0
-2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,16,Sergio Perez,Cadillac,17,19,+1:16.691,Finished,0
-2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,17,Lance Stroll,Aston Martin,21,19,+1:17.626,Finished,0
-2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,18,Alexander Albon,Williams,18,19,+1:28.173,Finished,0
-2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,19,Valtteri Bottas,Cadillac,19,19,+1:29.597,Finished,0
-2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,W,Nico Hulkenberg,Audi,12,0,,Did not start,0
-2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,W,Arvid Lindblad,Racing Bulls,22,0,,Did not start,0
-2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,D,Gabriel Bortoleto,Audi,11,19,,Disqualified,0
-2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,1,George Russell,Mercedes,1,23,28:50.951,Finished,8
-2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,2,Lando Norris,McLaren,3,23,+1.272,Finished,7
-2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,3,Kimi Antonelli,Mercedes,2,23,+1.843,Finished,6
-2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,4,Oscar Piastri,McLaren,4,23,+9.797,Finished,5
-2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,5,Charles Leclerc,Ferrari,6,23,+9.929,Finished,4
-2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,6,Lewis Hamilton,Ferrari,5,23,+10.545,Finished,3
-2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,7,Max Verstappen,Red Bull Racing,7,23,+15.935,Finished,2
-2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,8,Arvid Lindblad,Racing Bulls,9,23,+29.710,Finished,1
-2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,9,Franco Colapinto,Alpine,13,23,+31.621,Finished,0
-2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,10,Carlos Sainz,Williams,10,23,+36.793,Finished,0
-2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,11,Liam Lawson,Racing Bulls,18,23,+1:01.344,Finished,0
-2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,12,Gabriel Bortoleto,Audi,12,23,+1:01.814,Finished,0
-2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,13,Esteban Ocon,Haas F1 Team,14,23,+1:04.209,Finished,0
-2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,14,Sergio Perez,Cadillac,16,23,+1:10.402,Finished,0
-2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,15,Nico Hulkenberg,Audi,11,23,+1:12.158,Finished,0
-2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,16,Lance Stroll,Aston Martin,17,22,+13.127,Lapped,0
-2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,17,Valtteri Bottas,Cadillac,21,22,+17.861,Lapped,0
-2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,18,Oliver Bearman,Haas F1 Team,19,22,+23.846,Lapped,0
-2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,19,Alexander Albon,Williams,22,22,+53.493,Lapped,0
-2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,20,Pierre Gasly,Alpine,20,22,+1:08.477,Lapped,0
-2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,21,Isack Hadjar,Red Bull Racing,8,20,+18.135,Lapped,0
-2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,R,Fernando Alonso,Aston Martin,15,15,,Retired,0
+Season,Round,RaceName,Circuit,Country,Date,Position,Driver,Team,Grid,Laps,Time,Status,Points,FastestLapRank,FastestLapTime,FastestLapLap
+2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,1,Lando Norris,McLaren,1,19,29:15.045,Finished,8,,,
+2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,2,Oscar Piastri,McLaren,3,19,+3.766,Finished,7,,,
+2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,3,Charles Leclerc,Ferrari,4,19,+6.251,Finished,6,,,
+2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,4,George Russell,Mercedes,6,19,+12.951,Finished,5,,,
+2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,5,Max Verstappen,Red Bull Racing,5,19,+13.639,Finished,4,,,
+2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,6,Kimi Antonelli,Mercedes,2,19,+13.777,Finished,3,,,
+2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,7,Lewis Hamilton,Ferrari,7,19,+21.665,Finished,2,,,
+2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,8,Pierre Gasly,Alpine,10,19,+30.525,Finished,1,,,
+2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,9,Isack Hadjar,Red Bull Racing,9,19,+35.346,Finished,0,,,
+2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,10,Franco Colapinto,Alpine,8,19,+36.970,Finished,0,,,
+2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,11,Esteban Ocon,Haas F1 Team,16,19,+56.972,Finished,0,,,
+2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,12,Oliver Bearman,Haas F1 Team,13,19,+57.365,Finished,0,,,
+2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,13,Carlos Sainz,Williams,14,19,+58.504,Finished,0,,,
+2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,14,Liam Lawson,Racing Bulls,15,19,+59.358,Finished,0,,,
+2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,15,Fernando Alonso,Aston Martin,20,19,+1:16.067,Finished,0,,,
+2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,16,Sergio Perez,Cadillac,17,19,+1:16.691,Finished,0,,,
+2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,17,Lance Stroll,Aston Martin,21,19,+1:17.626,Finished,0,,,
+2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,18,Alexander Albon,Williams,18,19,+1:28.173,Finished,0,,,
+2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,19,Valtteri Bottas,Cadillac,19,19,+1:29.597,Finished,0,,,
+2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,W,Nico Hulkenberg,Audi,12,0,,Did not start,0,,,
+2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,W,Arvid Lindblad,Racing Bulls,22,0,,Did not start,0,,,
+2026,4,Miami Grand Prix,Miami International Autodrome,USA,2026-05-03,D,Gabriel Bortoleto,Audi,11,19,,Disqualified,0,,,
+2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,1,George Russell,Mercedes,1,23,28:50.951,Finished,8,,,
+2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,2,Lando Norris,McLaren,3,23,+1.272,Finished,7,,,
+2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,3,Kimi Antonelli,Mercedes,2,23,+1.843,Finished,6,,,
+2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,4,Oscar Piastri,McLaren,4,23,+9.797,Finished,5,,,
+2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,5,Charles Leclerc,Ferrari,6,23,+9.929,Finished,4,,,
+2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,6,Lewis Hamilton,Ferrari,5,23,+10.545,Finished,3,,,
+2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,7,Max Verstappen,Red Bull Racing,7,23,+15.935,Finished,2,,,
+2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,8,Arvid Lindblad,Racing Bulls,9,23,+29.710,Finished,1,,,
+2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,9,Franco Colapinto,Alpine,13,23,+31.621,Finished,0,,,
+2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,10,Carlos Sainz,Williams,10,23,+36.793,Finished,0,,,
+2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,11,Liam Lawson,Racing Bulls,18,23,+1:01.344,Finished,0,,,
+2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,12,Gabriel Bortoleto,Audi,12,23,+1:01.814,Finished,0,,,
+2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,13,Esteban Ocon,Haas F1 Team,14,23,+1:04.209,Finished,0,,,
+2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,14,Sergio Perez,Cadillac,16,23,+1:10.402,Finished,0,,,
+2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,15,Nico Hulkenberg,Audi,11,23,+1:12.158,Finished,0,,,
+2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,16,Lance Stroll,Aston Martin,17,22,+13.127,Lapped,0,,,
+2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,17,Valtteri Bottas,Cadillac,21,22,+17.861,Lapped,0,,,
+2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,18,Oliver Bearman,Haas F1 Team,19,22,+23.846,Lapped,0,,,
+2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,19,Alexander Albon,Williams,22,22,+53.493,Lapped,0,,,
+2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,20,Pierre Gasly,Alpine,20,22,+1:08.477,Lapped,0,,,
+2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,21,Isack Hadjar,Red Bull Racing,8,20,+18.135,Lapped,0,,,
+2026,5,Canadian Grand Prix,Circuit Gilles Villeneuve,Canada,2026-05-24,R,Fernando Alonso,Aston Martin,15,15,,Retired,0,,,

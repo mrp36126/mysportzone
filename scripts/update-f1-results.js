@@ -69,7 +69,10 @@ const RESULT_HEADERS = [
   'Laps',
   'Time',
   'Status',
-  'Points'
+  'Points',
+  'FastestLapRank',
+  'FastestLapTime',
+  'FastestLapLap'
 ];
 
 const DRIVER_HEADERS = ['Position', 'Change', 'Driver', 'Team', 'CarNumber', 'Points', 'PointsChange'];
@@ -312,7 +315,10 @@ function mapLatestRaceResults(payload) {
       Laps: result.laps || '',
       Time: result.Time?.time || '',
       Status: result.status || '',
-      Points: result.points || '0'
+      Points: result.points || '0',
+      FastestLapRank: result.FastestLap?.rank || '',
+      FastestLapTime: result.FastestLap?.Time?.time || '',
+      FastestLapLap: result.FastestLap?.lap || ''
     };
   });
 }
@@ -345,7 +351,10 @@ function mapLatestSprintResults(payload) {
       Laps: result.laps || '',
       Time: result.Time?.time || '',
       Status: result.status || '',
-      Points: result.points || '0'
+      Points: result.points || '0',
+      FastestLapRank: '',
+      FastestLapTime: '',
+      FastestLapLap: ''
     };
   });
 }
