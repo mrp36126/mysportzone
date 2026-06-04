@@ -1515,17 +1515,17 @@
       }
 
       .race-result-img {
-        min-height: 440px;
-        overflow-x: auto;
-        overflow-y: hidden;
-        justify-content: flex-start;
+        min-height: 400px;
+        overflow: hidden;
+        justify-content: center;
       }
 
       .f1-podium-stage {
-        min-width: 620px;
-        grid-template-columns: 150px 170px 150px;
-        gap: 14px;
-        padding: 14px 18px 28px;
+        width: 100%;
+        min-width: 0;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr) minmax(0, 1fr);
+        gap: clamp(5px, 1.8vw, 10px);
+        padding: 14px 8px 24px;
       }
 
       .f1-podium-card,
@@ -1533,10 +1533,10 @@
       .f1-podium-card.pos-2,
       .f1-podium-card.pos-3 {
         width: 100%;
-        min-height: 260px;
+        min-height: 245px;
       }
 
-      .f1-podium-card.pos-1 { min-height: 320px; }
+      .f1-podium-card.pos-1 { min-height: 290px; }
       .f1-podium-card.pos-2 { transform: translateY(18px); }
       .f1-podium-card.pos-3 { transform: translateY(34px); }
 
