@@ -614,25 +614,28 @@
       background: var(--team-color, var(--accent));
       color: #fff;
       display: grid;
-      grid-template-rows: auto 1fr;
+      grid-template-rows: auto auto;
       overflow: hidden;
       box-shadow: 0 18px 28px rgba(0, 0, 0, 0.34);
-      min-height: 250px;
+      min-height: 0;
+    }
+
+    .f1-podium-art {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: contain;
     }
 
     .f1-podium-card.pos-1 {
-      min-height: clamp(300px, 35vw, 390px);
-      width: min(100%, 190px);
       z-index: 2;
     }
 
     .f1-podium-card.pos-2 {
-      min-height: clamp(270px, 31vw, 350px);
       transform: translateY(16px);
     }
 
     .f1-podium-card.pos-3 {
-      min-height: clamp(250px, 29vw, 330px);
       transform: translateY(34px);
     }
 
@@ -1514,7 +1517,7 @@
       }
 
       .race-result-img {
-        min-height: 430px;
+        min-height: 450px;
         overflow: hidden;
         justify-content: center;
       }
@@ -1522,9 +1525,9 @@
       .f1-podium-stage {
         width: 100%;
         min-width: 0;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr) minmax(0, 1fr);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: clamp(5px, 1.8vw, 10px);
-        padding: 14px 8px 24px;
+        padding: 14px 8px 44px;
       }
 
       .f1-podium-card,
@@ -1532,22 +1535,16 @@
       .f1-podium-card.pos-2,
       .f1-podium-card.pos-3 {
         width: 100%;
-        min-height: 305px;
+        min-height: 0;
       }
 
-      .f1-podium-card.pos-1,
-      .f1-podium-card.pos-2,
-      .f1-podium-card.pos-3 {
-        transform: none;
-      }
+      .f1-podium-card.pos-1 { transform: translateY(-16px); }
+      .f1-podium-card.pos-2 { transform: translateY(12px); }
+      .f1-podium-card.pos-3 { transform: translateY(32px); }
 
       .f1-podium-card-head {
         padding: 6px;
         font-size: 0.68rem;
-      }
-
-      .f1-podium-driver-img {
-        padding: 0;
       }
 
       .f1-favourites-header {
@@ -3084,13 +3081,12 @@ const upcomingF1 = calendar
             <div class="f1-podium-card-head">
               <span>${escapeHTML(visualPosition)}${visualPosition === 1 ? 'st' : visualPosition === 2 ? 'nd' : 'rd'}</span>
             </div>
-            <div class="f1-podium-driver-img">
-              <img
-                src="${safeAttr(imageFile)}"
-                alt="${safeAttr(row.Driver)}"
-                onerror="this.replaceWith(Object.assign(document.createElement('div'), { className: 'f1-podium-fallback', textContent: '${safeAttr(initials)}' }))"
-              />
-            </div>
+            <img
+              class="f1-podium-art"
+              src="${safeAttr(imageFile)}"
+              alt="${safeAttr(row.Driver)}"
+              onerror="this.replaceWith(Object.assign(document.createElement('div'), { className: 'f1-podium-fallback', textContent: '${safeAttr(initials)}' }))"
+            />
           </article>`;
       }
 
