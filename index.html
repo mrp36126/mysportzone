@@ -587,9 +587,11 @@
       padding: clamp(18px, 4vw, 34px);
       display: grid;
       grid-template-columns: minmax(86px, 0.9fr) minmax(100px, 1fr) minmax(86px, 0.9fr);
+      grid-template-rows: auto 1fr;
       align-items: end;
       justify-items: center;
       gap: clamp(8px, 2vw, 18px);
+      row-gap: clamp(12px, 2vw, 24px);
     }
 
     .f1-podium-title {
@@ -1526,7 +1528,9 @@
         width: 100%;
         min-width: 0;
         grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-rows: auto auto;
         gap: clamp(5px, 1.8vw, 10px);
+        row-gap: 10px;
         padding: 14px 8px 44px;
       }
 
