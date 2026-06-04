@@ -58,7 +58,13 @@ To enable cached refreshes in Supabase:
 3. Optionally add `NEWS_API_KEY` if you want the news/sentiment score to use recent Formula 1 headlines.
 4. Optionally add `CRON_SECRET`; `/api/update-f1-favourites` will require `Authorization: Bearer <CRON_SECRET>` when it is set.
 
-Use `/api/update-f1-favourites` or `npm run update:f1-favourites` from your scheduler so the index can refresh once daily and shortly after FP1, FP2, FP3, and qualifying data becomes available from F1 data sources. No betting links, bookmaker data, gambling recommendations, or betting advice are used.
+The `Update F1 Favourites` GitHub Actions workflow runs `npm run update:f1-favourites` once daily, plus targeted refreshes around typical Friday, Saturday, and Sunday F1 session windows. In a normal race week that is about 12 workflow runs. No betting links, bookmaker data, gambling recommendations, or betting advice are used.
+
+Add these GitHub repository secrets for the workflow:
+
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `NEWS_API_KEY` optional, only for the news/sentiment score
 
 ### Run Manually In GitHub Actions
 
