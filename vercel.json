@@ -1,11 +1,5 @@
 {
   "version": 2,
-  "crons": [
-    {
-      "path": "/api/update-f1-favourites",
-      "schedule": "0 * * * *"
-    }
-  ],
   "headers": [
     {
       "source": "/data/(.*).csv",
