@@ -691,6 +691,121 @@
       line-height: 1.5;
     }
 
+    .f1-favourites-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .f1-favourites-race {
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      margin-top: 4px;
+    }
+
+    .f1-favourites-updated {
+      color: var(--text-secondary);
+      font-size: 0.76rem;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .f1-favourites-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+    }
+
+    .f1-favourite-card {
+      background: var(--bg-card2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 188px;
+    }
+
+    .f1-favourite-card:first-child {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(232, 0, 30, 0.12);
+    }
+
+    .f1-favourite-topline {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .f1-favourite-rank {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--border);
+      color: var(--text-primary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .f1-favourite-name {
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .f1-favourite-team {
+      color: var(--text-secondary);
+      font-size: 0.82rem;
+      margin-top: 3px;
+    }
+
+    .f1-favourite-score {
+      color: var(--accent);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .f1-favourite-explanation {
+      color: var(--text-secondary);
+      font-size: 0.84rem;
+      line-height: 1.5;
+      flex: 1;
+    }
+
+    .f1-favourite-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .f1-favourite-badge {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.06);
+      font-size: 0.67rem;
+      font-weight: 700;
+      padding: 4px 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .f1-favourite-badge.hot { background: rgba(232, 0, 30, 0.18); border-color: rgba(232, 0, 30, 0.5); }
+    .f1-favourite-badge.strong { background: rgba(0, 210, 190, 0.14); border-color: rgba(0, 210, 190, 0.45); }
+    .f1-favourite-badge.wildcard { background: rgba(255, 153, 0, 0.14); border-color: rgba(255, 153, 0, 0.45); }
+    .f1-favourite-badge.weather { background: rgba(155, 92, 255, 0.16); border-color: rgba(155, 92, 255, 0.48); }
+    .f1-favourite-badge.risk { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.18); color: var(--text-secondary); }
+
     /* =====================================================================
        LOADING SPINNER
        Shown while CSV data is being fetched.
@@ -1325,6 +1440,16 @@
         white-space: nowrap;
       }
 
+      .f1-favourites-header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .f1-favourites-updated {
+        text-align: left;
+        white-space: normal;
+      }
+
       /* ── SCHEDULE CARDS ──────────────────────────────── */
       .schedule-grid {
         /* Single column on small phones */
@@ -1790,6 +1915,16 @@
         </div>
 
       </div><!-- end .f1-weekend-banner -->
+
+      <!-- F1 Race Favourites Index -->
+      <div class="section-card">
+        <div class="section-title">
+          <i class="fas fa-bolt"></i> NEXT RACE FAVOURITES
+        </div>
+        <div id="f1FavouritesContainer">
+          <div class="loading"><div class="spinner"></div>Calculating favourites...</div>
+        </div>
+      </div>
 
       <!-- Race Result Image Placeholder -->
       <div class="section-card">
@@ -2878,6 +3013,85 @@ const upcomingF1 = calendar
           </table>`;
 
       document.getElementById('f1RaceResultsContainer').innerHTML = raceResultsHTML;
+
+      // --- F1 RACE FAVOURITES INDEX ---
+      async function fetchF1Favourites() {
+        try {
+          const res = await fetch('/api/f1-favourites');
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return await res.json();
+        } catch (error) {
+          console.warn('Could not load F1 favourites:', error.message);
+          return null;
+        }
+      }
+
+      function formatFavouritesTime(value) {
+        if (!value) return 'Last updated: awaiting refresh';
+        const dt = new Date(value);
+        if (Number.isNaN(dt.getTime())) return 'Last updated: awaiting refresh';
+        return `Last updated: ${dt.toLocaleString('en-ZA', {
+          day: '2-digit',
+          month: 'short',
+          hour: '2-digit',
+          minute: '2-digit'
+        })}`;
+      }
+
+      function favouriteBadges(row, index) {
+        const badges = [];
+        const score = Number(row.favourite_score) || 0;
+        const weather = Number(row.weather_score) || 0;
+        const form = Number(row.form_score) || 0;
+        const quali = Number(row.qualifying_score) || 0;
+
+        if (index === 0 || score >= 78) badges.push({ text: 'Favourite', cls: 'hot' });
+        else if (score >= 66) badges.push({ text: 'Strong Contender', cls: 'strong' });
+        else badges.push({ text: 'Wildcard', cls: 'wildcard' });
+
+        if (weather >= 62) badges.push({ text: 'Weather Threat', cls: 'weather' });
+        if (form < 45 || quali < 45) badges.push({ text: 'Risk', cls: 'risk' });
+
+        return badges.map(badge =>
+          `<span class="f1-favourite-badge ${badge.cls}">${escapeHTML(badge.text)}</span>`
+        ).join('');
+      }
+
+      const favouritesPayload = await fetchF1Favourites();
+      const favourites = favouritesPayload?.favourites || [];
+      const favouritesHTML = !favouritesPayload || favourites.length === 0
+        ? '<p style="color:var(--text-secondary);text-align:center;padding:20px;">F1 Race Favourites Index will appear once racing data is available.</p>'
+        : `<div class="f1-favourites-header">
+            <div>
+              <div style="font-weight:800;">${escapeHTML(favouritesPayload.race?.name || 'Next race')}</div>
+              <div class="f1-favourites-race">
+                Round ${escapeHTML(favouritesPayload.race?.round || '')}
+                ${favouritesPayload.race?.date ? `&middot; ${escapeHTML(favouritesPayload.race.date)}` : ''}
+                ${favouritesPayload.race?.circuit ? `&middot; ${escapeHTML(favouritesPayload.race.circuit)}` : ''}
+              </div>
+            </div>
+            <div class="f1-favourites-updated">${escapeHTML(formatFavouritesTime(favouritesPayload.updated_at))}</div>
+          </div>
+          <div class="f1-favourites-grid">
+            ${favourites.slice(0, 5).map((row, index) => `
+              <article class="f1-favourite-card">
+                <div class="f1-favourite-topline">
+                  <div style="display:flex;gap:10px;align-items:flex-start;">
+                    <span class="f1-favourite-rank">${index + 1}</span>
+                    <div>
+                      <div class="f1-favourite-name">${escapeHTML(row.driver_name)}</div>
+                      <div class="f1-favourite-team">${escapeHTML(row.constructor_name)}</div>
+                    </div>
+                  </div>
+                  <div class="f1-favourite-score">${escapeHTML(Math.round(Number(row.favourite_score) || 0))}%</div>
+                </div>
+                <div class="f1-favourite-explanation">${escapeHTML(row.explanation || '')}</div>
+                <div class="f1-favourite-badges">${favouriteBadges(row, index)}</div>
+              </article>
+            `).join('')}
+          </div>`;
+
+      document.getElementById('f1FavouritesContainer').innerHTML = favouritesHTML;
 
       // --- DRIVERS CHAMPIONSHIP ---
       // CSV columns: Position, Driver, Team, CarNumber, Points

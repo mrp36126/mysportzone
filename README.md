@@ -47,6 +47,19 @@ npm run update:f1
 
 If Jolpica has not published the newest race or sprint result yet, the script leaves the existing CSV data unchanged. Scheduled automation will keep polling through the race weekend recovery window, so late-published results should be picked up without a manual run.
 
+## F1 Race Favourites Index
+
+The Formula 1 tab includes a "Next Race Favourites" section powered by `/api/f1-favourites`. It finds the next race from `data/f1_calendar.csv`, scores drivers from racing data only, and returns the favourites sorted by `favourite_score`.
+
+To enable cached refreshes in Supabase:
+
+1. Run `supabase/f1_favourites.sql` in the Supabase SQL editor.
+2. Add `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` to Vercel environment variables.
+3. Optionally add `NEWS_API_KEY` if you want the news/sentiment score to use recent Formula 1 headlines.
+4. Optionally add `CRON_SECRET`; `/api/update-f1-favourites` will require `Authorization: Bearer <CRON_SECRET>` when it is set.
+
+Vercel Cron calls `/api/update-f1-favourites` hourly so the index can refresh once daily and shortly after FP1, FP2, FP3, and qualifying data becomes available from F1 data sources. No betting links, bookmaker data, gambling recommendations, or betting advice are used.
+
 ### Run Manually In GitHub Actions
 
 1. Open the repository on GitHub.
