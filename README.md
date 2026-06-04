@@ -68,21 +68,21 @@ Add these GitHub repository secrets for the workflow:
 
 ### F1 Driver Podium Images
 
-The latest race result podium is generated automatically from `data/f1_results.csv`. Upload one PNG per driver using this naming pattern:
+The latest race result podium is generated automatically from `data/f1_results.csv`. Upload one podium PNG per driver using this naming pattern:
 
 ```text
-icons/driver-FirstnameLastname.png
+icons/podium-driver-FirstnameLastname.png
 ```
 
 Remove spaces and keep the driver name spelling exactly as it appears in the CSV. For example:
 
 ```text
-icons/driver-KimiAntonelli.png
-icons/driver-LewisHamilton.png
-icons/driver-MaxVerstappen.png
+icons/podium-driver-KimiAntonelli.png
+icons/podium-driver-LewisHamilton.png
+icons/podium-driver-MaxVerstappen.png
 ```
 
-For the best result, use transparent full-body PNG images. The latest result will place 3rd on the left, 1st in the center, and 2nd on the right.
+These are separate from the smaller driver avatar images used in the championship table, which still use `icons/driver-FirstnameLastname.png`. For the best podium result, use transparent full-body PNG images. The latest result will place 3rd on the left, 1st in the center, and 2nd on the right.
 
 ### Run Manually In GitHub Actions
 
