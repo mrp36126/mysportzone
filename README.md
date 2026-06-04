@@ -66,6 +66,24 @@ Add these GitHub repository secrets for the workflow:
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `NEWS_API_KEY` optional, only for the news/sentiment score
 
+### F1 Driver Podium Images
+
+The latest race result podium is generated automatically from `data/f1_results.csv`. Upload one PNG per driver using this naming pattern:
+
+```text
+icons/driver-FirstnameLastname.png
+```
+
+Remove spaces and keep the driver name spelling exactly as it appears in the CSV. For example:
+
+```text
+icons/driver-KimiAntonelli.png
+icons/driver-LewisHamilton.png
+icons/driver-MaxVerstappen.png
+```
+
+For the best result, use transparent full-body PNG images. The latest result will place 3rd on the left, 1st in the center, and 2nd on the right.
+
 ### Run Manually In GitHub Actions
 
 1. Open the repository on GitHub.

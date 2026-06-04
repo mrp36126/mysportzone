@@ -569,40 +569,141 @@
 
     .car-icon svg { width: 100%; height: 100%; display: block; }
 
-    /*
-      .race-result-img — wraps the race result screenshot or sample SVG.
-
-      width: 100% makes it always fill its container (the section card).
-      aspect-ratio: 16/9 automatically sets the height proportionally —
-        so on a 400px wide phone it is 225px tall,
-        on a 1200px desktop it is 675px tall.
-        No fixed height is ever set, so it NEVER overflows or gets cropped.
-      max-height: 520px prevents it from becoming too tall on very wide screens.
-      overflow: hidden clips content neatly to the rounded corners.
-    */
     .race-result-img {
       width: 100%;
-      aspect-ratio: 16 / 9;
-      max-height: 520px;           /* cap height on ultra-wide screens */
+      min-height: clamp(300px, 42vw, 520px);
       border-radius: clamp(8px, 2vw, 14px);
       overflow: hidden;
       background: var(--bg-card2);
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
     }
 
-    /*
-      object-fit: contain — shows the full screenshot without any cropping.
-      Switch to 'cover' if you prefer the image to fill the box edge-to-edge
-      (will crop the sides on very wide screens).
-    */
-    .race-result-img img {
+    .f1-podium-stage {
       width: 100%;
       height: 100%;
-      object-fit: contain;
-      border-radius: inherit;
-      background: var(--bg-card2); /* fills letterbox bars with card colour */
+      min-height: inherit;
+      padding: clamp(18px, 4vw, 34px);
+      display: grid;
+      grid-template-columns: minmax(86px, 0.9fr) minmax(100px, 1fr) minmax(86px, 0.9fr);
+      align-items: end;
+      justify-items: center;
+      gap: clamp(8px, 2vw, 18px);
     }
 
-    .race-result-img svg { width: 100%; height: 100%; display: block; }
+    .f1-podium-title {
+      grid-column: 1 / -1;
+      align-self: start;
+      text-align: center;
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1rem, 3vw, 1.65rem);
+      font-weight: 900;
+      color: var(--text-primary);
+      text-transform: uppercase;
+    }
+
+    .f1-podium-title span {
+      color: #f4f000;
+    }
+
+    .f1-podium-card {
+      width: min(100%, 178px);
+      border: 3px solid rgba(255, 255, 255, 0.82);
+      border-radius: 6px;
+      background: var(--team-color, var(--accent));
+      color: #fff;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      overflow: hidden;
+      box-shadow: 0 18px 28px rgba(0, 0, 0, 0.34);
+      min-height: 250px;
+    }
+
+    .f1-podium-card.pos-1 {
+      min-height: clamp(300px, 35vw, 390px);
+      width: min(100%, 190px);
+      z-index: 2;
+    }
+
+    .f1-podium-card.pos-2 {
+      min-height: clamp(270px, 31vw, 350px);
+      transform: translateY(16px);
+    }
+
+    .f1-podium-card.pos-3 {
+      min-height: clamp(250px, 29vw, 330px);
+      transform: translateY(34px);
+    }
+
+    .f1-podium-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      padding: 7px 9px;
+      background: rgba(0, 0, 0, 0.18);
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+    }
+
+    .f1-podium-driver-img {
+      min-height: 0;
+      display: flex;
+      align-items: end;
+      justify-content: center;
+      padding: 8px 8px 0;
+    }
+
+    .f1-podium-driver-img img {
+      width: 100%;
+      height: 100%;
+      max-height: 245px;
+      object-fit: contain;
+      object-position: bottom center;
+      filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.35));
+    }
+
+    .f1-podium-card.pos-1 .f1-podium-driver-img img {
+      max-height: 285px;
+    }
+
+    .f1-podium-name {
+      padding: 8px 9px 10px;
+      display: grid;
+      gap: 2px;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.34), transparent);
+    }
+
+    .f1-podium-first {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      opacity: 0.88;
+    }
+
+    .f1-podium-last {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1rem, 2.2vw, 1.35rem);
+      line-height: 1;
+      font-weight: 900;
+      text-transform: uppercase;
+      overflow-wrap: anywhere;
+    }
+
+    .f1-podium-fallback {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(0, 0, 0, 0.24);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      font-weight: 900;
+    }
 
     /* =====================================================================
        NEWS FEED (General Sports tab)
@@ -1440,6 +1541,45 @@
         white-space: nowrap;
       }
 
+      .race-result-img {
+        min-height: 430px;
+      }
+
+      .f1-podium-stage {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 7px;
+        padding: 14px 10px 24px;
+      }
+
+      .f1-podium-card,
+      .f1-podium-card.pos-1,
+      .f1-podium-card.pos-2,
+      .f1-podium-card.pos-3 {
+        width: 100%;
+        min-height: 260px;
+      }
+
+      .f1-podium-card.pos-1 { min-height: 295px; }
+      .f1-podium-card.pos-2 { transform: translateY(18px); }
+      .f1-podium-card.pos-3 { transform: translateY(34px); }
+
+      .f1-podium-card-head {
+        padding: 6px;
+        font-size: 0.68rem;
+      }
+
+      .f1-podium-driver-img {
+        padding: 6px 4px 0;
+      }
+
+      .f1-podium-last {
+        font-size: 0.78rem;
+      }
+
+      .f1-podium-first {
+        font-size: 0.58rem;
+      }
+
       .f1-favourites-header {
         flex-direction: column;
         align-items: stretch;
@@ -1926,51 +2066,13 @@
         </div>
       </div>
 
-      <!-- Race Result Image Placeholder -->
+      <!-- Latest F1 race podium generated from data/f1_results.csv -->
       <div class="section-card">
         <div class="section-title">
           <i class="fas fa-flag-checkered"></i> LATEST RACE RESULT
         </div>
-        <!--
-          RACE RESULT IMAGE
-          ═══════════════════════════════════════════════════════════════
-          WHAT YOU SEE NOW: A sample SVG graphic showing "RACE RESULT".
-          HOW TO REPLACE WITH YOUR OWN IMAGE — full step-by-step:
-
-          STEP 1: Take your race result screenshot and save it as a JPG or PNG.
-                  Name it something clear, e.g.: race-result-round6.jpg
-
-          STEP 2: On GitHub, go to your repository root.
-                  Click "Add file" → "Upload files".
-
-          STEP 3: IMPORTANT — before uploading, you must create the images/ folder.
-                  In the upload screen, click "choose your files" OR drag your file in.
-                  Then in the "Destination" path box that appears, type: images/
-                  (this creates the folder automatically).
-                  If no path box appears: click "Add file" → "Create new file",
-                  type  images/placeholder.txt  in the name box, put a space
-                  in the content area, and commit. This creates the images/ folder.
-                  Then upload your real file into it.
-
-          STEP 4: Click "Commit changes". Your image is now live at:
-                  https://mysportzone.vercel.app/images/race-result-round6.jpg
-
-          STEP 5: In THIS file (index.html) on GitHub, click the pencil (edit) icon.
-                  Find the line that reads:
-                    <div class="race-result-img" id="raceResultBlock">
-                  Delete the entire <svg>...</svg> block below it (lines starting
-                  with <svg and ending with </svg>).
-                  Replace it with ONE line:
-                    <img src="images/race-result-round6.jpg" alt="Race Result Round 6" />
-
-          STEP 6: Commit the change. Vercel auto-deploys in ~30 seconds. Done.
-
-          TO UPDATE AFTER EACH RACE: Repeat steps 1–6 with a new filename.
-          ═══════════════════════════════════════════════════════════════
-        -->
         <div class="race-result-img" id="raceResultBlock">
-          <!-- SAMPLE IMAGE — replace the entire <svg> block below with your <img> tag -->
-         <img src="images/race-result-round5.png" alt="Race Result Round 5" />
+          <div class="loading"><div class="spinner"></div>Building podium...</div>
         </div>
         <div id="f1RaceResultsContainer" style="margin-top:16px;">
           <div class="loading"><div class="spinner"></div>Loading latest result...</div>
@@ -2984,6 +3086,80 @@ const upcomingF1 = calendar
         return ` <span style="color:var(--text-secondary);">&mdash; 0</span>`;
       }
 
+      function driverImageFile(driverName) {
+        return 'icons/driver-' + String(driverName || '').replace(/\s+/g, '') + '.png';
+      }
+
+      function splitDriverName(driverName) {
+        const parts = String(driverName || '').trim().split(/\s+/).filter(Boolean);
+        if (parts.length <= 1) return { first: '', last: parts[0] || '' };
+        return {
+          first: parts.slice(0, -1).join(' '),
+          last: parts.slice(-1)[0]
+        };
+      }
+
+      const TEAM_PODIUM_COLORS = {
+        'Mercedes': '#12c7d5',
+        'Ferrari': '#d71920',
+        'Red Bull Racing': '#182a45',
+        'McLaren': '#ff8000',
+        'Aston Martin': '#006f62',
+        'Alpine': '#0090ff',
+        'Williams': '#005aff',
+        'Racing Bulls': '#1f7a8c',
+        'Haas F1 Team': '#64686c',
+        'Audi': '#5f6872',
+        'Cadillac': '#111827'
+      };
+
+      function podiumCard(row, visualPosition) {
+        const name = splitDriverName(row.Driver);
+        const teamColor = TEAM_PODIUM_COLORS[row.Team] || 'var(--accent)';
+        const imageFile = driverImageFile(row.Driver);
+        const initials = String(row.Driver || '?').split(/\s+/).map(part => part[0]).join('').slice(0, 2).toUpperCase();
+
+        return `
+          <article class="f1-podium-card pos-${visualPosition}" style="--team-color:${teamColor};">
+            <div class="f1-podium-card-head">
+              <span>${escapeHTML(visualPosition)}${visualPosition === 1 ? 'st' : visualPosition === 2 ? 'nd' : 'rd'}</span>
+              <span>${escapeHTML(row.Team || '')}</span>
+            </div>
+            <div class="f1-podium-driver-img">
+              <img
+                src="${safeAttr(imageFile)}"
+                alt="${safeAttr(row.Driver)}"
+                onerror="this.replaceWith(Object.assign(document.createElement('div'), { className: 'f1-podium-fallback', textContent: '${safeAttr(initials)}' }))"
+              />
+            </div>
+            <div class="f1-podium-name">
+              <span class="f1-podium-first">${escapeHTML(name.first)}</span>
+              <span class="f1-podium-last">${escapeHTML(name.last)}</span>
+            </div>
+          </article>`;
+      }
+
+      function renderRaceResultPodium(rows, group) {
+        const podiumRows = [3, 1, 2]
+          .map(position => rows.find(row => Number(row.Position) === position))
+          .filter(Boolean);
+
+        if (podiumRows.length < 3) {
+          document.getElementById('raceResultBlock').innerHTML =
+            '<p style="color:var(--text-secondary);text-align:center;margin:auto;padding:20px;">Podium will appear after the latest race result is available.</p>';
+          return;
+        }
+
+        const titleMain = rows[0] ? `${rows[0].Season} Round ${rows[0].Round}` : 'Latest';
+        const titlePlace = rows[0] ? (rows[0].Country || rows[0].RaceName || group?.label || 'Race Result') : 'Race Result';
+
+        document.getElementById('raceResultBlock').innerHTML = `
+          <div class="f1-podium-stage">
+            <div class="f1-podium-title"><span>${escapeHTML(titleMain)}</span> / ${escapeHTML(titlePlace)}</div>
+            ${podiumRows.map(row => podiumCard(row, Number(row.Position))).join('')}
+          </div>`;
+      }
+
       const raceResultsHTML = latestRows.length === 0
         ? '<p style="color:var(--text-secondary);text-align:center;padding:20px;">Latest F1 result will appear after the updater runs.</p>'
         : `<table class="data-table">
@@ -3012,6 +3188,7 @@ const upcomingF1 = calendar
             </tbody>
           </table>`;
 
+      renderRaceResultPodium(latestRows, resultGroup);
       document.getElementById('f1RaceResultsContainer').innerHTML = raceResultsHTML;
 
       // --- F1 RACE FAVOURITES INDEX ---
