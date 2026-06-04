@@ -82,7 +82,7 @@ icons/podium-driver-LewisHamilton.png
 icons/podium-driver-MaxVerstappen.png
 ```
 
-These are separate from the smaller driver avatar images used in the championship table, which still use `icons/driver-FirstnameLastname.png`. For the best podium result, use transparent full-body PNG images. The latest result will place 3rd on the left, 1st in the center, and 2nd on the right.
+These are separate from the smaller driver avatar images used in the championship table, which still use `icons/driver-FirstnameLastname.png`. The podium image should be the complete driver/card artwork you want shown inside the block; the site only adds the top strip such as `1ST MERCEDES`. The latest result will place 3rd on the left, 1st in the center, and 2nd on the right.
 
 ### Run Manually In GitHub Actions
 
