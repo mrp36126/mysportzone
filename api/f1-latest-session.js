@@ -39,13 +39,16 @@ module.exports = async function handler(req, res) {
       .sort((a, b) => b.completedAt - a.completedAt);
 
     for (const session of completedSessions) {
-      const rows = await fetchOpenF1TimingRows(weekend, session).catch(() => []);
-      const payload = rows.length > 0 ? null : await fetchSession(weekend, session, providerRound).catch(() => null);
-      const mappedRows = rows.length > 0 ? rows : mapSessionRows(payload, weekend, session);
+      const primaryPayload = await fetchSession(weekend, session, providerRound).catch(() => null);
+      const primaryRows = mapSessionRows(primaryPayload, weekend, session);
+      const usePrimary = primaryRows.length > 0 && sessionMatchesWeekend(primaryRows[0], weekend);
+      const backupRows = usePrimary ? [] : await fetchOpenF1TimingRows(weekend, session).catch(() => []);
+      const mappedRows = usePrimary ? primaryRows : backupRows;
+
       if (mappedRows.length > 0 && sessionMatchesWeekend(mappedRows[0], weekend)) {
         return res.status(200).json({
           status: 'ok',
-          source: rows.length > 0 ? 'openf1.org' : 'f1api.dev',
+          source: usePrimary ? 'f1api.dev' : 'openf1.org',
           label: session.label,
           shortLabel: session.shortLabel,
           sessionKey: session.key,

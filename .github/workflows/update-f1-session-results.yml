@@ -1,0 +1,34 @@
+name: Update F1 Session Results
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Times are UTC. These warm the Vercel API cache shortly after common
+    # F1 session windows in SAST (UTC+2), including sprint weekends.
+    - cron: "50 12 * * 5"
+    - cron: "20 16 * * 5"
+    - cron: "50 11 * * 6"
+    - cron: "20 15 * * 6"
+    - cron: "30 16 * * 0"
+
+concurrency:
+  group: update-f1-session-results
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  update-f1-session-results:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Refresh latest F1 session result endpoint
+        run: |
+          SITE_URL="${{ vars.SITE_URL }}"
+          if [ -z "$SITE_URL" ]; then
+            SITE_URL="https://mysportzone.vercel.app"
+          fi
+
+          curl --fail --show-error --silent "$SITE_URL/api/f1-latest-session" > /tmp/f1-latest-session.json
+          cat /tmp/f1-latest-session.json
