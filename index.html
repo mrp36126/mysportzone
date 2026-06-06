@@ -2037,10 +2037,10 @@
         </div>
       </div>
 
-      <!-- Latest F1 race podium generated from data/f1_results.csv -->
+      <!-- Latest F1 session podium generated from completed session data -->
       <div class="section-card">
         <div class="section-title">
-          <i class="fas fa-flag-checkered"></i> LATEST RACE RESULT
+          <i class="fas fa-flag-checkered"></i> LATEST F1 SESSION RESULT
         </div>
         <div class="race-result-img" id="raceResultBlock">
           <div class="loading"><div class="spinner"></div>Building podium...</div>
@@ -3025,10 +3025,30 @@ const upcomingF1 = calendar
         return raceGroup;
       }
 
-      const resultGroup = chooseLatestDisplayResult(
+      async function fetchLatestF1SessionResult() {
+        try {
+          const res = await fetch('/api/f1-latest-session');
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const payload = await res.json();
+          if (!Array.isArray(payload.rows) || payload.rows.length === 0) return null;
+          return {
+            label: payload.label || 'Session Result',
+            season: Number(payload.season || payload.rows[0].Season || 0),
+            round: Number(payload.round || payload.rows[0].Round || 0),
+            rows: payload.rows.sort((a, b) => Number(a.Position || 999) - Number(b.Position || 999))
+          };
+        } catch (error) {
+          console.warn('Could not load latest F1 session result:', error.message);
+          return null;
+        }
+      }
+
+      const csvResultGroup = chooseLatestDisplayResult(
         latestResultGroup(raceResults, 'Race Result'),
         latestResultGroup(sprintResults, 'Sprint Result')
       );
+      const sessionResultGroup = await fetchLatestF1SessionResult();
+      const resultGroup = sessionResultGroup || csvResultGroup;
 
       const latestRows = resultGroup?.rows || [];
       const fastestLapRow = latestRows.find(row => Number(row.FastestLapRank || 0) === 1);
@@ -3137,7 +3157,7 @@ const upcomingF1 = calendar
                   <td style="font-weight:700;">${escapeHTML(row.Driver)}</td>
                   <td style="color:var(--text-secondary);">${escapeHTML(row.Team)}</td>
                   <td>${escapeHTML(row.Time || row.Status || '')}</td>
-                  <td><span class="points-badge">${escapeHTML(row.Points)}</span></td>
+                  <td><span class="points-badge">${escapeHTML(row.Points || '—')}</span></td>
                 </tr>
               `).join('')}
             </tbody>
