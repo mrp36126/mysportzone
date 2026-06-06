@@ -70,7 +70,7 @@ Add these GitHub repository secrets for the workflow:
 
 The latest F1 session result section uses `/api/f1-latest-session`. It checks the latest completed session from `data/f1_calendar.csv`, tries F1 API first, and then uses OpenF1 as the backup data source when the primary source has no matching/published rows.
 
-The `Update F1 Session Results` GitHub Actions workflow pings `/api/f1-latest-session` after common FP1, FP2, FP3, sprint/qualifying, and race windows so Vercel's cached API response refreshes automatically after sessions. Add a GitHub repository variable named `SITE_URL` if the deployed site URL is not:
+The `Update F1 Session Results` GitHub Actions workflow pings `/api/f1-latest-session` after common FP1, FP2, FP3, sprint/qualifying, and race windows so Vercel's cached API response refreshes automatically after sessions. It also runs `npm run update:f1-favourites`, which recalculates and saves the favourites index in Supabase after each scheduled session refresh. Add a GitHub repository variable named `SITE_URL` if the deployed site URL is not:
 
 ```text
 https://mysportzone.vercel.app

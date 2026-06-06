@@ -22,7 +22,20 @@ jobs:
   update-f1-session-results:
     runs-on: ubuntu-latest
 
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
+
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+
       - name: Refresh latest F1 session result endpoint
         run: |
           SITE_URL="${{ vars.SITE_URL }}"
@@ -32,3 +45,12 @@ jobs:
 
           curl --fail --show-error --silent "$SITE_URL/api/f1-latest-session" > /tmp/f1-latest-session.json
           cat /tmp/f1-latest-session.json
+
+      - name: Refresh F1 favourites cache
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY GitHub secrets are required."
+            exit 1
+          fi
+
+          npm run update:f1-favourites
