@@ -33,26 +33,28 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ status: 'no-current-session', session: null, rows: [] });
     }
 
+    const providerRound = await findProviderRound(weekend).catch(() => weekend.Round);
     const completedSessions = buildSessions(weekend)
       .filter(session => session.completedAt <= now)
       .sort((a, b) => b.completedAt - a.completedAt);
 
     for (const session of completedSessions) {
-      const payload = await fetchSession(weekend, session).catch(() => null);
-      const rows = mapSessionRows(payload, weekend, session);
-      if (rows.length > 0 && sessionMatchesWeekend(rows[0], weekend)) {
+      const rows = await fetchOpenF1TimingRows(weekend, session).catch(() => []);
+      const payload = rows.length > 0 ? null : await fetchSession(weekend, session, providerRound).catch(() => null);
+      const mappedRows = rows.length > 0 ? rows : mapSessionRows(payload, weekend, session);
+      if (mappedRows.length > 0 && sessionMatchesWeekend(mappedRows[0], weekend)) {
         return res.status(200).json({
           status: 'ok',
-          source: 'f1api.dev',
+          source: rows.length > 0 ? 'openf1.org' : 'f1api.dev',
           label: session.label,
           shortLabel: session.shortLabel,
           sessionKey: session.key,
-          season: rows[0].Season,
-          round: rows[0].Round,
-          raceName: rows[0].RaceName,
-          country: rows[0].Country,
-          date: rows[0].Date,
-          rows
+          season: mappedRows[0].Season,
+          round: mappedRows[0].Round,
+          raceName: mappedRows[0].RaceName,
+          country: mappedRows[0].Country,
+          date: mappedRows[0].Date,
+          rows: mappedRows
         });
       }
     }
@@ -121,9 +123,40 @@ function buildSessions(row) {
     .sort((a, b) => a.dt - b.dt);
 }
 
-async function fetchSession(weekend, session) {
+async function findProviderRound(weekend) {
   const season = encodeURIComponent(getSeason(weekend));
-  const round = encodeURIComponent(weekend.Round);
+  const response = await fetch(`https://f1api.dev/api/${season}`, {
+    headers: {
+      Accept: 'application/json',
+      'User-Agent': 'mysportzone-f1-session-results/1.0'
+    }
+  });
+
+  if (!response.ok) throw new Error(`F1 API schedule returned ${response.status}`);
+  const payload = await response.json();
+  const races = Array.isArray(payload.races) ? payload.races : [];
+  const matchIndex = races.findIndex(race => providerRaceMatchesWeekend(race, weekend));
+
+  return matchIndex >= 0 ? String(matchIndex + 1) : String(weekend.Round);
+}
+
+function providerRaceMatchesWeekend(race, weekend) {
+  const providerName = normalize(race.raceName);
+  const providerId = normalize(race.raceId);
+  const providerDate = race.schedule?.race?.date || '';
+  const localName = normalize(weekend.RaceName);
+  const localCountry = normalize(weekend.Country);
+  const localDate = weekend.RaceDate || '';
+
+  return (providerDate && localDate && providerDate === localDate)
+    || (providerName && localName && (providerName.includes(localName) || localName.includes(providerName)))
+    || (providerName && localCountry && providerName.includes(localCountry))
+    || (providerId && localCountry && providerId.includes(localCountry));
+}
+
+async function fetchSession(weekend, session, providerRound) {
+  const season = encodeURIComponent(getSeason(weekend));
+  const round = encodeURIComponent(providerRound || weekend.Round);
   const url = `https://f1api.dev/api/${season}/${round}/${session.path}?limit=30`;
   const response = await fetch(url, {
     headers: {
@@ -134,6 +167,115 @@ async function fetchSession(weekend, session) {
 
   if (!response.ok) throw new Error(`F1 API returned ${response.status}`);
   return response.json();
+}
+
+async function fetchOpenF1TimingRows(weekend, session) {
+  const openF1SessionName = {
+    fp1: 'Practice 1',
+    fp2: 'Practice 2',
+    fp3: 'Practice 3',
+    sprintQualy: 'Sprint Qualifying',
+    qualy: 'Qualifying'
+  }[session.key];
+
+  if (!openF1SessionName) return [];
+
+  const year = encodeURIComponent(getSeason(weekend));
+  const country = encodeURIComponent(weekend.Country || '');
+  const sessions = await fetchJson(`https://api.openf1.org/v1/sessions?year=${year}&country_name=${country}`);
+  const openF1Session = sessions.find(row => {
+    const localDate = weekend[session.dateCol] || '';
+    return row.session_name === openF1SessionName
+      && (!localDate || String(row.date_start || '').slice(0, 10) === localDate);
+  });
+
+  if (!openF1Session?.session_key) return [];
+
+  const sessionKey = encodeURIComponent(openF1Session.session_key);
+  const [drivers, laps] = await Promise.all([
+    fetchJson(`https://api.openf1.org/v1/drivers?session_key=${sessionKey}`),
+    fetchJson(`https://api.openf1.org/v1/laps?session_key=${sessionKey}`)
+  ]);
+
+  const driversByNumber = new Map(drivers.map(driver => [Number(driver.driver_number), driver]));
+  const bestLaps = new Map();
+
+  laps.forEach(lap => {
+    const driverNumber = Number(lap.driver_number);
+    const lapDuration = Number(lap.lap_duration);
+    if (!Number.isFinite(driverNumber) || !Number.isFinite(lapDuration) || lapDuration <= 0) return;
+
+    const existing = bestLaps.get(driverNumber);
+    if (!existing || lapDuration < existing.lapDuration) {
+      bestLaps.set(driverNumber, {
+        lapDuration,
+        lapNumber: lap.lap_number || ''
+      });
+    }
+  });
+
+  return [...bestLaps.entries()]
+    .map(([driverNumber, best]) => {
+      const driver = driversByNumber.get(driverNumber) || {};
+      return {
+        driver,
+        best
+      };
+    })
+    .sort((a, b) => a.best.lapDuration - b.best.lapDuration)
+    .map((entry, index) => ({
+      Season: String(openF1Session.year || getSeason(weekend)),
+      Round: String(weekend.Round || ''),
+      RaceName: weekend.RaceName || '',
+      Circuit: openF1Session.circuit_short_name || weekend.Circuit || '',
+      Country: openF1Session.country_name || weekend.Country || '',
+      Date: String(openF1Session.date_start || weekend[session.dateCol] || '').slice(0, 10),
+      Position: String(index + 1),
+      Driver: formatOpenF1DriverName(entry.driver),
+      Team: entry.driver.team_name || '',
+      Grid: '',
+      Laps: entry.best.lapNumber,
+      Time: formatLapTime(entry.best.lapDuration),
+      Status: '',
+      Points: '',
+      FastestLapRank: index === 0 ? '1' : '',
+      FastestLapTime: index === 0 ? formatLapTime(entry.best.lapDuration) : '',
+      FastestLapLap: index === 0 ? entry.best.lapNumber : ''
+    }))
+    .filter(row => row.Driver);
+}
+
+async function fetchJson(url) {
+  const response = await fetch(url, {
+    headers: {
+      Accept: 'application/json',
+      'User-Agent': 'mysportzone-f1-session-results/1.0'
+    }
+  });
+
+  if (!response.ok) throw new Error(`HTTP ${response.status} for ${url}`);
+  return response.json();
+}
+
+function formatOpenF1DriverName(driver) {
+  if (driver.first_name || driver.last_name) {
+    return [driver.first_name, titleCase(driver.last_name)].filter(Boolean).join(' ');
+  }
+
+  return titleCase(driver.full_name || '');
+}
+
+function titleCase(value) {
+  return String(value || '').toLowerCase().replace(/\b[a-z]/g, letter => letter.toUpperCase());
+}
+
+function formatLapTime(seconds) {
+  const total = Number(seconds);
+  if (!Number.isFinite(total)) return '';
+
+  const minutes = Math.floor(total / 60);
+  const remainder = (total - (minutes * 60)).toFixed(3).padStart(6, '0');
+  return `${minutes}:${remainder}`;
 }
 
 function mapSessionRows(payload, weekend, session) {
