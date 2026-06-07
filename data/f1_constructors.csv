@@ -8,5 +8,5 @@ Position,Change,Constructor,Driver1,Driver1Points,Driver2,Driver2Points,Points,P
 7,-1,Haas F1 Team,Oliver Bearman,18,Esteban Ocon,3,21,2
 8,0,Williams,Carlos Sainz,6,Alexander Albon,5,11,4
 9,0,Audi,Gabriel Bortoleto,2,Nico Hulkenberg,0,2,0
-10,0,Cadillac,Sergio Perez,1,Valtteri Bottas,0,1,1
-11,0,Aston Martin,Fernando Alonso,0,Lance Stroll,0,0,0
+10,1,Aston Martin,Fernando Alonso,1,Lance Stroll,0,1,1
+11,-1,Cadillac,Valtteri Bottas,0,Sergio Perez,0,0,0
