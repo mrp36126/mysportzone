@@ -3091,8 +3091,10 @@ const upcomingF1 = calendar
       }
 
       function driverImageFile(driverName) {
-        return 'icons/podium-driver-' + String(driverName || '').replace(/\s+/g, '') + '.png';
-      }
+  return 'icons/podium-driver-' +
+    String(normalizeF1DriverName(driverName || '')).replace(/\s+/g, '') +
+    '.png';
+}
 
       const TEAM_PODIUM_COLORS = {
         'Mercedes': '#12c7d5',
