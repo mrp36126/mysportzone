@@ -5,7 +5,7 @@ on:
   schedule:
     # Poll through and after race weekends so late-published classifications
     # still update automatically without waiting for manual intervention.
-    - cron: "30 */2 * * 5,6,0,1,2"
+    - cron: "*/30 * * * 5,6,0,1,2"
 
 concurrency:
   group: update-f1-results

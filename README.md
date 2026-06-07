@@ -68,9 +68,9 @@ Add these GitHub repository secrets for the workflow:
 
 ### F1 Session Results
 
-The latest F1 session result section uses `/api/f1-latest-session`. It checks the latest completed session from `data/f1_calendar.csv`, tries F1 API first, and then uses OpenF1 as the backup data source when the primary source has no matching/published rows.
+The latest F1 session result section uses `/api/f1-latest-session`. It checks the latest completed session from `data/f1_calendar.csv`, tries Jolpica first, and then uses OpenF1 as the backup data source when Jolpica has no matching or published rows. If the latest completed session has no result yet, the app shows that session as pending instead of falling back to an older session.
 
-The `Update F1 Session Results` GitHub Actions workflow pings `/api/f1-latest-session` after common FP1, FP2, FP3, sprint/qualifying, and race windows so Vercel's cached API response refreshes automatically after sessions. It also runs `npm run update:f1-favourites`, which recalculates and saves the favourites index in Supabase after each scheduled session refresh. Add a GitHub repository variable named `SITE_URL` if the deployed site URL is not:
+The `Update F1 Session Results` GitHub Actions workflow pings `/api/f1-latest-session` every 30 minutes from Friday through Tuesday so completed session results are retried automatically until they are available. It also runs `npm run update:f1-favourites`, which recalculates and saves the favourites index in Supabase after each scheduled session refresh. Add a GitHub repository variable named `SITE_URL` if the deployed site URL is not:
 
 ```text
 https://mysportzone.vercel.app
@@ -103,13 +103,13 @@ These are separate from the smaller driver avatar images used in the championshi
 
 ### Schedule
 
-The workflow runs every two hours at minute `30` on Fridays, Saturdays, Sundays, Mondays, and Tuesdays. This lets sprint results publish during sprint weekends and gives late Grand Prix classifications extra chances to update automatically. Use the manual workflow trigger only for unusual race schedules or if you want to force an immediate check.
+The workflow runs every 30 minutes on Fridays, Saturdays, Sundays, Mondays, and Tuesdays. This lets sprint results publish during sprint weekends and gives late Grand Prix classifications repeated chances to update automatically. Use the manual workflow trigger only for unusual race schedules or if you want to force an immediate check.
 
 Each API request is retried before the updater fails, which helps avoid missing updates because of short Jolpica or network outages.
 
 ### Troubleshooting
 
-- If no files change, Jolpica may not have published new data yet, or the CSV files may already be up to date. The schedule will keep checking every two hours from Friday through Tuesday.
+- If no files change, Jolpica may not have published new data yet, or the CSV files may already be up to date. The schedule will keep checking every 30 minutes from Friday through Tuesday.
 - If the workflow fails with a network or API error after retries, the next scheduled run should try again automatically.
 - If Vercel does not redeploy, check that Vercel is still connected to the GitHub repository and deploys from commits to the selected branch.
 - If a constructor table is empty, the frontend falls back to calculating constructors from `data/f1_drivers.csv`.
