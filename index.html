@@ -3111,7 +3111,7 @@ const upcomingF1 = calendar
       };
 
       function podiumCard(row, visualPosition) {
-        const teamColor = TEAM_PODIUM_COLORS[row.Team] || 'var(--accent)';
+        const teamColor = TEAM_PODIUM_COLORS[normalizeF1TeamName(row.Team)] || 'var(--accent)';
         const imageFile = driverImageFile(row.Driver);
         const initials = String(row.Driver || '?').split(/\s+/).map(part => part[0]).join('').slice(0, 2).toUpperCase();
 
@@ -3318,12 +3318,13 @@ const upcomingF1 = calendar
       }
 
       function normalizeF1TeamName(name) {
-        const aliases = {
-          'Alpine F1 Team': 'Alpine',
-          'Cadillac F1 Team': 'Cadillac',
-          'RB F1 Team': 'Racing Bulls',
-          'Red Bull': 'Red Bull Racing'
-        };
+const aliases = {
+  'Alpine F1 Team': 'Alpine',
+  'Cadillac F1 Team': 'Cadillac',
+  'RB F1 Team': 'Racing Bulls',
+  'Red Bull': 'Red Bull Racing',
+  'Oracle Red Bull Racing': 'Red Bull Racing'
+};
         return aliases[name] || name;
       }
 
