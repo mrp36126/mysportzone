@@ -251,6 +251,9 @@ async function fetchOpenF1TimingRows(weekend, session) {
   if (session.key === 'race' || session.key === 'sprint') {
     const positions = await fetchJson(`https://api.openf1.org/v1/position?session_key=${sessionKey}`).catch(() => []);
     const latestPositions = new Map();
+    const pointsByPosition = session.key === 'sprint'
+      ? [8, 7, 6, 5, 4, 3, 2, 1]
+      : [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
 
     positions.forEach(positionRow => {
       const driverNumber = Number(positionRow.driver_number);
@@ -286,7 +289,7 @@ async function fetchOpenF1TimingRows(weekend, session) {
           Laps: '',
           Time: '',
           Status: 'OpenF1 provisional classification',
-          Points: '',
+          Points: String(pointsByPosition[entry.latest.position - 1] || 0),
           FastestLapRank: '',
           FastestLapTime: '',
           FastestLapLap: ''
