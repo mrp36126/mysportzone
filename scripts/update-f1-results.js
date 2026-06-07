@@ -120,15 +120,18 @@ async function main() {
   const latestRaceRows = mapLatestRaceResults(latestResultsData);
   const latestSprintRows = mapLatestSprintResults(latestSprintData);
   const latestDisplayedResultRows = chooseLatestDisplayResultRows(latestRaceRows, latestSprintRows);
+  const latestStandingsProjectionRows = [...latestSprintRows, ...latestRaceRows];
   const previousDriverRows = await loadDriverChangeBaseline();
-  const driverRows = mapDriverStandings(driverStandingsData, previousDriverRows, latestDisplayedResultRows);
+  let driverRows = mapDriverStandings(driverStandingsData, previousDriverRows, latestDisplayedResultRows);
+  driverRows = projectDriverStandingsIfNeeded(driverRows, driverStandingsData, latestStandingsProjectionRows);
   const previousConstructorRows = await loadConstructorChangeBaseline();
-  const constructorRows = mapConstructorStandings(
+  let constructorRows = mapConstructorStandings(
     constructorStandingsData,
     driverRows,
     previousConstructorRows,
     latestDisplayedResultRows
   );
+  constructorRows = projectConstructorStandingsIfNeeded(constructorRows, constructorStandingsData, latestStandingsProjectionRows);
 
   let changed = false;
 
@@ -416,6 +419,50 @@ function mapDriverStandings(payload, previousRows = [], latestResultRows = []) {
   });
 }
 
+function projectDriverStandingsIfNeeded(driverRows, standingsPayload, latestResultRows) {
+  if (!shouldProjectStandings(standingsPayload, latestResultRows)) return driverRows;
+
+  const standingsRound = standingsPayloadRound(standingsPayload);
+  const projectedByDriver = new Map(driverRows.map(row => [row.Driver, { ...row }]));
+
+  for (const resultRow of latestResultRows) {
+    if (!resultRow.Driver) continue;
+    if (Number(resultRow.Round || 0) <= standingsRound) continue;
+
+    const pointsEarned = Number(resultRow.Points || 0);
+    const current = projectedByDriver.get(resultRow.Driver) || {
+      Position: '',
+      Change: '0',
+      Driver: resultRow.Driver,
+      Team: normalizeTeamName(resultRow.Team || ''),
+      CarNumber: '',
+      Points: '0',
+      PointsChange: '0'
+    };
+
+    projectedByDriver.set(resultRow.Driver, {
+      ...current,
+      Driver: current.Driver || resultRow.Driver,
+      Team: current.Team || normalizeTeamName(resultRow.Team || ''),
+      Points: String((Number(current.Points || 0) || 0) + pointsEarned),
+      PointsChange: String((Number(current.PointsChange || 0) || 0) + pointsEarned)
+    });
+  }
+
+  return [...projectedByDriver.values()]
+    .sort((a, b) => Number(b.Points || 0) - Number(a.Points || 0))
+    .map((row, index) => {
+      const previousPosition = Number(row.Position || index + 1);
+      const nextPosition = index + 1;
+      const change = Number.isFinite(previousPosition) ? previousPosition - nextPosition : 0;
+      return {
+        ...row,
+        Position: String(nextPosition),
+        Change: String(change)
+      };
+    });
+}
+
 function positionChange(currentPosition, previousPosition, previousChange = '') {
   const current = Number(currentPosition);
   const previous = Number(previousPosition);
@@ -466,6 +513,66 @@ function mapConstructorStandings(payload, driverRows, previousRows = [], latestR
       PointsChange: String(latestPointsByConstructor.get(constructorName) || 0)
     };
   });
+}
+
+function projectConstructorStandingsIfNeeded(constructorRows, standingsPayload, latestResultRows) {
+  if (!shouldProjectStandings(standingsPayload, latestResultRows)) return constructorRows;
+
+  const standingsRound = standingsPayloadRound(standingsPayload);
+  const projectedByConstructor = new Map(constructorRows.map(row => [row.Constructor, { ...row }]));
+
+  for (const resultRow of latestResultRows) {
+    if (!resultRow.Team) continue;
+    if (Number(resultRow.Round || 0) <= standingsRound) continue;
+
+    const constructorName = normalizeTeamName(resultRow.Team);
+    const pointsEarned = Number(resultRow.Points || 0);
+    const current = projectedByConstructor.get(constructorName) || {
+      Position: '',
+      Change: '0',
+      Constructor: constructorName,
+      Driver1: '',
+      Driver1Points: '0',
+      Driver2: '',
+      Driver2Points: '0',
+      Points: '0',
+      PointsChange: '0'
+    };
+
+    projectedByConstructor.set(constructorName, {
+      ...current,
+      Points: String((Number(current.Points || 0) || 0) + pointsEarned),
+      PointsChange: String((Number(current.PointsChange || 0) || 0) + pointsEarned)
+    });
+  }
+
+  return [...projectedByConstructor.values()]
+    .sort((a, b) => Number(b.Points || 0) - Number(a.Points || 0))
+    .map((row, index) => {
+      const previousPosition = Number(row.Position || index + 1);
+      const nextPosition = index + 1;
+      const change = Number.isFinite(previousPosition) ? previousPosition - nextPosition : 0;
+      return {
+        ...row,
+        Position: String(nextPosition),
+        Change: String(change)
+      };
+    });
+}
+
+function shouldProjectStandings(standingsPayload, latestResultRows) {
+  const standingsRound = standingsPayloadRound(standingsPayload);
+  if (!standingsRound) return false;
+
+  return latestResultRows.some(row => Number(row.Round || 0) > standingsRound);
+}
+
+function standingsPayloadRound(payload) {
+  const tableRound = Number(payload?.MRData?.StandingsTable?.round || 0);
+  if (Number.isFinite(tableRound) && tableRound > 0) return tableRound;
+
+  const listRound = Number(payload?.MRData?.StandingsTable?.StandingsLists?.[0]?.round || 0);
+  return Number.isFinite(listRound) && listRound > 0 ? listRound : 0;
 }
 
 function groupDriversByTeam(driverRows) {

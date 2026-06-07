@@ -3044,6 +3044,8 @@ const upcomingF1 = calendar
           }
           return {
             label: payload.label || 'Session Result',
+            source: payload.source || '',
+            sessionKey: payload.sessionKey || '',
             season: Number(payload.season || payload.rows[0].Season || 0),
             round: Number(payload.round || payload.rows[0].Round || 0),
             rows: payload.rows.sort((a, b) => Number(a.Position || 999) - Number(b.Position || 999))
@@ -3304,14 +3306,95 @@ const upcomingF1 = calendar
         return ` <span style="color:${color};font-size:0.8rem;font-weight:700;">${sign}${escapeHTML(change)}</span>`;
       }
 
-      const driversHTML = drivers.length === 0
+      function normalizeF1DriverName(name) {
+        const aliases = {
+          'Andrea Kimi Antonelli': 'Kimi Antonelli',
+          'Nico Hülkenberg': 'Nico Hulkenberg',
+          'Sergio Pérez': 'Sergio Perez'
+        };
+        return aliases[name] || name;
+      }
+
+      function normalizeF1TeamName(name) {
+        const aliases = {
+          'Alpine F1 Team': 'Alpine',
+          'Cadillac F1 Team': 'Cadillac',
+          'RB F1 Team': 'Racing Bulls',
+          'Red Bull': 'Red Bull Racing'
+        };
+        return aliases[name] || name;
+      }
+
+      function shouldProjectLatestPoints(group, csvGroup) {
+        if (!group || !Array.isArray(group.rows) || group.rows.length === 0) return false;
+        if (!['race', 'sprint'].includes(group.sessionKey)) return false;
+
+        const latestSeason = Number(group.season || group.rows[0]?.Season || 0);
+        const latestRound = Number(group.round || group.rows[0]?.Round || 0);
+        const csvSeason = Number(csvGroup?.season || 0);
+        const csvRound = Number(csvGroup?.round || 0);
+
+        if (!Number.isFinite(latestSeason) || !Number.isFinite(latestRound)) return false;
+        if (!csvGroup) return true;
+        return latestSeason > csvSeason || (latestSeason === csvSeason && latestRound > csvRound);
+      }
+
+      function projectDriverStandings(baseDrivers, group, csvGroup) {
+        if (!shouldProjectLatestPoints(group, csvGroup)) return baseDrivers;
+
+        const projectedByDriver = new Map(baseDrivers.map(driver => [
+          normalizeF1DriverName(driver.Driver),
+          { ...driver }
+        ]));
+
+        group.rows.forEach(row => {
+          const driverName = normalizeF1DriverName(row.Driver || '');
+          if (!driverName) return;
+
+          const pointsEarned = Number(row.Points || 0);
+          const current = projectedByDriver.get(driverName) || {
+            Position: '',
+            Change: '0',
+            Driver: driverName,
+            Team: normalizeF1TeamName(row.Team || ''),
+            CarNumber: '',
+            Points: '0',
+            PointsChange: '0'
+          };
+
+          projectedByDriver.set(driverName, {
+            ...current,
+            Driver: current.Driver || driverName,
+            Team: current.Team || normalizeF1TeamName(row.Team || ''),
+            Points: String((Number(current.Points || 0) || 0) + pointsEarned),
+            PointsChange: String((Number(current.PointsChange || 0) || 0) + pointsEarned)
+          });
+        });
+
+        return [...projectedByDriver.values()]
+          .sort((a, b) => Number(b.Points || 0) - Number(a.Points || 0))
+          .map((driver, index) => {
+            const previousPosition = Number(driver.Position || index + 1);
+            const nextPosition = index + 1;
+            const change = Number.isFinite(previousPosition) ? previousPosition - nextPosition : 0;
+            return {
+              ...driver,
+              Position: String(nextPosition),
+              Change: String(change)
+            };
+          });
+      }
+
+      const displayedDrivers = projectDriverStandings(drivers, resultGroup, csvResultGroup);
+
+      const driversHTML = displayedDrivers.length === 0
         ? '<p style="color:var(--text-secondary);text-align:center;padding:20px;">Update f1_drivers.csv</p>'
         : `<table class="data-table">
             <thead><tr>
               <th>POS</th><th>DRIVER</th><th>TEAM</th><th>CAR #</th><th>POINTS</th>
             </tr></thead>
             <tbody>
-              ${drivers.map((d, i) => {
+              ${displayedDrivers.map((d, i) => {
                 const photoFile = 'icons/driver-' + (d.Driver || '').replace(/\s+/g,'') + '.png';
                 const avatarHTML = useDriverPhoto
                   ? `<img src="${safeAttr(photoFile)}" alt="${safeAttr(d.Driver)}" />`
@@ -3389,12 +3472,14 @@ const upcomingF1 = calendar
       }
 
       function driverPointsForName(driverName) {
-        const row = drivers.find(d => d.Driver === driverName);
+        const row = displayedDrivers.find(d => d.Driver === driverName);
         return row ? row.Points : '';
       }
 
       const constructorRows = await fetchCSV('data/f1_constructors.csv');
-      const constructors = constructorRows.length > 0
+      const constructors = shouldProjectLatestPoints(resultGroup, csvResultGroup)
+        ? buildConstructorsFromDrivers(displayedDrivers)
+        : constructorRows.length > 0
         ? constructorRows.map(row => ({
             team: row.Constructor,
             driver1: { driver: row.Driver1 || '—', points: row.Driver1Points || driverPointsForName(row.Driver1) },
@@ -3404,7 +3489,7 @@ const upcomingF1 = calendar
             position: row.Position,
             change: row.Change
           }))
-        : buildConstructorsFromDrivers(drivers);
+        : buildConstructorsFromDrivers(displayedDrivers);
 
       const constructorsHTML = constructors.length === 0
         ? '<p style="color:var(--text-secondary);text-align:center;padding:20px;">No data</p>'
