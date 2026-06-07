@@ -123,7 +123,7 @@ async function main() {
   const latestStandingsProjectionRows = [...latestSprintRows, ...latestRaceRows];
   const previousDriverRows = await loadDriverChangeBaseline();
   let driverRows = mapDriverStandings(driverStandingsData, previousDriverRows, latestDisplayedResultRows);
-  driverRows = projectDriverStandingsIfNeeded(driverRows, driverStandingsData, latestStandingsProjectionRows);
+  driverRows = projectDriverStandingsIfNeeded(driverRows, driverStandingsData, latestStandingsProjectionRows, latestDisplayedResultRows);
   const previousConstructorRows = await loadConstructorChangeBaseline();
   let constructorRows = mapConstructorStandings(
     constructorStandingsData,
@@ -131,7 +131,7 @@ async function main() {
     previousConstructorRows,
     latestDisplayedResultRows
   );
-  constructorRows = projectConstructorStandingsIfNeeded(constructorRows, constructorStandingsData, latestStandingsProjectionRows);
+  constructorRows = projectConstructorStandingsIfNeeded(constructorRows, constructorStandingsData, latestStandingsProjectionRows, latestDisplayedResultRows);
 
   let changed = false;
 
@@ -419,11 +419,16 @@ function mapDriverStandings(payload, previousRows = [], latestResultRows = []) {
   });
 }
 
-function projectDriverStandingsIfNeeded(driverRows, standingsPayload, latestResultRows) {
+function projectDriverStandingsIfNeeded(driverRows, standingsPayload, latestResultRows, latestChangeRows = latestResultRows) {
   if (!shouldProjectStandings(standingsPayload, latestResultRows)) return driverRows;
 
   const standingsRound = standingsPayloadRound(standingsPayload);
   const projectedByDriver = new Map(driverRows.map(row => [row.Driver, { ...row }]));
+  const latestSessionPointsByDriver = new Map(
+    latestChangeRows
+      .filter(row => row.Driver)
+      .map(row => [row.Driver, String(Number(row.Points || 0) || 0)])
+  );
 
   for (const resultRow of latestResultRows) {
     if (!resultRow.Driver) continue;
@@ -445,7 +450,7 @@ function projectDriverStandingsIfNeeded(driverRows, standingsPayload, latestResu
       Driver: current.Driver || resultRow.Driver,
       Team: current.Team || normalizeTeamName(resultRow.Team || ''),
       Points: String((Number(current.Points || 0) || 0) + pointsEarned),
-      PointsChange: String((Number(current.PointsChange || 0) || 0) + pointsEarned)
+      PointsChange: latestSessionPointsByDriver.get(resultRow.Driver) || '0'
     });
   }
 
@@ -515,11 +520,19 @@ function mapConstructorStandings(payload, driverRows, previousRows = [], latestR
   });
 }
 
-function projectConstructorStandingsIfNeeded(constructorRows, standingsPayload, latestResultRows) {
+function projectConstructorStandingsIfNeeded(constructorRows, standingsPayload, latestResultRows, latestChangeRows = latestResultRows) {
   if (!shouldProjectStandings(standingsPayload, latestResultRows)) return constructorRows;
 
   const standingsRound = standingsPayloadRound(standingsPayload);
   const projectedByConstructor = new Map(constructorRows.map(row => [row.Constructor, { ...row }]));
+  const latestSessionPointsByConstructor = new Map();
+
+  for (const resultRow of latestChangeRows) {
+    if (!resultRow.Team) continue;
+    const constructorName = normalizeTeamName(resultRow.Team);
+    const previous = latestSessionPointsByConstructor.get(constructorName) || 0;
+    latestSessionPointsByConstructor.set(constructorName, previous + Number(resultRow.Points || 0));
+  }
 
   for (const resultRow of latestResultRows) {
     if (!resultRow.Team) continue;
@@ -542,7 +555,7 @@ function projectConstructorStandingsIfNeeded(constructorRows, standingsPayload, 
     projectedByConstructor.set(constructorName, {
       ...current,
       Points: String((Number(current.Points || 0) || 0) + pointsEarned),
-      PointsChange: String((Number(current.PointsChange || 0) || 0) + pointsEarned)
+      PointsChange: String(latestSessionPointsByConstructor.get(constructorName) || 0)
     });
   }
 

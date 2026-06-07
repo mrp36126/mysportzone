@@ -3367,7 +3367,7 @@ const upcomingF1 = calendar
             Driver: current.Driver || driverName,
             Team: current.Team || normalizeF1TeamName(row.Team || ''),
             Points: String((Number(current.Points || 0) || 0) + pointsEarned),
-            PointsChange: String((Number(current.PointsChange || 0) || 0) + pointsEarned)
+            PointsChange: String(pointsEarned)
           });
         });
 
@@ -3456,18 +3456,29 @@ const upcomingF1 = calendar
         'Haas':             { color:'#b6babd', init:'HAA' },
       };
 
-      function buildConstructorsFromDrivers(driverRows) {
+      function buildConstructorsFromDrivers(driverRows, latestGroup = null) {
         const teams = {};
         driverRows.forEach(d => {
           if (!teams[d.Team]) teams[d.Team] = [];
           teams[d.Team].push({ driver: d.Driver, points: parseInt(d.Points) || 0 });
         });
 
+        const latestSessionPointsByTeam = new Map();
+        if (latestGroup?.rows) {
+          latestGroup.rows.forEach(row => {
+            if (!row.Team) return;
+            const teamName = normalizeF1TeamName(row.Team);
+            const previous = latestSessionPointsByTeam.get(teamName) || 0;
+            latestSessionPointsByTeam.set(teamName, previous + (Number(row.Points || 0) || 0));
+          });
+        }
+
         return Object.entries(teams).map(([teamName, driverList]) => {
           driverList.sort((a, b) => b.points - a.points);
           const total = driverList.reduce((sum, d) => sum + d.points, 0);
           return { team: teamName, driver1: driverList[0] || { driver:'—', points:0 },
-                   driver2: driverList[1] || { driver:'—', points:0 }, total };
+                   driver2: driverList[1] || { driver:'—', points:0 }, total,
+                   pointsChange: String(latestSessionPointsByTeam.get(teamName) || 0) };
         }).sort((a, b) => b.total - a.total);
       }
 
@@ -3478,7 +3489,7 @@ const upcomingF1 = calendar
 
       const constructorRows = await fetchCSV('data/f1_constructors.csv');
       const constructors = shouldProjectLatestPoints(resultGroup, csvResultGroup)
-        ? buildConstructorsFromDrivers(displayedDrivers)
+        ? buildConstructorsFromDrivers(displayedDrivers, resultGroup)
         : constructorRows.length > 0
         ? constructorRows.map(row => ({
             team: row.Constructor,
