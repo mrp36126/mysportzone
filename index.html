@@ -2387,14 +2387,11 @@
     function formatSessionTimeGap(ms) {
       if (!Number.isFinite(ms) || ms < 0) return '';
       const totalMs = Math.round(ms);
-      const hours = Math.floor(totalMs / 3600000);
-      let remainder = totalMs % 3600000;
-      const minutes = Math.floor(remainder / 60000);
-      remainder %= 60000;
-      const seconds = Math.floor(remainder / 1000);
-      const millis = remainder % 1000;
-      const base = `${hours}:${padTwo(minutes)}:${padTwo(seconds)}`;
-      return millis === 0 ? base : `${base}.${String(millis).padStart(3, '0')}`;
+      const minutes = Math.floor(totalMs / 60000);
+      const seconds = Math.floor((totalMs % 60000) / 1000);
+      const millis = totalMs % 1000;
+      const base = `${padTwo(minutes)}:${padTwo(seconds)}`;
+      return `${base}.${String(millis).padStart(3, '0')}`;
     }
 
     function sessionTimeCellHTML(row, fastestTimeMs) {
