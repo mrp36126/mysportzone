@@ -2402,10 +2402,12 @@
         return escapeHTML(time);
       }
       const position = Number(row.Position || 0);
-      if (position === 1) return escapeHTML(time);
+      if (position === 1) {
+        return `<span style="color:#00ff88;font-weight:700;">${escapeHTML(time)}</span>`;
+      }
       const diff = currentMs - fastestTimeMs;
       if (diff < 0) return escapeHTML(time);
-      return `<span style="color:#00ff88;font-weight:700;">+${escapeHTML(formatSessionTimeGap(diff))}</span>`;
+      return `<span style="color:var(--accent);font-weight:700;">+${escapeHTML(formatSessionTimeGap(diff))}</span>`;
     }
 
     // ====================================================================
