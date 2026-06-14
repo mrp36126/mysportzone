@@ -1,22 +1,22 @@
 Position,Change,Driver,Team,CarNumber,Points,PointsChange
-1,0,Kimi Antonelli,Mercedes,12,156,25
-2,2,Lewis Hamilton,Ferrari,44,90,18
-3,-1,George Russell,Mercedes,63,88,0
+1,0,Kimi Antonelli,Mercedes,12,156,0
+2,2,Lewis Hamilton,Ferrari,44,115,25
+3,-1,George Russell,Mercedes,63,106,18
 4,-1,Charles Leclerc,Ferrari,16,75,0
-5,1,Oscar Piastri,McLaren,81,58,10
-6,-1,Lando Norris,McLaren,1,58,0
-7,0,Max Verstappen,Red Bull Racing,3,43,0
-8,2,Pierre Gasly,Alpine,10,35,15
-9,-1,Isack Hadjar,Red Bull Racing,6,26,12
-10,-1,Liam Lawson,Racing Bulls,30,24,8
-11,-2,Oliver Bearman,Haas F1 Team,87,18,0
-12,-1,Franco Colapinto,Alpine,43,15,0
-13,1,Arvid Lindblad,Racing Bulls,41,11,6
+5,1,Lando Norris,McLaren,1,73,15
+6,-1,Oscar Piastri,McLaren,81,68,10
+7,0,Max Verstappen,Red Bull Racing,3,55,12
+8,2,Pierre Gasly,Alpine,10,41,6
+9,-1,Isack Hadjar,Red Bull Racing,6,34,8
+10,-1,Liam Lawson,Racing Bulls,30,26,2
+11,1,Franco Colapinto,Alpine,43,19,4
+12,-1,Oliver Bearman,Haas F1 Team,87,18,0
+13,1,Arvid Lindblad,Racing Bulls,41,12,1
 14,-1,Carlos Sainz,Williams,55,6,0
-15,2,Alexander Albon,Williams,23,5,4
-16,0,Esteban Ocon,Haas F1 Team,31,3,2
+15,2,Alexander Albon,Williams,23,5,0
+16,0,Esteban Ocon,Haas F1 Team,31,3,0
 17,-2,Gabriel Bortoleto,Audi,5,2,0
-18,2,Fernando Alonso,Aston Martin,14,1,1
+18,2,Fernando Alonso,Aston Martin,14,1,0
 19,-1,Nico Hulkenberg,Audi,27,0,0
 20,1,Valtteri Bottas,Cadillac,77,0,0
 21,-3,Sergio Perez,Cadillac,11,0,0
