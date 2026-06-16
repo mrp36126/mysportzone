@@ -1,7 +1,8 @@
 {
   "scripts": {
     "update:f1": "node scripts/update-f1-results.js",
-    "update:f1-favourites": "node scripts/update-f1-favourites.js"
+    "update:f1-favourites": "node scripts/update-f1-favourites.js",
+    "update:rugby": "node scripts/update-rugby-results.js"
   },
   "engines": {
     "node": ">=18"

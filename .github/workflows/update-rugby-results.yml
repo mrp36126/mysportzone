@@ -1,0 +1,38 @@
+name: Update Rugby Results
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Every 2 hours, 7 days a week
+    - cron: "0 */2 * * *"
+
+concurrency:
+  group: update-rugby-results
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  update-rugby-results:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+
+      - name: Run Rugby results updater
+        env:
+          HIGHLIGHTLY_API_KEY: ${{ secrets.HIGHLIGHTLY_API_KEY }}
+        run: npm run update:rugby
+
+      - name: Commit updated CSV files
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Update rugby results from Highlightly"
+          file_pattern: "data/rugby_results.csv"
