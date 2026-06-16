@@ -3834,12 +3834,21 @@ return `
           `${nextRugbyFixture.HomeTeam} vs ${nextRugbyFixture.AwayTeam}`;
         document.getElementById('rugbyNextFixtureDetails').textContent =
           `📍 ${nextRugbyFixture.Venue} | 📅 ${nextRugbyFixture.Date} | ${nextRugbyFixture.Competition}`;
-        // Default kick-off 15:00 SAST; supports both historical spellings.
-        const kickoffTime = nextRugbyFixture.KickOffTime || nextRugbyFixture.KickoffTime || '15:00';
-startCountdown(
-  nextRugbyFixture.Date + 'T' + kickoffTime + ':00',
-  'rugby-cd-days', 'rugby-cd-hrs', 'rugby-cd-min', 'rugby-cd-sec'
-);
+        // Determine kickoff time in SAST for the countdown.
+        // If fixture has a KickOffTime (venue-local), convert it to SAST.
+        const rawKickoff = nextRugbyFixture.KickOffTime || nextRugbyFixture.KickoffTime || '';
+        let kickoffSAST = '';
+        if (rawKickoff && String(rawKickoff).toLowerCase() !== 'tbc') {
+          kickoffSAST = convertToSAST(nextRugbyFixture.Date, rawKickoff, nextRugbyFixture.Venue);
+        }
+        // Fallback: if conversion failed or time is missing, assume 15:00 SAST
+        if (!kickoffSAST || kickoffSAST === 'TBC') kickoffSAST = '15:00';
+
+        // Start countdown using explicit SAST time (startCountdown will append +02:00)
+        startCountdown(
+          nextRugbyFixture.Date + 'T' + kickoffSAST + ':00',
+          'rugby-cd-days', 'rugby-cd-hrs', 'rugby-cd-min', 'rugby-cd-sec'
+        );
       } else {
         document.getElementById('rugbyNextFixtureName').textContent = 'No upcoming fixtures';
         document.getElementById('rugbyNextFixtureDetails').textContent = 'Check back soon';
