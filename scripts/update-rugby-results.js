@@ -45,13 +45,29 @@ main().catch(error => {
 async function main() {
   await assertDataDir();
 
-  console.log('Fetching international rugby results from Highlightly...');
+  console.log('Reading expected rugby fixtures...');
+  const fixtures = await readCsvIfExists(FILES.rugbyFixtures, ['Date', 'HomeTeam', 'AwayTeam', 'Venue', 'Competition', 'KickOffTime']);
+  
+  if (fixtures.length === 0) {
+    console.log('No fixtures found in rugby_fixtures.csv. Skipping update.');
+    return;
+  }
+
+  console.log(`Found ${fixtures.length} fixtures. Fetching results for scheduled matches from Highlightly...`);
 
   // Fetch recent completed matches from Highlightly
-  const results = await fetchHighlightlyResults();
+  const allResults = await fetchHighlightlyResults();
+
+  if (allResults.length === 0) {
+    console.log('No completed rugby matches available from Highlightly. Existing rugby_results.csv was left unchanged.');
+    return;
+  }
+
+  // Filter results to only include matches in the fixtures list
+  const results = filterResultsToFixtures(allResults, fixtures);
 
   if (results.length === 0) {
-    console.log('No new rugby results available. Existing rugby_results.csv was left unchanged.');
+    console.log('No completed matches found for the scheduled fixtures. Existing rugby_results.csv was left unchanged.');
     return;
   }
 
@@ -108,14 +124,18 @@ async function fetchHighlightlyResults() {
           const matches = payload.data || payload.matches || [];
           const mapped = matches
             .filter(match => match.status === 'completed' && match.homeTeam && match.awayTeam && Number.isFinite(match.homeScore) && Number.isFinite(match.awayScore))
-            .map(match => ({
-              Date: formatDate(match.date || match.startTime),
-              HomeTeam: match.homeTeam.name || match.homeTeam,
-              HomeScore: String(match.homeScore),
-              AwayScore: String(match.awayScore),
-              AwayTeam: match.awayTeam.name || match.awayTeam,
-              Competition: match.competition?.name || match.competitionType || 'International'
-            }))
+            .map(match => {
+              const homeTeamName = typeof match.homeTeam === 'string' ? match.homeTeam : (match.homeTeam.name || '');
+              const awayTeamName = typeof match.awayTeam === 'string' ? match.awayTeam : (match.awayTeam.name || '');
+              return {
+                Date: formatDate(match.date || match.startTime),
+                HomeTeam: homeTeamName,
+                HomeScore: String(match.homeScore),
+                AwayScore: String(match.awayScore),
+                AwayTeam: awayTeamName,
+                Competition: match.competition?.name || match.competitionType || 'International'
+              };
+            })
             .sort((a, b) => new Date(b.Date) - new Date(a.Date));
 
           console.log(`Fetched ${mapped.length} completed rugby matches from Highlightly.`);
@@ -133,6 +153,20 @@ async function fetchHighlightlyResults() {
 
     req.end();
   });
+}
+
+function filterResultsToFixtures(results, fixtures) {
+  const fixtureSet = new Set(fixtures.map(f => `${normalizeTeamName(f.HomeTeam)}:${normalizeTeamName(f.AwayTeam)}:${f.Date}`));
+  
+  return results.filter(result => {
+    const key = `${normalizeTeamName(result.HomeTeam)}:${normalizeTeamName(result.AwayTeam)}:${result.Date}`;
+    return fixtureSet.has(key);
+  });
+}
+
+function normalizeTeamName(name) {
+  if (!name) return '';
+  return name.trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
 function formatDate(dateStr) {
