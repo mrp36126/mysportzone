@@ -27,7 +27,7 @@ const FILES = {
   rugbyFixtures: path.join(DATA_DIR, 'rugby_fixtures.csv')
 };
 
-const HEADERS = ['Date', 'HomeTeam', 'HomeScore', 'AwayScore', 'AwayTeam', 'Competition'];
+const HEADERS = ['Date', 'HomeTeam', 'HomeScore', 'AwayScore', 'AwayTeam', 'Competition', 'KickOffTimeSAST'];
 const API_KEY = process.env.HIGHLIGHTLY_API_KEY;
 const API_BASE = 'https://api.highlightly.io';
 
@@ -133,7 +133,9 @@ async function fetchHighlightlyResults() {
                 HomeScore: String(match.homeScore),
                 AwayScore: String(match.awayScore),
                 AwayTeam: awayTeamName,
-                Competition: match.competition?.name || match.competitionType || 'International'
+                Venue: match.venue?.name || match.stadium || '',
+                Competition: match.competition?.name || match.competitionType || 'International',
+                KickOffTime: formatTimeFromMatch(match)
               };
             })
             .sort((a, b) => new Date(b.Date) - new Date(a.Date));
@@ -156,12 +158,99 @@ async function fetchHighlightlyResults() {
 }
 
 function filterResultsToFixtures(results, fixtures) {
-  const fixtureSet = new Set(fixtures.map(f => `${normalizeTeamName(f.HomeTeam)}:${normalizeTeamName(f.AwayTeam)}:${f.Date}`));
+  // Create a map of fixtures with their kickoff times
+  const fixtureMap = new Map(
+    fixtures.map(f => [
+      `${normalizeTeamName(f.HomeTeam)}:${normalizeTeamName(f.AwayTeam)}:${f.Date}`,
+      {
+        fixture: f,
+        kickoffTime: f.KickOffTime || ''
+      }
+    ])
+  );
   
-  return results.filter(result => {
-    const key = `${normalizeTeamName(result.HomeTeam)}:${normalizeTeamName(result.AwayTeam)}:${result.Date}`;
-    return fixtureSet.has(key);
-  });
+  return results
+    .filter(result => {
+      const key = `${normalizeTeamName(result.HomeTeam)}:${normalizeTeamName(result.AwayTeam)}:${result.Date}`;
+      return fixtureMap.has(key);
+    })
+    .map(result => {
+      const key = `${normalizeTeamName(result.HomeTeam)}:${normalizeTeamName(result.AwayTeam)}:${result.Date}`;
+      const fixtureData = fixtureMap.get(key);
+      const kickoffTime = fixtureData?.kickoffTime ? convertToSAST(result.Date, fixtureData.kickoffTime, fixtureData.fixture.Venue || '') : '';
+      return {
+        ...result,
+        KickOffTimeSAST: kickoffTime
+      };
+    });
+}
+
+function convertToSAST(dateStr, timeStr, venueStr) {
+  if (!timeStr || timeStr.toLowerCase() === 'tbc') return 'TBC';
+  
+  try {
+    // Parse the time
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return 'TBC';
+    
+    // Create a UTC date at that time
+    const dt = new Date(`${dateStr}T${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00Z`);
+    if (Number.isNaN(dt.getTime())) return 'TBC';
+    
+    // Determine the timezone offset from the venue
+    const venueNorm = venueStr.toLowerCase();
+    let offsetHours = 0;
+    
+    // South Africa (UTC+2)
+    if (venueNorm.includes('south africa') || venueNorm.includes('johannesburg') || venueNorm.includes('pretoria') || 
+        venueNorm.includes('durban') || venueNorm.includes('cape town')) {
+      offsetHours = 2;
+    }
+    // Australia (UTC+8 to UTC+10 depending on location)
+    else if (venueNorm.includes('australia') || venueNorm.includes('sydney') || venueNorm.includes('perth')) {
+      offsetHours = 8;
+    }
+    // New Zealand (UTC+12)
+    else if (venueNorm.includes('new zealand') || venueNorm.includes('auckland') || venueNorm.includes('wellington')) {
+      offsetHours = 12;
+    }
+    // Japan (UTC+9)
+    else if (venueNorm.includes('japan') || venueNorm.includes('tokyo')) {
+      offsetHours = 9;
+    }
+    // UK/Ireland (UTC+0, or UTC+1 in summer)
+    else if (venueNorm.includes('england') || venueNorm.includes('scotland') || venueNorm.includes('wales') || 
+             venueNorm.includes('ireland') || venueNorm.includes('cardiff') || venueNorm.includes('edinburgh') ||
+             venueNorm.includes('liverpool')) {
+      offsetHours = 0; // Assume winter UTC, may need adjustment for summer
+    }
+    // Argentina (UTC-3)
+    else if (venueNorm.includes('argentina') || venueNorm.includes('cordoba') || venueNorm.includes('santiago')) {
+      offsetHours = -3;
+    }
+    // USA (UTC-5 for East Coast)
+    else if (venueNorm.includes('baltimore') || venueNorm.includes('united states')) {
+      offsetHours = -5;
+    }
+    // Fiji (UTC+12)
+    else if (venueNorm.includes('fiji')) {
+      offsetHours = 12;
+    }
+    
+    // Convert UTC to the venue's local time, then to SAST
+    const venueTime = new Date(dt.getTime() + offsetHours * 60 * 60 * 1000);
+    const sastTime = new Date(dt.getTime() + 2 * 60 * 60 * 1000); // SAST = UTC+2
+    
+    // Calculate the time difference
+    const diff = sastTime.getTime() - venueTime.getTime();
+    const fastTime = new Date(dt.getTime() + diff);
+    
+    const sastHours = String(fastTime.getUTCHours()).padStart(2, '0');
+    const sastMinutes = String(fastTime.getUTCMinutes()).padStart(2, '0');
+    return `${sastHours}:${sastMinutes}`;
+  } catch (error) {
+    return 'TBC';
+  }
 }
 
 function normalizeTeamName(name) {
@@ -178,6 +267,19 @@ function formatDate(dateStr) {
     const month = String(dt.getUTCMonth() + 1).padStart(2, '0');
     const day = String(dt.getUTCDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  } catch {
+    return '';
+  }
+}
+
+function formatTimeFromMatch(match) {
+  if (!match.date && !match.startTime) return '';
+  try {
+    const dt = new Date(match.date || match.startTime);
+    if (Number.isNaN(dt.getTime())) return '';
+    const hours = String(dt.getUTCHours()).padStart(2, '0');
+    const minutes = String(dt.getUTCMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
   } catch {
     return '';
   }
