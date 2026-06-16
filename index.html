@@ -3784,6 +3784,42 @@ return `
       </div>`;
     }
 
+    // Convert a venue-local time (HH:MM) on a given date to SAST (UTC+2)
+    function convertToSAST(dateStr, timeStr, venueStr) {
+      if (!timeStr) return '';
+      if (String(timeStr).toLowerCase() === 'tbc') return 'TBC';
+
+      const parts = String(timeStr).split(':').map(Number);
+      if (parts.length === 0 || !Number.isFinite(parts[0])) return '';
+      const hours = parts[0] || 0;
+      const minutes = parts[1] || 0;
+
+      // Determine approximate venue offset in hours
+      const v = (venueStr || '').toLowerCase();
+      let offset = 0; // hours ahead of UTC
+      if (v.includes('south africa') || v.includes('johannesburg') || v.includes('pretoria') || v.includes('durban') || v.includes('cape town')) offset = 2;
+      else if (v.includes('australia') || v.includes('sydney') || v.includes('perth')) offset = 8;
+      else if (v.includes('new zealand') || v.includes('auckland') || v.includes('wellington') || v.includes('christchurch')) offset = 12;
+      else if (v.includes('japan') || v.includes('tokyo')) offset = 9;
+      else if (v.includes('england') || v.includes('scotland') || v.includes('wales') || v.includes('ireland') || v.includes('cardiff') || v.includes('edinburgh')) offset = 0;
+      else if (v.includes('argentina') || v.includes('cordoba') || v.includes('buenos') || v.includes('san juan')) offset = -3;
+      else if (v.includes('baltimore') || v.includes('united states') || v.includes('usa') || v.includes('maryland')) offset = -5;
+      else if (v.includes('fiji')) offset = 12;
+
+      // Compute SAST: take the venue-local time, convert to UTC by subtracting offset, then add 2 hours for SAST
+      // Use Date UTC to avoid local machine timezone interference
+      const ymd = dateStr.split('-').map(Number);
+      if (ymd.length !== 3) return '';
+      const [y, m, d] = ymd;
+      // Create a Date object using UTC components at the venue-local time
+      const utcMillis = Date.UTC(y, m - 1, d, hours - offset, minutes, 0);
+      const sastMillis = utcMillis + (2 * 60 * 60 * 1000);
+      const dt = new Date(sastMillis);
+      const hh = String(dt.getUTCHours()).padStart(2, '0');
+      const mm = String(dt.getUTCMinutes()).padStart(2, '0');
+      return `${hh}:${mm}`;
+    }
+
     async function initRugby() {
 
       // --- NEXT FIXTURE BANNER + COUNTDOWN ---
@@ -3827,6 +3863,7 @@ startCountdown(
                 <th>SCORE</th>
                 <th>RESULT</th>  <!-- Win/Loss/Draw icon for away team -->
                 <th>AWAY</th>
+                <th>KICKOFF</th>
                 <th>COMPETITION</th>
               </tr>
             </thead>
@@ -3867,6 +3904,9 @@ startCountdown(
                     </div>
                   </td>
 
+                  <!-- KICKOFF (SAST) -->
+                  <td style="color:var(--text-secondary);white-space:nowrap;">${escapeHTML(r.KickOffTimeSAST || '')}</td>
+
                   <!-- COMPETITION -->
                   <td style="color:var(--text-secondary);font-size:0.85rem;">${escapeHTML(r.Competition)}</td>
                 </tr>
@@ -3889,6 +3929,7 @@ startCountdown(
                 <th>HOME</th>
                 <th>VS</th>
                 <th>AWAY</th>
+                <th>KICKOFF (SAST)</th>
                 <th>VENUE</th>
                 <th>COMPETITION</th>
               </tr>
@@ -3917,6 +3958,9 @@ startCountdown(
                       <span style="font-weight:700;">${escapeHTML(f.AwayTeam)}</span>
                     </div>
                   </td>
+
+                  <!-- KICKOFF (SAST) -->
+                  <td style="white-space:nowrap;color:var(--text-secondary);font-weight:700;">${escapeHTML(f.KickOffTime ? convertToSAST(f.Date, f.KickOffTime, f.Venue) : (f.KickOffTime || ''))}</td>
 
                   <td style="color:var(--text-secondary);font-size:0.85rem;">${escapeHTML(f.Venue)}</td>
                   <td style="color:var(--text-secondary);font-size:0.85rem;">${escapeHTML(f.Competition)}</td>
