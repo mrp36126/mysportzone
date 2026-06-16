@@ -409,7 +409,7 @@ function mapDriverStandings(payload, previousRows = [], latestResultRows = []) {
 
     return {
       Position: item.positionText || item.position || '',
-      Change: positionChange(item.position, previousPositionByDriver.get(driverName), previousRow?.Change),
+      Change: positionChange(item.position, previousPositionByDriver.get(driverName)),
       Driver: driverName,
       Team: normalizeTeamName(item.Constructors?.[0]?.name || ''),
       CarNumber: item.Driver?.permanentNumber || '',
@@ -468,12 +468,11 @@ function projectDriverStandingsIfNeeded(driverRows, standingsPayload, latestResu
     });
 }
 
-function positionChange(currentPosition, previousPosition, previousChange = '') {
+function positionChange(currentPosition, previousPosition) {
   const current = Number(currentPosition);
   const previous = Number(previousPosition);
   if (!Number.isFinite(current) || !Number.isFinite(previous)) return '0';
-  const change = previous - current;
-  return change === 0 && previousChange !== '' ? String(previousChange) : String(change);
+  return String(previous - current);
 }
 
 function mapConstructorStandings(payload, driverRows, previousRows = [], latestResultRows = []) {
@@ -508,7 +507,7 @@ function mapConstructorStandings(payload, driverRows, previousRows = [], latestR
 
     return {
       Position: item.positionText || item.position || '',
-      Change: positionChange(item.position, previousPositionByConstructor.get(constructorName), previousRow?.Change),
+      Change: positionChange(item.position, previousPositionByConstructor.get(constructorName)),
       Constructor: constructorName,
       Driver1: drivers[0]?.Driver || '',
       Driver1Points: drivers[0]?.Points || '0',
