@@ -2530,7 +2530,7 @@
       }
 
       update(); // Run immediately to avoid 1-second delay on load
-      setInterval(update, 1000); // Then update every 1000ms (1 second)
+      return setInterval(update, 1000); // Then update every 1000ms (1 second)
     }
 
     // ====================================================================
@@ -3820,42 +3820,85 @@ return `
       return `${hh}:${mm}`;
     }
 
+    // Build kickoff info in SAST for fixture ordering and countdown selection.
+    function rugbyFixtureKickoffInfo(fixture) {
+      const rawKickoff = fixture.KickOffTime || fixture.KickoffTime || '';
+      let kickoffSAST = '';
+
+      if (rawKickoff && String(rawKickoff).toLowerCase() !== 'tbc') {
+        kickoffSAST = convertToSAST(fixture.Date, rawKickoff, fixture.Venue);
+      }
+
+      // Fallback when no reliable kickoff is available.
+      if (!kickoffSAST || kickoffSAST === 'TBC') kickoffSAST = '15:00';
+
+      return {
+        kickoffSAST,
+        kickoffDate: new Date(`${fixture.Date}T${kickoffSAST}:00+02:00`)
+      };
+    }
+
+    let rugbyCountdownIntervalId = null;
+    let rugbyFixturePollIntervalId = null;
+    let rugbyActiveFixtureKey = '';
+
     async function initRugby() {
 
       // --- NEXT FIXTURE BANNER + COUNTDOWN ---
       const allFixtures = await fetchCSV('data/rugby_fixtures.csv');
-      const todayRugby = new Date();
-      const nextRugbyFixture = allFixtures
-        .filter(r => new Date(r.Date) >= todayRugby)
-        .sort((a, b) => new Date(a.Date) - new Date(b.Date))[0];
+      const syncRugbyCountdown = () => {
+        const nowRugby = new Date();
+        const nextItem = allFixtures
+          .map(fixture => ({
+            fixture,
+            kickoffInfo: rugbyFixtureKickoffInfo(fixture)
+          }))
+          // Keep the current fixture in countdown until kickoff has actually started.
+          .filter(item => item.kickoffInfo.kickoffDate > nowRugby)
+          .sort((a, b) => a.kickoffInfo.kickoffDate - b.kickoffInfo.kickoffDate)[0];
 
-      if (nextRugbyFixture) {
+        if (!nextItem) {
+          if (rugbyCountdownIntervalId) {
+            clearInterval(rugbyCountdownIntervalId);
+            rugbyCountdownIntervalId = null;
+          }
+          rugbyActiveFixtureKey = '';
+          document.getElementById('rugbyNextFixtureName').textContent = 'No upcoming fixtures';
+          document.getElementById('rugbyNextFixtureDetails').textContent = 'Check back soon';
+          ['rugby-cd-days','rugby-cd-hrs','rugby-cd-min','rugby-cd-sec'].forEach(id => {
+            document.getElementById(id).textContent = '--';
+          });
+          return;
+        }
+
+        const { fixture: nextRugbyFixture, kickoffInfo } = nextItem;
+        const nextFixtureKey = [
+          nextRugbyFixture.Date,
+          nextRugbyFixture.HomeTeam,
+          nextRugbyFixture.AwayTeam,
+          kickoffInfo.kickoffSAST
+        ].join('|');
+
+        if (nextFixtureKey === rugbyActiveFixtureKey) return;
+
+        rugbyActiveFixtureKey = nextFixtureKey;
+        if (rugbyCountdownIntervalId) clearInterval(rugbyCountdownIntervalId);
+
         document.getElementById('rugbyNextFixtureName').textContent =
           `${nextRugbyFixture.HomeTeam} vs ${nextRugbyFixture.AwayTeam}`;
         document.getElementById('rugbyNextFixtureDetails').textContent =
           `📍 ${nextRugbyFixture.Venue} | 📅 ${nextRugbyFixture.Date} | ${nextRugbyFixture.Competition}`;
-        // Determine kickoff time in SAST for the countdown.
-        // If fixture has a KickOffTime (venue-local), convert it to SAST.
-        const rawKickoff = nextRugbyFixture.KickOffTime || nextRugbyFixture.KickoffTime || '';
-        let kickoffSAST = '';
-        if (rawKickoff && String(rawKickoff).toLowerCase() !== 'tbc') {
-          kickoffSAST = convertToSAST(nextRugbyFixture.Date, rawKickoff, nextRugbyFixture.Venue);
-        }
-        // Fallback: if conversion failed or time is missing, assume 15:00 SAST
-        if (!kickoffSAST || kickoffSAST === 'TBC') kickoffSAST = '15:00';
 
-        // Start countdown using explicit SAST time (startCountdown will append +02:00)
-        startCountdown(
-          nextRugbyFixture.Date + 'T' + kickoffSAST + ':00',
+        // Countdown stays on this fixture until its kickoff is reached.
+        rugbyCountdownIntervalId = startCountdown(
+          nextRugbyFixture.Date + 'T' + kickoffInfo.kickoffSAST + ':00',
           'rugby-cd-days', 'rugby-cd-hrs', 'rugby-cd-min', 'rugby-cd-sec'
         );
-      } else {
-        document.getElementById('rugbyNextFixtureName').textContent = 'No upcoming fixtures';
-        document.getElementById('rugbyNextFixtureDetails').textContent = 'Check back soon';
-        ['rugby-cd-days','rugby-cd-hrs','rugby-cd-min','rugby-cd-sec'].forEach(id => {
-          document.getElementById(id).textContent = '--';
-        });
-      }
+      };
+
+      syncRugbyCountdown();
+      if (rugbyFixturePollIntervalId) clearInterval(rugbyFixturePollIntervalId);
+      rugbyFixturePollIntervalId = setInterval(syncRugbyCountdown, 1000);
 
       // --- RESULTS ---
       // CSV columns: Date, HomeTeam, HomeScore, AwayScore, AwayTeam, Competition
