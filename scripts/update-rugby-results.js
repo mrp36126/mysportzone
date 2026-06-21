@@ -10,7 +10,7 @@
  * - Highlightly API: https://api.highlightly.io/v1/rugby/results
  *
  * Run locally with:
- *   HIGHLIGHTLY_API_KEY=your_key npm run update:rugby
+ *   HIGHLIGHTLY_API_KEY=your_highlightly_key SPORTDB_API_KEY=your_sportdb_key npm run update:rugby
  *
  * GitHub Actions runs this script on a schedule (every 2 hours during match seasons).
  */
@@ -30,7 +30,10 @@ const FILES = {
 const HEADERS = ['Date', 'HomeTeam', 'HomeScore', 'AwayScore', 'AwayTeam', 'Competition', 'KickOffTimeSAST'];
 const API_KEY = process.env.HIGHLIGHTLY_API_KEY;
 const API_BASE = 'https://api.highlightly.io';
+const SPORTDB_API_KEY = process.env.SPORTDB_API_KEY;
+const SPORTDB_BASE_URL = process.env.SPORTDB_BASE_URL || 'https://www.thesportsdb.com';
 const COMPLETED_STATUSES = new Set(['completed', 'finished', 'full-time', 'full_time', 'ft', 'ended', 'final']);
+const SPORTDB_COMPLETED_STATUSES = new Set(['match finished', 'finished', 'full time', 'full-time', 'ft', 'after et', 'after penalties']);
 const TEAM_ALIASES = {
   'south africa xv': 'south africa',
   springboks: 'south africa',
@@ -62,21 +65,32 @@ async function main() {
     return;
   }
 
-  console.log(`Found ${fixtures.length} fixtures. Fetching results for scheduled matches from Highlightly...`);
+  console.log(`Found ${fixtures.length} fixtures. Fetching results from Highlightly first...`);
 
-  // Fetch recent completed matches from Highlightly
-  const allResults = await fetchHighlightlyResults();
+  const completedFixtures = fixtures.filter(isFixtureCompleted);
+  const highlightlyRaw = await fetchHighlightlyResults();
+  const highlightlyResults = filterResultsToFixtures(highlightlyRaw, completedFixtures);
 
-  if (allResults.length === 0) {
-    console.log('No completed rugby matches available from Highlightly. Existing rugby_results.csv was left unchanged.');
-    return;
+  console.log(`Matched ${highlightlyResults.length} completed fixtures from Highlightly.`);
+
+  const missingCompletedFixtures = findMissingFixtures(completedFixtures, highlightlyResults);
+
+  let fallbackResults = [];
+  if (missingCompletedFixtures.length > 0) {
+    if (!SPORTDB_API_KEY) {
+      console.warn(`SportDB fallback skipped because SPORTDB_API_KEY is not set. ${missingCompletedFixtures.length} completed fixture(s) are still missing scores.`);
+    } else {
+      console.log(`Highlightly missing ${missingCompletedFixtures.length} completed fixture(s). Querying SportDB fallback...`);
+      const sportDbRaw = await fetchSportDbResultsForFixtures(missingCompletedFixtures);
+      fallbackResults = filterResultsToFixtures(sportDbRaw, missingCompletedFixtures);
+      console.log(`Matched ${fallbackResults.length} completed fixtures from SportDB fallback.`);
+    }
   }
 
-  // Filter results to only include matches in the fixtures list
-  const results = filterResultsToFixtures(allResults, fixtures);
+  const results = mergeResults([], [...highlightlyResults, ...fallbackResults]);
 
   if (results.length === 0) {
-    console.log('No completed matches found for the scheduled fixtures. Existing rugby_results.csv was left unchanged.');
+    console.log('No completed matches found from Highlightly or SportDB fallback for scheduled fixtures. Existing rugby_results.csv was left unchanged.');
     return;
   }
 
@@ -85,6 +99,145 @@ async function main() {
 
   const changed = await writeCsvIfChanged(FILES.rugbyResults, HEADERS, merged);
   console.log(changed ? 'Rugby CSV update complete. Changes were written.' : 'Rugby CSV update complete. No changes needed.');
+}
+
+function buildResultKey(date, homeTeam, awayTeam) {
+  return `${date}:${canonicalTeamName(homeTeam)}:${canonicalTeamName(awayTeam)}`;
+}
+
+function findMissingFixtures(fixtures, matchedResults) {
+  const matchedKeys = new Set(matchedResults.map(row => buildResultKey(row.Date, row.HomeTeam, row.AwayTeam)));
+  return fixtures.filter(fixture => !matchedKeys.has(buildResultKey(fixture.Date, fixture.HomeTeam, fixture.AwayTeam)));
+}
+
+function isFixtureCompleted(fixture) {
+  const kickoffDate = fixtureKickoffDateSAST(fixture);
+  if (!kickoffDate) return false;
+  return kickoffDate <= new Date();
+}
+
+function fixtureKickoffDateSAST(fixture) {
+  if (!fixture?.Date) return null;
+  const kickoffRaw = fixture.KickOffTime || fixture.KickoffTime || '';
+  const kickoffSAST = kickoffRaw && String(kickoffRaw).toLowerCase() !== 'tbc'
+    ? convertToSAST(fixture.Date, kickoffRaw, fixture.Venue || '')
+    : '15:00';
+
+  if (!kickoffSAST || kickoffSAST === 'TBC') return new Date(`${fixture.Date}T15:00:00+02:00`);
+  return new Date(`${fixture.Date}T${kickoffSAST}:00+02:00`);
+}
+
+async function fetchSportDbResultsForFixtures(fixtures) {
+  if (!SPORTDB_API_KEY || fixtures.length === 0) return [];
+
+  const fixtureDates = [...new Set(fixtures.map(f => f.Date).filter(Boolean))].sort();
+  const merged = [];
+
+  for (const date of fixtureDates) {
+    const rows = await fetchSportDbResultsForDate(date);
+    if (rows.length > 0) merged.push(...rows);
+  }
+
+  console.log(`Fetched ${merged.length} completed rugby matches from SportDB.`);
+  return merged;
+}
+
+async function fetchSportDbResultsForDate(date) {
+  const endpointCandidates = [
+    `${SPORTDB_BASE_URL}/api/v1/json/${SPORTDB_API_KEY}/eventsday.php?d=${encodeURIComponent(date)}&s=${encodeURIComponent('Rugby Union')}`,
+    `${SPORTDB_BASE_URL}/api/v1/json/${SPORTDB_API_KEY}/eventsday.php?d=${encodeURIComponent(date)}&s=${encodeURIComponent('Rugby')}`,
+    `${SPORTDB_BASE_URL}/api/v1/json/${SPORTDB_API_KEY}/eventsday.php?d=${encodeURIComponent(date)}`
+  ];
+
+  for (const url of endpointCandidates) {
+    const payload = await requestJson(url);
+    if (!payload) continue;
+
+    const events = payload.events || payload.event || payload.data || payload.results || [];
+    if (!Array.isArray(events) || events.length === 0) continue;
+
+    return events
+      .map(mapSportDbEvent)
+      .filter(Boolean)
+      .sort((a, b) => new Date(b.Date) - new Date(a.Date));
+  }
+
+  return [];
+}
+
+function mapSportDbEvent(event) {
+  const homeTeam = extractTeamName(event.strHomeTeam || event.homeTeam || event.home || event.teamHome || event.teams?.home);
+  const awayTeam = extractTeamName(event.strAwayTeam || event.awayTeam || event.away || event.teamAway || event.teams?.away);
+
+  const score = extractMatchScore({
+    homeScore: event.intHomeScore ?? event.homeScore,
+    awayScore: event.intAwayScore ?? event.awayScore,
+    score: event.score || {
+      home: event.intHomeScore,
+      away: event.intAwayScore
+    }
+  });
+
+  const status = String(event.strStatus || event.status || '').toLowerCase().trim();
+  const isCompleted = (score && Number.isFinite(score.home) && Number.isFinite(score.away)) || SPORTDB_COMPLETED_STATUSES.has(status);
+
+  if (!homeTeam || !awayTeam || !isCompleted || !score) return null;
+
+  const dateSource = event.dateEvent || event.date || event.startTime || event.timestamp || event.strTimestamp;
+  return {
+    Date: formatDate(dateSource),
+    HomeTeam: homeTeam,
+    HomeScore: String(score.home),
+    AwayScore: String(score.away),
+    AwayTeam: awayTeam,
+    Competition: event.strLeague || event.strLeagueAlternate || event.competition?.name || event.league || 'International',
+    KickOffTime: formatTimeFromMatch({ startTime: event.strTime || event.strTimestamp || event.startTime })
+  };
+}
+
+function requestJson(rawUrl) {
+  return new Promise(resolve => {
+    let parsed;
+    try {
+      parsed = new URL(rawUrl);
+    } catch {
+      resolve(null);
+      return;
+    }
+
+    const options = {
+      hostname: parsed.hostname,
+      path: `${parsed.pathname}${parsed.search}`,
+      method: 'GET',
+      headers: {
+        'User-Agent': 'MySportZone/1.0'
+      }
+    };
+
+    const req = https.request(options, res => {
+      let body = '';
+      res.on('data', chunk => {
+        body += chunk;
+      });
+
+      res.on('end', () => {
+        if (res.statusCode < 200 || res.statusCode >= 300) {
+          resolve(null);
+          return;
+        }
+
+        try {
+          const json = JSON.parse(body);
+          resolve(json);
+        } catch {
+          resolve(null);
+        }
+      });
+    });
+
+    req.on('error', () => resolve(null));
+    req.end();
+  });
 }
 
 async function assertDataDir() {

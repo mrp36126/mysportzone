@@ -29,10 +29,11 @@ jobs:
       - name: Run Rugby results updater
         env:
           HIGHLIGHTLY_API_KEY: ${{ secrets.HIGHLIGHTLY_API_KEY }}
+          SPORTDB_API_KEY: ${{ secrets.SPORTDB_API_KEY }}
         run: npm run update:rugby
 
       - name: Commit updated CSV files
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Update rugby results from Highlightly"
+          commit_message: "Update rugby results from Highlightly with SportDB fallback"
           file_pattern: "data/rugby_results.csv"
