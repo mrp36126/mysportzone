@@ -3864,6 +3864,14 @@ return `
       return `${date}|${home}|${away}`;
     }
 
+    function hasRugbyScore(value) {
+      return Number.isFinite(Number(value));
+    }
+
+    function hasFinalRugbyScores(row) {
+      return hasRugbyScore(row.HomeScore) && hasRugbyScore(row.AwayScore);
+    }
+
     let rugbyCountdownIntervalId = null;
     let rugbyFixturePollIntervalId = null;
     let rugbyActiveFixtureKey = '';
@@ -3928,9 +3936,39 @@ return `
 
       // --- RESULTS ---
       // CSV columns: Date, HomeTeam, HomeScore, AwayScore, AwayTeam, Competition
+      const fixtures = allFixtures;
       const results = await fetchCSV('data/rugby_results.csv');
+      const nowRugby = new Date();
 
-      const resultsHTML = results.length === 0
+      const resultRowsByKey = new Map(
+        results
+          .map(r => [rugbyMatchKey(r.Date, r.HomeTeam, r.AwayTeam), r])
+          .filter(([key]) => Boolean(key))
+      );
+
+      const completedFixturesWithoutResult = fixtures
+        .filter(fixture => {
+          const fixtureKey = rugbyMatchKey(fixture.Date, fixture.HomeTeam, fixture.AwayTeam);
+          const kickoffInfo = rugbyFixtureKickoffInfo(fixture);
+          return fixtureKey && kickoffInfo.kickoffDate <= nowRugby && !resultRowsByKey.has(fixtureKey);
+        })
+        .map(fixture => {
+          const kickoffInfo = rugbyFixtureKickoffInfo(fixture);
+          return {
+            Date: fixture.Date,
+            HomeTeam: fixture.HomeTeam,
+            HomeScore: '',
+            AwayScore: '',
+            AwayTeam: fixture.AwayTeam,
+            Competition: fixture.Competition || 'International',
+            KickOffTimeSAST: kickoffInfo.kickoffSAST === 'TBC' ? 'TBC' : kickoffInfo.kickoffSAST
+          };
+        });
+
+      const recentResults = [...results, ...completedFixturesWithoutResult]
+        .sort((a, b) => new Date(b.Date) - new Date(a.Date));
+
+      const resultsHTML = recentResults.length === 0
         ? '<p style="color:var(--text-secondary);text-align:center;padding:20px;">Update rugby_results.csv</p>'
         : `<table class="data-table">
             <thead>
@@ -3946,7 +3984,9 @@ return `
               </tr>
             </thead>
             <tbody>
-              ${results.map(r => `
+              ${recentResults.map(r => {
+                const hasFinalScore = hasFinalRugbyScores(r);
+                return `
                 <tr>
                   <!-- DATE column -->
                   <td style="color:var(--text-secondary);white-space:nowrap;">${escapeHTML(r.Date)}</td>
@@ -3961,17 +4001,17 @@ return `
 
                   <!-- HOME RESULT ICON: WIN / LOSS / DRAW from home team's view -->
                   <td style="text-align:center;">
-                    ${resultIcon(r.HomeScore, r.AwayScore, 'home')}
+                    ${hasFinalScore ? resultIcon(r.HomeScore, r.AwayScore, 'home') : '<span style="color:var(--text-secondary);font-size:0.8rem;font-weight:700;">PENDING</span>'}
                   </td>
 
                   <!-- SCORE: displayed in Orbitron font, centred -->
                   <td style="font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:700;text-align:center;white-space:nowrap;">
-                    ${escapeHTML(r.HomeScore)} – ${escapeHTML(r.AwayScore)}
+                    ${hasFinalScore ? `${escapeHTML(r.HomeScore)} – ${escapeHTML(r.AwayScore)}` : '<span style="color:var(--text-secondary);">TBD</span>'}
                   </td>
 
                   <!-- AWAY RESULT ICON: WIN / LOSS / DRAW from away team's view -->
                   <td style="text-align:center;">
-                    ${resultIcon(r.HomeScore, r.AwayScore, 'away')}
+                    ${hasFinalScore ? resultIcon(r.HomeScore, r.AwayScore, 'away') : '<span style="color:var(--text-secondary);font-size:0.8rem;font-weight:700;">PENDING</span>'}
                   </td>
 
                   <!-- AWAY TEAM: flag image + team name side by side -->
@@ -3988,7 +4028,8 @@ return `
                   <!-- COMPETITION -->
                   <td style="color:var(--text-secondary);font-size:0.85rem;">${escapeHTML(r.Competition)}</td>
                 </tr>
-              `).join('')}
+              `;
+              }).join('')}
             </tbody>
           </table>`;
 
@@ -3996,10 +4037,9 @@ return `
 
       // --- UPCOMING FIXTURES ---
       // CSV columns: Date, HomeTeam, AwayTeam, Venue, Competition
-      const fixtures = await fetchCSV('data/rugby_fixtures.csv');
-      const nowRugby = new Date();
       const completedMatchKeys = new Set(
-        results
+        recentResults
+          .filter(r => new Date(`${r.Date}T00:00:00+02:00`) <= nowRugby)
           .map(r => rugbyMatchKey(r.Date, r.HomeTeam, r.AwayTeam))
           .filter(Boolean)
       );
