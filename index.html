@@ -3838,6 +3838,32 @@ return `
       };
     }
 
+    const RUGBY_TEAM_ALIASES = {
+      'south africa xv': 'south africa',
+      springboks: 'south africa',
+      'barbarian fc': 'barbarians',
+      barbarians: 'barbarians',
+      'england xv': 'england',
+      'new zealand xv': 'new zealand'
+    };
+
+    function rugbyCanonicalTeam(teamName) {
+      const normalized = String(teamName || '')
+        .toLowerCase()
+        .replace(/[().,-]/g, ' ')
+        .replace(/\b(union|rugby|team)\b/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+      return RUGBY_TEAM_ALIASES[normalized] || normalized;
+    }
+
+    function rugbyMatchKey(date, homeTeam, awayTeam) {
+      const home = rugbyCanonicalTeam(homeTeam);
+      const away = rugbyCanonicalTeam(awayTeam);
+      if (!date || !home || !away) return '';
+      return `${date}|${home}|${away}`;
+    }
+
     let rugbyCountdownIntervalId = null;
     let rugbyFixturePollIntervalId = null;
     let rugbyActiveFixtureKey = '';
@@ -3971,9 +3997,21 @@ return `
       // --- UPCOMING FIXTURES ---
       // CSV columns: Date, HomeTeam, AwayTeam, Venue, Competition
       const fixtures = await fetchCSV('data/rugby_fixtures.csv');
+      const nowRugby = new Date();
+      const completedMatchKeys = new Set(
+        results
+          .map(r => rugbyMatchKey(r.Date, r.HomeTeam, r.AwayTeam))
+          .filter(Boolean)
+      );
+      const upcomingFixtures = fixtures.filter(fixture => {
+        const fixtureKey = rugbyMatchKey(fixture.Date, fixture.HomeTeam, fixture.AwayTeam);
+        const isCompleted = fixtureKey && completedMatchKeys.has(fixtureKey);
+        const kickoffInfo = rugbyFixtureKickoffInfo(fixture);
+        return !isCompleted && kickoffInfo.kickoffDate > nowRugby;
+      });
 
-      const fixturesHTML = fixtures.length === 0
-        ? '<p style="color:var(--text-secondary);text-align:center;padding:20px;">Update rugby_fixtures.csv</p>'
+      const fixturesHTML = upcomingFixtures.length === 0
+        ? '<p style="color:var(--text-secondary);text-align:center;padding:20px;">No upcoming fixtures.</p>'
         : `<table class="data-table">
             <thead>
               <tr>
@@ -3987,7 +4025,7 @@ return `
               </tr>
             </thead>
             <tbody>
-              ${fixtures.map(f => `
+              ${upcomingFixtures.map(f => `
                 <tr>
                   <!-- DATE in red accent colour to highlight upcoming match -->
                   <td style="color:var(--accent);font-weight:700;white-space:nowrap;">${escapeHTML(f.Date)}</td>

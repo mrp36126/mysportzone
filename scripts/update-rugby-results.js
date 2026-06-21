@@ -30,6 +30,15 @@ const FILES = {
 const HEADERS = ['Date', 'HomeTeam', 'HomeScore', 'AwayScore', 'AwayTeam', 'Competition', 'KickOffTimeSAST'];
 const API_KEY = process.env.HIGHLIGHTLY_API_KEY;
 const API_BASE = 'https://api.highlightly.io';
+const COMPLETED_STATUSES = new Set(['completed', 'finished', 'full-time', 'full_time', 'ft', 'ended', 'final']);
+const TEAM_ALIASES = {
+  'south africa xv': 'south africa',
+  springboks: 'south africa',
+  'barbarian fc': 'barbarians',
+  barbarians: 'barbarians',
+  'england xv': 'england',
+  'new zealand xv': 'new zealand'
+};
 
 if (!API_KEY) {
   console.error('Error: HIGHLIGHTLY_API_KEY environment variable not set');
@@ -90,8 +99,7 @@ async function fetchHighlightlyResults() {
   return new Promise((resolve, reject) => {
     const query = new URLSearchParams({
       sport: 'rugby',
-      competitionTypes: 'international',
-      status: 'completed',
+      status: 'all',
       limit: '100'
     });
 
@@ -121,17 +129,27 @@ async function fetchHighlightlyResults() {
           }
 
           const payload = JSON.parse(body);
-          const matches = payload.data || payload.matches || [];
+          const matches = Array.isArray(payload)
+            ? payload
+            : (payload.data || payload.matches || payload.results || []);
           const mapped = matches
-            .filter(match => match.status === 'completed' && match.homeTeam && match.awayTeam && Number.isFinite(match.homeScore) && Number.isFinite(match.awayScore))
+            .filter(match => {
+              if (!isCompletedMatch(match)) return false;
+              const homeTeam = extractTeamName(match.homeTeam || match.teamHome || match.teams?.home);
+              const awayTeam = extractTeamName(match.awayTeam || match.teamAway || match.teams?.away);
+              const score = extractMatchScore(match);
+              return Boolean(homeTeam && awayTeam && score);
+            })
             .map(match => {
-              const homeTeamName = typeof match.homeTeam === 'string' ? match.homeTeam : (match.homeTeam.name || '');
-              const awayTeamName = typeof match.awayTeam === 'string' ? match.awayTeam : (match.awayTeam.name || '');
+              const homeTeamName = extractTeamName(match.homeTeam || match.teamHome || match.teams?.home);
+              const awayTeamName = extractTeamName(match.awayTeam || match.teamAway || match.teams?.away);
+              const score = extractMatchScore(match);
+              const matchDate = match.date || match.startTime || match.start_date || match.kickoff || match.startDate;
               return {
-                Date: formatDate(match.date || match.startTime),
+                Date: formatDate(matchDate),
                 HomeTeam: homeTeamName,
-                HomeScore: String(match.homeScore),
-                AwayScore: String(match.awayScore),
+                HomeScore: String(score.home),
+                AwayScore: String(score.away),
                 AwayTeam: awayTeamName,
                 Venue: match.venue?.name || match.stadium || '',
                 Competition: match.competition?.name || match.competitionType || 'International',
@@ -158,31 +176,72 @@ async function fetchHighlightlyResults() {
 }
 
 function filterResultsToFixtures(results, fixtures) {
-  // Create a map of fixtures with their kickoff times
-  const fixtureMap = new Map(
-    fixtures.map(f => [
-      `${normalizeTeamName(f.HomeTeam)}:${normalizeTeamName(f.AwayTeam)}:${f.Date}`,
-      {
-        fixture: f,
-        kickoffTime: f.KickOffTime || ''
-      }
-    ])
-  );
-  
-  return results
-    .filter(result => {
-      const key = `${normalizeTeamName(result.HomeTeam)}:${normalizeTeamName(result.AwayTeam)}:${result.Date}`;
-      return fixtureMap.has(key);
-    })
-    .map(result => {
-      const key = `${normalizeTeamName(result.HomeTeam)}:${normalizeTeamName(result.AwayTeam)}:${result.Date}`;
-      const fixtureData = fixtureMap.get(key);
-      const kickoffTime = fixtureData?.kickoffTime ? convertToSAST(result.Date, fixtureData.kickoffTime, fixtureData.fixture.Venue || '') : '';
+  const fixtureCandidates = fixtures
+    .map(fixture => {
+      const home = canonicalTeamName(fixture.HomeTeam);
+      const away = canonicalTeamName(fixture.AwayTeam);
+      const fixtureDate = parseDateOnly(fixture.Date);
+      if (!home || !away || !fixtureDate) return null;
       return {
-        ...result,
+        fixture,
+        home,
+        away,
+        fixtureDate,
+        kickoffTime: fixture.KickOffTime || ''
+      };
+    })
+    .filter(Boolean);
+
+  return results
+    .map(result => {
+      const matched = findMatchingFixture(result, fixtureCandidates);
+      if (!matched) return null;
+
+      const { fixtureData, swappedTeams } = matched;
+      const kickoffTime = fixtureData.kickoffTime
+        ? convertToSAST(fixtureData.fixture.Date, fixtureData.kickoffTime, fixtureData.fixture.Venue || '')
+        : '';
+
+      const homeScore = swappedTeams ? result.AwayScore : result.HomeScore;
+      const awayScore = swappedTeams ? result.HomeScore : result.AwayScore;
+
+      return {
+        Date: fixtureData.fixture.Date,
+        HomeTeam: fixtureData.fixture.HomeTeam,
+        HomeScore: homeScore,
+        AwayScore: awayScore,
+        AwayTeam: fixtureData.fixture.AwayTeam,
+        Competition: result.Competition || fixtureData.fixture.Competition || 'International',
         KickOffTimeSAST: kickoffTime
       };
-    });
+    })
+    .filter(Boolean);
+}
+
+function findMatchingFixture(result, fixtureCandidates) {
+  const resultHome = canonicalTeamName(result.HomeTeam);
+  const resultAway = canonicalTeamName(result.AwayTeam);
+  const resultDate = parseDateOnly(result.Date);
+
+  if (!resultHome || !resultAway || !resultDate) return null;
+
+  let bestMatch = null;
+
+  for (const fixtureData of fixtureCandidates) {
+    const dayDelta = Math.abs((fixtureData.fixtureDate.getTime() - resultDate.getTime()) / (24 * 60 * 60 * 1000));
+    if (dayDelta > 1) continue;
+
+    const directMatch = fixtureData.home === resultHome && fixtureData.away === resultAway;
+    const swappedMatch = fixtureData.home === resultAway && fixtureData.away === resultHome;
+    if (!directMatch && !swappedMatch) continue;
+
+    if (!bestMatch || dayDelta < bestMatch.dayDelta || (dayDelta === 0 && bestMatch.dayDelta !== 0)) {
+      bestMatch = { fixtureData, swappedTeams: swappedMatch, dayDelta };
+      if (dayDelta === 0 && directMatch) break;
+    }
+  }
+
+  return bestMatch;
 }
 
 function convertToSAST(dateStr, timeStr, venueStr) {
@@ -258,6 +317,28 @@ function normalizeTeamName(name) {
   return name.trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
+function canonicalTeamName(name) {
+  const normalized = normalizeTeamName(name)
+    .replace(/[().,-]/g, ' ')
+    .replace(/\b(union|rugby|team)\b/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return TEAM_ALIASES[normalized] || normalized;
+}
+
+function parseDateOnly(dateStr) {
+  if (!dateStr) return null;
+  const isoMatch = String(dateStr).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (isoMatch) {
+    const [, y, m, d] = isoMatch;
+    return new Date(Date.UTC(Number(y), Number(m) - 1, Number(d)));
+  }
+
+  const dt = new Date(dateStr);
+  if (Number.isNaN(dt.getTime())) return null;
+  return new Date(Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate()));
+}
+
 function formatDate(dateStr) {
   if (!dateStr) return '';
   try {
@@ -273,9 +354,10 @@ function formatDate(dateStr) {
 }
 
 function formatTimeFromMatch(match) {
-  if (!match.date && !match.startTime) return '';
+  const source = match.date || match.startTime || match.start_date || match.kickoff || match.startDate;
+  if (!source) return '';
   try {
-    const dt = new Date(match.date || match.startTime);
+    const dt = new Date(source);
     if (Number.isNaN(dt.getTime())) return '';
     const hours = String(dt.getUTCHours()).padStart(2, '0');
     const minutes = String(dt.getUTCMinutes()).padStart(2, '0');
@@ -285,11 +367,58 @@ function formatTimeFromMatch(match) {
   }
 }
 
+function extractMatchScore(match) {
+  const directHome = Number(match.homeScore);
+  const directAway = Number(match.awayScore);
+  if (Number.isFinite(directHome) && Number.isFinite(directAway)) {
+    return { home: directHome, away: directAway };
+  }
+
+  const score = match.score || match.scores || {};
+  const homeCandidates = [
+    score.home,
+    score.homeScore,
+    score.home_points,
+    score.homePoints,
+    score.homeTotal,
+    score.fullTime?.home,
+    score.ft?.home
+  ];
+  const awayCandidates = [
+    score.away,
+    score.awayScore,
+    score.away_points,
+    score.awayPoints,
+    score.awayTotal,
+    score.fullTime?.away,
+    score.ft?.away
+  ];
+
+  const home = homeCandidates.map(Number).find(Number.isFinite);
+  const away = awayCandidates.map(Number).find(Number.isFinite);
+  if (Number.isFinite(home) && Number.isFinite(away)) {
+    return { home, away };
+  }
+
+  return null;
+}
+
+function extractTeamName(team) {
+  if (!team) return '';
+  if (typeof team === 'string') return team;
+  return team.name || team.shortName || team.fullName || team.teamName || '';
+}
+
+function isCompletedMatch(match) {
+  const status = String(match.status || match.state || '').toLowerCase().trim();
+  return COMPLETED_STATUSES.has(status);
+}
+
 function mergeResults(existing, newResults) {
-  const existing_map = new Map(existing.map(r => [`${r.Date}:${r.HomeTeam}:${r.AwayTeam}`, r]));
+  const existing_map = new Map(existing.map(r => [`${r.Date}:${canonicalTeamName(r.HomeTeam)}:${canonicalTeamName(r.AwayTeam)}`, r]));
   
   newResults.forEach(result => {
-    const key = `${result.Date}:${result.HomeTeam}:${result.AwayTeam}`;
+    const key = `${result.Date}:${canonicalTeamName(result.HomeTeam)}:${canonicalTeamName(result.AwayTeam)}`;
     existing_map.set(key, result);
   });
 
