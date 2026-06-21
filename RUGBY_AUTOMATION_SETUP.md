@@ -2,7 +2,7 @@
 
 Your sports app now has automatic rugby results updates with a two-source chain:
 - Primary: Highlightly API
-- Fallback: SportDB API when Highlightly has no completed score yet
+- Fallback: SportDB.dev API when Highlightly has no completed score yet
 
 Here's how to complete the setup:
 
@@ -15,7 +15,7 @@ Here's how to complete the setup:
 5. Click **Add secret**
 6. Click **New repository secret** again
 7. Create a secret named: `SPORTDB_API_KEY`
-8. Paste your SportDB API key as the value
+8. Paste your SportDB.dev API key as the value
 9. Click **Add secret**
 
 ## Step 2: Verify the Workflow
@@ -32,6 +32,12 @@ To test the updater locally before relying on the automated workflow:
 
 ```bash
 HIGHLIGHTLY_API_KEY=your_highlightly_key SPORTDB_API_KEY=your_sportdb_key npm run update:rugby
+```
+
+Optional local override:
+
+```bash
+SPORTDB_BASE_URL=https://api.sportdb.dev
 ```
 
 This will:
@@ -73,6 +79,8 @@ The script automatically:
 
 **"SportDB fallback skipped because SPORTDB_API_KEY is not set"** - Add the `SPORTDB_API_KEY` GitHub secret so fallback checks run automatically.
 
+**SportDB.dev auth note** - The fallback uses the `X-API-Key` header against `https://api.sportdb.dev`.
+
 **"No completed matches found from Highlightly or SportDB fallback"** - Neither source has published completed score data for your tracked fixtures yet.
 
 **Manual workflow trigger** - Go to **Actions → Update Rugby Results → Run workflow** to force an immediate update.
@@ -81,7 +89,7 @@ The script automatically:
 
 The updater:
 - Polls Highlightly first for completed rugby matches
-- Automatically checks SportDB for completed fixtures still missing after Highlightly
+- Automatically checks SportDB.dev rugby-union data for completed fixtures still missing after Highlightly
 - Handles graceful failures (returns empty if API is unavailable)
 - Logs all results fetched to console during workflow run
 - Only writes CSV if changes detected (saves git history)

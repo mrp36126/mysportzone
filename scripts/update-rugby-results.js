@@ -31,7 +31,9 @@ const HEADERS = ['Date', 'HomeTeam', 'HomeScore', 'AwayScore', 'AwayTeam', 'Comp
 const API_KEY = process.env.HIGHLIGHTLY_API_KEY;
 const API_BASE = 'https://api.highlightly.io';
 const SPORTDB_API_KEY = process.env.SPORTDB_API_KEY;
-const SPORTDB_BASE_URL = process.env.SPORTDB_BASE_URL || 'https://www.thesportsdb.com';
+const SPORTDB_BASE_URL = process.env.SPORTDB_BASE_URL || 'https://api.sportdb.dev';
+const SPORTDB_RUGBY_ROOT = '/api/flashscore/rugby-union';
+const SPORTDB_WORLD_PATH = '/api/flashscore/rugby-union/world:8';
 const COMPLETED_STATUSES = new Set(['completed', 'finished', 'full-time', 'full_time', 'ft', 'ended', 'final']);
 const SPORTDB_COMPLETED_STATUSES = new Set(['match finished', 'finished', 'full time', 'full-time', 'ft', 'after et', 'after penalties']);
 const TEAM_ALIASES = {
@@ -40,7 +42,11 @@ const TEAM_ALIASES = {
   'barbarian fc': 'barbarians',
   barbarians: 'barbarians',
   'england xv': 'england',
-  'new zealand xv': 'new zealand'
+  'new zealand xv': 'new zealand',
+  bulls: 'south africa',
+  stormers: 'south africa',
+  sharks: 'south africa',
+  lions: 'south africa'
 };
 
 if (!API_KEY) {
@@ -130,11 +136,25 @@ function fixtureKickoffDateSAST(fixture) {
 async function fetchSportDbResultsForFixtures(fixtures) {
   if (!SPORTDB_API_KEY || fixtures.length === 0) return [];
 
-  const fixtureDates = [...new Set(fixtures.map(f => f.Date).filter(Boolean))].sort();
   const merged = [];
 
-  for (const date of fixtureDates) {
-    const rows = await fetchSportDbResultsForDate(date);
+  const directWorldRows = await fetchSportDbWorldCompetitionResults(fixtures);
+  if (directWorldRows.length > 0) {
+    merged.push(...directWorldRows);
+  }
+
+  const stillMissingFixtures = findMissingFixtures(fixtures, merged);
+  if (stillMissingFixtures.length === 0) {
+    console.log(`Fetched ${merged.length} completed rugby matches from SportDB.`);
+    return merged;
+  }
+
+  const countriesPayload = await requestSportDbJson(SPORTDB_RUGBY_ROOT);
+  const countries = Array.isArray(countriesPayload?.value) ? countriesPayload.value : [];
+  const selectedCountryPaths = findRelevantSportDbCountryPaths(stillMissingFixtures, countries);
+
+  for (const countryPath of selectedCountryPaths) {
+    const rows = await crawlSportDbCountry(countryPath);
     if (rows.length > 0) merged.push(...rows);
   }
 
@@ -142,60 +162,265 @@ async function fetchSportDbResultsForFixtures(fixtures) {
   return merged;
 }
 
-async function fetchSportDbResultsForDate(date) {
-  const endpointCandidates = [
-    `${SPORTDB_BASE_URL}/api/v1/json/${SPORTDB_API_KEY}/eventsday.php?d=${encodeURIComponent(date)}&s=${encodeURIComponent('Rugby Union')}`,
-    `${SPORTDB_BASE_URL}/api/v1/json/${SPORTDB_API_KEY}/eventsday.php?d=${encodeURIComponent(date)}&s=${encodeURIComponent('Rugby')}`,
-    `${SPORTDB_BASE_URL}/api/v1/json/${SPORTDB_API_KEY}/eventsday.php?d=${encodeURIComponent(date)}`
-  ];
+async function fetchSportDbWorldCompetitionResults(fixtures) {
+  const worldPayload = await requestSportDbJson(SPORTDB_WORLD_PATH);
+  const competitions = Array.isArray(worldPayload) ? worldPayload : Array.isArray(worldPayload?.value) ? worldPayload.value : [];
+  if (competitions.length === 0) return [];
 
-  for (const url of endpointCandidates) {
-    const payload = await requestJson(url);
-    if (!payload) continue;
-
-    const events = payload.events || payload.event || payload.data || payload.results || [];
-    if (!Array.isArray(events) || events.length === 0) continue;
-
-    return events
-      .map(mapSportDbEvent)
-      .filter(Boolean)
-      .sort((a, b) => new Date(b.Date) - new Date(a.Date));
+  const targetCompetitionLinks = new Set();
+  for (const fixture of fixtures) {
+    const competition = matchSportDbCompetitionForFixture(fixture, competitions);
+    if (competition?.link) targetCompetitionLinks.add(competition.link);
   }
 
-  return [];
+  const rows = [];
+  for (const competitionLink of targetCompetitionLinks) {
+    const competitionPayload = await requestSportDbJson(competitionLink);
+    const seasons = Array.isArray(competitionPayload?.seasons) ? competitionPayload.seasons : [];
+    for (const season of seasons) {
+      if (!season?.season || !fixtures.some(fixture => String(fixture.Date || '').startsWith(String(season.season)))) {
+        continue;
+      }
+
+      if (season.results) {
+        const resultsPayload = await requestSportDbJson(season.results);
+        rows.push(...extractSportDbRows(resultsPayload));
+      }
+    }
+  }
+
+  return rows;
 }
 
-function mapSportDbEvent(event) {
-  const homeTeam = extractTeamName(event.strHomeTeam || event.homeTeam || event.home || event.teamHome || event.teams?.home);
-  const awayTeam = extractTeamName(event.strAwayTeam || event.awayTeam || event.away || event.teamAway || event.teams?.away);
+function matchSportDbCompetitionForFixture(fixture, competitions) {
+  const fixtureCompetition = normalizeCompetitionName(fixture.Competition || '');
+  const candidates = competitions.map(competition => ({
+    competition,
+    normalized: normalizeCompetitionName(competition.name || competition.slug || '')
+  }));
 
-  const score = extractMatchScore({
-    homeScore: event.intHomeScore ?? event.homeScore,
-    awayScore: event.intAwayScore ?? event.awayScore,
-    score: event.score || {
-      home: event.intHomeScore,
-      away: event.intAwayScore
+  const aliases = competitionAliasesForFixture(fixtureCompetition);
+  for (const alias of aliases) {
+    const exact = candidates.find(candidate => candidate.normalized === alias);
+    if (exact) return exact.competition;
+  }
+
+  for (const alias of aliases) {
+    const partial = candidates.find(candidate => candidate.normalized.includes(alias) || alias.includes(candidate.normalized));
+    if (partial) return partial.competition;
+  }
+
+  return null;
+}
+
+function competitionAliasesForFixture(normalizedCompetition) {
+  if (!normalizedCompetition) return [];
+  const aliases = [normalizedCompetition];
+
+  if (normalizedCompetition.includes('friendly')) aliases.push('friendly international');
+  if (normalizedCompetition.includes('nations championship')) aliases.push('nations championship');
+  if (normalizedCompetition.includes('rivalry tour')) aliases.push('friendly international');
+
+  return [...new Set(aliases.map(normalizeCompetitionName).filter(Boolean))];
+}
+
+function normalizeCompetitionName(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/\(.*?\)/g, ' ')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\b\d{4}\b/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function findRelevantSportDbCountryPaths(fixtures, countries) {
+  const desiredCountries = new Set(
+    fixtures
+      .flatMap(fixture => inferFixtureCountryHints(fixture))
+      .map(hint => slugifySportDbValue(hint))
+      .filter(Boolean)
+  );
+
+  const matchedPaths = countries
+    .filter(country => {
+      const nameSlug = slugifySportDbValue(country.name);
+      const countrySlug = slugifySportDbValue(country.slug);
+      return desiredCountries.has(nameSlug) || desiredCountries.has(countrySlug);
+    })
+    .map(country => country.competitions)
+    .filter(Boolean);
+
+  const withWorld = values => [...new Set([SPORTDB_WORLD_PATH, ...values])];
+
+  if (matchedPaths.length > 0) return withWorld(matchedPaths);
+
+  return withWorld(countries
+    .map(country => country.competitions)
+    .filter(Boolean)
+    .slice(0, 12));
+}
+
+function inferFixtureCountryHints(fixture) {
+  const hints = [
+    fixture.HomeTeam,
+    fixture.AwayTeam,
+    extractVenueCountryHint(fixture.Venue)
+  ].filter(Boolean);
+
+  return hints.map(hint => canonicalTeamName(hint));
+}
+
+function extractVenueCountryHint(venue) {
+  if (!venue) return '';
+  const parts = String(venue).split(':');
+  if (parts.length > 1) return parts[parts.length - 1].trim();
+  return venue;
+}
+
+function slugifySportDbValue(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+async function crawlSportDbCountry(countryPath) {
+  const queue = [countryPath];
+  const visited = new Set();
+  const rows = [];
+  const rowKeys = new Set();
+  let requestCount = 0;
+
+  while (queue.length > 0 && requestCount < 120) {
+    queue.sort((a, b) => sportDbPathPriority(a) - sportDbPathPriority(b));
+    const nextPath = queue.shift();
+    if (!nextPath || visited.has(nextPath)) continue;
+    visited.add(nextPath);
+
+    const payload = await requestSportDbJson(nextPath);
+    requestCount += 1;
+    if (!payload) continue;
+
+    for (const row of extractSportDbRows(payload)) {
+      const key = buildResultKey(row.Date, row.HomeTeam, row.AwayTeam);
+      if (!rowKeys.has(key)) {
+        rowKeys.add(key);
+        rows.push(row);
+      }
+    }
+
+    const childPaths = extractSportDbPaths(payload)
+      .filter(pathValue => !visited.has(pathValue))
+      .sort((a, b) => sportDbPathPriority(a) - sportDbPathPriority(b));
+
+    queue.push(...childPaths);
+  }
+
+  return rows.sort((a, b) => new Date(b.Date) - new Date(a.Date));
+}
+
+function sportDbPathPriority(pathValue) {
+  if (/\/results(\?|$)/i.test(pathValue)) return 0;
+  if (/\/fixtures(\?|$)/i.test(pathValue)) return 1;
+  if (/\/live(\?|$)/i.test(pathValue)) return 2;
+  if (/\/stages(\?|$)|\/standings(\?|$)/i.test(pathValue)) return 3;
+  if (/\/\d{4}(\/|$)/i.test(pathValue)) return 4;
+  return 5;
+}
+
+function extractSportDbPaths(payload) {
+  const paths = new Set();
+
+  walkObject(payload, value => {
+    if (typeof value !== 'string') return;
+    if (value.startsWith(SPORTDB_RUGBY_ROOT)) {
+      paths.add(value);
+      return;
+    }
+
+    if (value.startsWith(SPORTDB_BASE_URL + SPORTDB_RUGBY_ROOT)) {
+      const url = new URL(value);
+      paths.add(`${url.pathname}${url.search}`);
     }
   });
 
-  const status = String(event.strStatus || event.status || '').toLowerCase().trim();
+  return [...paths];
+}
+
+function extractSportDbRows(payload) {
+  const rows = [];
+  walkObject(payload, value => {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return;
+    const row = mapSportDbEvent(value);
+    if (row) rows.push(row);
+  });
+  return rows;
+}
+
+function mapSportDbEvent(event) {
+  const homeTeam = extractTeamName(
+    event.strHomeTeam || event.homeName || event.homeTeam || event.home || event.teamHome ||
+    event.homeParticipant || event.homeCompetitor || event.participants?.home ||
+    event.homeTeamData || event.homeCompetitorData
+  );
+  const awayTeam = extractTeamName(
+    event.strAwayTeam || event.awayName || event.awayTeam || event.away || event.teamAway ||
+    event.awayParticipant || event.awayCompetitor || event.participants?.away ||
+    event.awayTeamData || event.awayCompetitorData
+  );
+
+  const score = extractMatchScore({
+    homeScore: event.intHomeScore ?? event.homeScore ?? event.homeResult ?? event.home_points,
+    awayScore: event.intAwayScore ?? event.awayScore ?? event.awayResult ?? event.away_points,
+    score: event.score || event.result || event.scores || {
+      home: event.intHomeScore ?? event.homeScore ?? event.homeResult,
+      away: event.intAwayScore ?? event.awayScore ?? event.awayResult,
+      fullTime: event.fullTime || event.ft
+    }
+  });
+
+  const statusValue = event.strStatus || event.status?.type || event.status || event.state || event.matchStatus || '';
+  const status = String(statusValue).toLowerCase().trim();
   const isCompleted = (score && Number.isFinite(score.home) && Number.isFinite(score.away)) || SPORTDB_COMPLETED_STATUSES.has(status);
 
   if (!homeTeam || !awayTeam || !isCompleted || !score) return null;
 
-  const dateSource = event.dateEvent || event.date || event.startTime || event.timestamp || event.strTimestamp;
+  const dateSource = event.dateEvent || event.date || event.startDateTimeUtc || event.startTime || event.timestamp || event.strTimestamp || event.startDate;
+  const formattedDate = formatDate(dateSource);
+  if (!formattedDate) return null;
+
   return {
-    Date: formatDate(dateSource),
+    Date: formattedDate,
     HomeTeam: homeTeam,
     HomeScore: String(score.home),
     AwayScore: String(score.away),
     AwayTeam: awayTeam,
-    Competition: event.strLeague || event.strLeagueAlternate || event.competition?.name || event.league || 'International',
-    KickOffTime: formatTimeFromMatch({ startTime: event.strTime || event.strTimestamp || event.startTime })
+    Competition: event.strLeague || event.strLeagueAlternate || event.competition?.name || event.tournament?.name || event.tournamentName || event.league?.name || event.stage?.name || 'International',
+    KickOffTime: formatTimeFromMatch({ startTime: event.strTime || event.strTimestamp || event.startDateTimeUtc || event.startTime || event.startDate })
   };
 }
 
-function requestJson(rawUrl) {
+function walkObject(value, visit) {
+  visit(value);
+  if (!value || typeof value !== 'object') return;
+
+  if (Array.isArray(value)) {
+    value.forEach(item => walkObject(item, visit));
+    return;
+  }
+
+  Object.values(value).forEach(item => walkObject(item, visit));
+}
+
+function requestSportDbJson(pathOrUrl) {
+  const url = pathOrUrl.startsWith('http') ? pathOrUrl : `${SPORTDB_BASE_URL}${pathOrUrl}`;
+  return requestJson(url, {
+    'X-API-Key': SPORTDB_API_KEY
+  });
+}
+
+function requestJson(rawUrl, extraHeaders = {}) {
   return new Promise(resolve => {
     let parsed;
     try {
@@ -210,7 +435,8 @@ function requestJson(rawUrl) {
       path: `${parsed.pathname}${parsed.search}`,
       method: 'GET',
       headers: {
-        'User-Agent': 'MySportZone/1.0'
+        'User-Agent': 'MySportZone/1.0',
+        ...extraHeaders
       }
     };
 
