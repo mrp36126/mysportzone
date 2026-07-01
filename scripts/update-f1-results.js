@@ -121,10 +121,10 @@ async function main() {
   const latestSprintRows = mapLatestSprintResults(latestSprintData);
   const latestDisplayedResultRows = chooseLatestDisplayResultRows(latestRaceRows, latestSprintRows);
   const latestStandingsProjectionRows = [...latestSprintRows, ...latestRaceRows];
-  const previousDriverRows = await loadDriverChangeBaseline();
+  const previousDriverRows = await loadDriverChangeBaseline(driverStandingsData, latestDisplayedResultRows);
   let driverRows = mapDriverStandings(driverStandingsData, previousDriverRows, latestDisplayedResultRows);
   driverRows = projectDriverStandingsIfNeeded(driverRows, driverStandingsData, latestStandingsProjectionRows, latestDisplayedResultRows);
-  const previousConstructorRows = await loadConstructorChangeBaseline();
+  const previousConstructorRows = await loadConstructorChangeBaseline(constructorStandingsData, latestDisplayedResultRows);
   let constructorRows = mapConstructorStandings(
     constructorStandingsData,
     driverRows,
@@ -162,32 +162,58 @@ async function main() {
   console.log(changed ? 'F1 CSV update complete. Changes were written.' : 'F1 CSV update complete. No CSV changes needed.');
 }
 
-async function loadDriverChangeBaseline() {
+async function loadDriverChangeBaseline(standingsPayload, latestResultRows) {
   const baseRound = process.env.F1_CHANGE_BASE_ROUND;
-  if (!baseRound) return readCsvIfExists(FILES.drivers, DRIVER_HEADERS);
+  if (baseRound) return fetchDriverStandingsForRound(baseRound);
 
-  console.log(`Comparing driver standing changes against round ${baseRound}...`);
-  const baselinePayload = await fetchJson(`https://api.jolpi.ca/ergast/f1/current/${encodeURIComponent(baseRound)}/driverStandings.json`);
-  const baselineRows = mapDriverStandings(baselinePayload, []);
+  const standingsRound = standingsPayloadRound(standingsPayload);
+  if (!standingsRound) return readCsvIfExists(FILES.drivers, DRIVER_HEADERS);
+
+  const baselineRound = shouldProjectStandings(standingsPayload, latestResultRows)
+    ? standingsRound
+    : standingsRound - 1;
+
+  if (baselineRound <= 0) return [];
+
+  const baselineRows = await fetchDriverStandingsForRound(baselineRound);
   if (baselineRows.length === 0) {
-    console.log(`No baseline driver standings found for round ${baseRound}; falling back to existing CSV.`);
+    console.log(`No baseline driver standings found for round ${baselineRound}; falling back to existing CSV.`);
     return readCsvIfExists(FILES.drivers, DRIVER_HEADERS);
   }
+
   return baselineRows;
 }
 
-async function loadConstructorChangeBaseline() {
-  const baseRound = process.env.F1_CHANGE_BASE_ROUND;
-  if (!baseRound) return readCsvIfExists(FILES.constructors, CONSTRUCTOR_HEADERS);
+async function fetchDriverStandingsForRound(round) {
+  const baselinePayload = await fetchJson(`https://api.jolpi.ca/ergast/f1/current/${encodeURIComponent(round)}/driverStandings.json`);
+  return mapDriverStandings(baselinePayload, [], []);
+}
 
-  console.log(`Comparing constructor standing changes against round ${baseRound}...`);
-  const baselinePayload = await fetchJson(`https://api.jolpi.ca/ergast/f1/current/${encodeURIComponent(baseRound)}/constructorStandings.json`);
-  const baselineRows = mapConstructorStandings(baselinePayload, [], []);
+async function loadConstructorChangeBaseline(standingsPayload, latestResultRows) {
+  const baseRound = process.env.F1_CHANGE_BASE_ROUND;
+  if (baseRound) return fetchConstructorStandingsForRound(baseRound);
+
+  const standingsRound = standingsPayloadRound(standingsPayload);
+  if (!standingsRound) return readCsvIfExists(FILES.constructors, CONSTRUCTOR_HEADERS);
+
+  const baselineRound = shouldProjectStandings(standingsPayload, latestResultRows)
+    ? standingsRound
+    : standingsRound - 1;
+
+  if (baselineRound <= 0) return [];
+
+  const baselineRows = await fetchConstructorStandingsForRound(baselineRound);
   if (baselineRows.length === 0) {
-    console.log(`No baseline constructor standings found for round ${baseRound}; falling back to existing CSV.`);
+    console.log(`No baseline constructor standings found for round ${baselineRound}; falling back to existing CSV.`);
     return readCsvIfExists(FILES.constructors, CONSTRUCTOR_HEADERS);
   }
+
   return baselineRows;
+}
+
+async function fetchConstructorStandingsForRound(round) {
+  const baselinePayload = await fetchJson(`https://api.jolpi.ca/ergast/f1/current/${encodeURIComponent(round)}/constructorStandings.json`);
+  return mapConstructorStandings(baselinePayload, [], []);
 }
 
 function findLatestSprintRound(calendarRows) {
@@ -312,6 +338,7 @@ function mapLatestRaceResults(payload) {
       Country: location.country || '',
       Date: race.date || '',
       Position: result.positionText || result.position || '',
+      DriverId: driver.driverId || '',
       Driver: formatDriverName(driver),
       Team: normalizeTeamName(constructor.name || ''),
       Grid: result.grid || '',
@@ -348,6 +375,7 @@ function mapLatestSprintResults(payload) {
       Country: location.country || '',
       Date: race.Sprint?.date || race.date || '',
       Position: result.positionText || result.position || '',
+      DriverId: driver.driverId || '',
       Driver: formatDriverName(driver),
       Team: normalizeTeamName(constructor.name || ''),
       Grid: result.grid || '',
@@ -389,32 +417,29 @@ function mapDriverStandings(payload, previousRows = [], latestResultRows = []) {
 
   const previousPositionByDriver = new Map(
     previousRows
-      .filter(row => row.Driver && row.Position)
-      .map(row => [row.Driver, Number(row.Position)])
-  );
-  const previousRowByDriver = new Map(
-    previousRows
-      .filter(row => row.Driver)
-      .map(row => [row.Driver, row])
+      .filter(row => driverRowKey(row) && row.Position)
+      .map(row => [driverRowKey(row), Number(row.Position)])
   );
   const latestPointsByDriver = new Map(
     latestResultRows
-      .filter(row => row.Driver)
-      .map(row => [row.Driver, row.Points || '0'])
+      .filter(row => driverRowKey(row))
+      .map(row => [driverRowKey(row), row.Points || '0'])
   );
 
   return driverStandings.map(item => {
     const driverName = formatDriverName(item.Driver || {});
-    const previousRow = previousRowByDriver.get(driverName);
+    const driverId = item.Driver?.driverId || '';
+    const driverKey = driverRowKey({ DriverId: driverId, Driver: driverName });
 
     return {
       Position: item.positionText || item.position || '',
-      Change: positionChange(item.position, previousPositionByDriver.get(driverName)),
+      Change: positionChange(item.position, previousPositionByDriver.get(driverKey)),
+      DriverId: driverId,
       Driver: driverName,
       Team: normalizeTeamName(item.Constructors?.[0]?.name || ''),
       CarNumber: item.Driver?.permanentNumber || '',
       Points: item.points || '0',
-      PointsChange: latestPointsByDriver.get(driverName) || '0'
+      PointsChange: latestPointsByDriver.get(driverKey) || '0'
     };
   });
 }
@@ -423,21 +448,23 @@ function projectDriverStandingsIfNeeded(driverRows, standingsPayload, latestResu
   if (!shouldProjectStandings(standingsPayload, latestResultRows)) return driverRows;
 
   const standingsRound = standingsPayloadRound(standingsPayload);
-  const projectedByDriver = new Map(driverRows.map(row => [row.Driver, { ...row }]));
+  const projectedByDriver = new Map(driverRows.map(row => [driverRowKey(row), { ...row }]));
   const latestSessionPointsByDriver = new Map(
     latestChangeRows
-      .filter(row => row.Driver)
-      .map(row => [row.Driver, String(Number(row.Points || 0) || 0)])
+      .filter(row => driverRowKey(row))
+      .map(row => [driverRowKey(row), String(Number(row.Points || 0) || 0)])
   );
 
   for (const resultRow of latestResultRows) {
-    if (!resultRow.Driver) continue;
+    const driverKey = driverRowKey(resultRow);
+    if (!driverKey) continue;
     if (Number(resultRow.Round || 0) <= standingsRound) continue;
 
     const pointsEarned = Number(resultRow.Points || 0);
-    const current = projectedByDriver.get(resultRow.Driver) || {
+    const current = projectedByDriver.get(driverKey) || {
       Position: '',
       Change: '0',
+      DriverId: resultRow.DriverId || '',
       Driver: resultRow.Driver,
       Team: normalizeTeamName(resultRow.Team || ''),
       CarNumber: '',
@@ -445,12 +472,13 @@ function projectDriverStandingsIfNeeded(driverRows, standingsPayload, latestResu
       PointsChange: '0'
     };
 
-    projectedByDriver.set(resultRow.Driver, {
+    projectedByDriver.set(driverKey, {
       ...current,
+      DriverId: current.DriverId || resultRow.DriverId || '',
       Driver: current.Driver || resultRow.Driver,
       Team: current.Team || normalizeTeamName(resultRow.Team || ''),
       Points: String((Number(current.Points || 0) || 0) + pointsEarned),
-      PointsChange: latestSessionPointsByDriver.get(resultRow.Driver) || '0'
+      PointsChange: latestSessionPointsByDriver.get(driverKey) || '0'
     });
   }
 
@@ -475,6 +503,10 @@ function positionChange(currentPosition, previousPosition) {
   return String(previous - current);
 }
 
+function driverRowKey(row = {}) {
+  return row.DriverId || row.driverId || row.Driver || '';
+}
+
 function mapConstructorStandings(payload, driverRows, previousRows = [], latestResultRows = []) {
   const standingsLists = payload?.MRData?.StandingsTable?.StandingsLists;
   const constructorStandings = standingsLists?.[0]?.ConstructorStandings;
@@ -485,11 +517,6 @@ function mapConstructorStandings(payload, driverRows, previousRows = [], latestR
     previousRows
       .filter(row => row.Constructor && row.Position)
       .map(row => [row.Constructor, Number(row.Position)])
-  );
-  const previousRowByConstructor = new Map(
-    previousRows
-      .filter(row => row.Constructor)
-      .map(row => [row.Constructor, row])
   );
   const latestPointsByConstructor = new Map();
 
@@ -503,7 +530,6 @@ function mapConstructorStandings(payload, driverRows, previousRows = [], latestR
   return constructorStandings.map(item => {
     const constructorName = normalizeTeamName(item.Constructor?.name || '');
     const drivers = driversByTeam.get(constructorName) || [];
-    const previousRow = previousRowByConstructor.get(constructorName);
 
     return {
       Position: item.positionText || item.position || '',
