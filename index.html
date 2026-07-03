@@ -4013,12 +4013,18 @@ return `
           .map(r => rugbyMatchKey(r.Date, r.HomeTeam, r.AwayTeam))
           .filter(Boolean)
       );
-      const upcomingFixtures = fixtures.filter(fixture => {
-        const fixtureKey = rugbyMatchKey(fixture.Date, fixture.HomeTeam, fixture.AwayTeam);
-        const isCompleted = fixtureKey && completedMatchKeys.has(fixtureKey);
-        const kickoffInfo = rugbyFixtureKickoffInfo(fixture);
-        return !isCompleted && kickoffInfo.kickoffDate > nowRugby;
-      });
+      const upcomingFixtures = fixtures
+        .filter(fixture => {
+          const fixtureKey = rugbyMatchKey(fixture.Date, fixture.HomeTeam, fixture.AwayTeam);
+          const isCompleted = fixtureKey && completedMatchKeys.has(fixtureKey);
+          const kickoffInfo = rugbyFixtureKickoffInfo(fixture);
+          return !isCompleted && kickoffInfo.kickoffDate > nowRugby;
+        })
+        .sort((a, b) => {
+          const aKickoff = rugbyFixtureKickoffInfo(a).kickoffDate;
+          const bKickoff = rugbyFixtureKickoffInfo(b).kickoffDate;
+          return aKickoff - bKickoff;
+        });
 
       const fixturesHTML = upcomingFixtures.length === 0
         ? '<p style="color:var(--text-secondary);text-align:center;padding:20px;">No upcoming fixtures.</p>'
