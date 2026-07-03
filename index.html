@@ -3784,57 +3784,24 @@ return `
       </div>`;
     }
 
-    // Convert a venue-local time (HH:MM) on a given date to SAST (UTC+2)
-    function convertToSAST(dateStr, timeStr, venueStr) {
-      if (!timeStr) return '';
-      if (String(timeStr).toLowerCase() === 'tbc') return 'TBC';
-
-      const parts = String(timeStr).split(':').map(Number);
-      if (parts.length === 0 || !Number.isFinite(parts[0])) return '';
-      const hours = parts[0] || 0;
-      const minutes = parts[1] || 0;
-
-      // Determine approximate venue offset in hours
-      const v = (venueStr || '').toLowerCase();
-      let offset = 0; // hours ahead of UTC
-      if (v.includes('south africa') || v.includes('johannesburg') || v.includes('pretoria') || v.includes('durban') || v.includes('cape town')) offset = 2;
-      else if (v.includes('australia') || v.includes('sydney') || v.includes('perth')) offset = 8;
-      else if (v.includes('new zealand') || v.includes('auckland') || v.includes('wellington') || v.includes('christchurch')) offset = 12;
-      else if (v.includes('japan') || v.includes('tokyo')) offset = 9;
-      else if (v.includes('england') || v.includes('scotland') || v.includes('wales') || v.includes('ireland') || v.includes('cardiff') || v.includes('edinburgh')) offset = 0;
-      else if (v.includes('argentina') || v.includes('cordoba') || v.includes('buenos') || v.includes('san juan')) offset = -3;
-      else if (v.includes('baltimore') || v.includes('united states') || v.includes('usa') || v.includes('maryland')) offset = -5;
-      else if (v.includes('fiji')) offset = 12;
-
-      // Compute SAST: take the venue-local time, convert to UTC by subtracting offset, then add 2 hours for SAST
-      // Use Date UTC to avoid local machine timezone interference
-      const ymd = dateStr.split('-').map(Number);
-      if (ymd.length !== 3) return '';
-      const [y, m, d] = ymd;
-      // Create a Date object using UTC components at the venue-local time
-      const utcMillis = Date.UTC(y, m - 1, d, hours - offset, minutes, 0);
-      const sastMillis = utcMillis + (2 * 60 * 60 * 1000);
-      const dt = new Date(sastMillis);
-      const hh = String(dt.getUTCHours()).padStart(2, '0');
-      const mm = String(dt.getUTCMinutes()).padStart(2, '0');
-      return `${hh}:${mm}`;
+    function rugbyKickoffDisplay(rawKickoff) {
+      if (rawKickoff === null || rawKickoff === undefined) return '';
+      const value = String(rawKickoff).trim();
+      if (!value) return '';
+      if (value.toLowerCase() === 'tbc') return 'TBC';
+      return value;
     }
 
-    // Build kickoff info in SAST for fixture ordering and countdown selection.
+    // Build kickoff info for fixture ordering/countdown while preserving CSV display values.
     function rugbyFixtureKickoffInfo(fixture) {
       const rawKickoff = fixture.KickOffTime || fixture.KickoffTime || '';
-      let kickoffSAST = '';
-
-      if (rawKickoff && String(rawKickoff).toLowerCase() !== 'tbc') {
-        kickoffSAST = convertToSAST(fixture.Date, rawKickoff, fixture.Venue);
-      }
-
-      // Fallback when no reliable kickoff is available.
-      if (!kickoffSAST || kickoffSAST === 'TBC') kickoffSAST = '15:00';
+      const kickoffDisplay = rugbyKickoffDisplay(rawKickoff);
+      const kickoffSortable = /^\d{1,2}:\d{2}$/.test(kickoffDisplay) ? kickoffDisplay : '15:00';
 
       return {
-        kickoffSAST,
-        kickoffDate: new Date(`${fixture.Date}T${kickoffSAST}:00+02:00`)
+        kickoffDisplay,
+        kickoffSortable,
+        kickoffDate: new Date(`${fixture.Date}T${kickoffSortable}:00+02:00`)
       };
     }
 
@@ -3913,7 +3880,7 @@ return `
           nextRugbyFixture.Date,
           nextRugbyFixture.HomeTeam,
           nextRugbyFixture.AwayTeam,
-          kickoffInfo.kickoffSAST
+          kickoffInfo.kickoffDisplay
         ].join('|');
 
         if (nextFixtureKey === rugbyActiveFixtureKey) return;
@@ -3928,7 +3895,7 @@ return `
 
         // Countdown stays on this fixture until its kickoff is reached.
         rugbyCountdownIntervalId = startCountdown(
-          nextRugbyFixture.Date + 'T' + kickoffInfo.kickoffSAST + ':00',
+          nextRugbyFixture.Date + 'T' + kickoffInfo.kickoffSortable + ':00',
           'rugby-cd-days', 'rugby-cd-hrs', 'rugby-cd-min', 'rugby-cd-sec'
         );
       };
@@ -3964,7 +3931,7 @@ return `
             AwayScore: '',
             AwayTeam: fixture.AwayTeam,
             Competition: fixture.Competition || 'International',
-            KickOffTimeSAST: kickoffInfo.kickoffSAST === 'TBC' ? 'TBC' : kickoffInfo.kickoffSAST
+            KickOffTimeSAST: kickoffInfo.kickoffDisplay
           };
         });
 
@@ -4093,7 +4060,7 @@ return `
                   </td>
 
                   <!-- KICKOFF (SAST) -->
-                  <td style="white-space:nowrap;color:var(--text-secondary);font-weight:700;">${escapeHTML(f.KickOffTime ? convertToSAST(f.Date, f.KickOffTime, f.Venue) : (f.KickOffTime || ''))}</td>
+                  <td style="white-space:nowrap;color:var(--text-secondary);font-weight:700;">${escapeHTML(rugbyKickoffDisplay(f.KickOffTime || f.KickoffTime || ''))}</td>
 
                   <td style="color:var(--text-secondary);font-size:0.85rem;">${escapeHTML(f.Venue)}</td>
                   <td style="color:var(--text-secondary);font-size:0.85rem;">${escapeHTML(f.Competition)}</td>
