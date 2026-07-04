@@ -4,6 +4,7 @@ const path = require('path');
 const DATA_DIR = path.join(__dirname, '..', 'data');
 const CALENDAR_FILE = path.join(DATA_DIR, 'f1_calendar.csv');
 const CACHE_FILE = path.join(DATA_DIR, 'f1_latest_session.json');
+const OPENF1_API_KEY = process.env.OPENF1_API_KEY || process.env.OPENF1_TOKEN || '';
 const FETCH_ATTEMPTS = 3;
 const FETCH_RETRY_DELAY_MS = 1000;
 
@@ -65,11 +66,23 @@ module.exports = async function handler(req, res) {
 };
 
 async function resolveLatestSessionPayload(weekend, completedSessions) {
+  const attemptedPayloads = [];
+
   for (const session of completedSessions) {
     const payload = await fetchSessionRowsForSession(weekend, session);
+    attemptedPayloads.push(payload);
     if (payload.rows.length > 0) {
       return payload;
     }
+  }
+
+  const latestAttempt = attemptedPayloads[0];
+  if (latestAttempt?.providerErrors?.openf1?.includes('OPENF1_AUTH_REQUIRED')) {
+    return {
+      ...latestAttempt,
+      status: 'pending-session-results',
+      message: 'OpenF1 historical access is restricted during live windows. Set OPENF1_API_KEY in Vercel to keep session results updating automatically.'
+    };
   }
 
   const cached = await readCachedLatestSession(weekend).catch(() => null);
@@ -94,9 +107,20 @@ async function resolveLatestSessionPayload(weekend, completedSessions) {
 }
 
 async function fetchSessionRowsForSession(weekend, session) {
-  const jolpicaRows = await fetchJolpicaSessionRows(weekend, session).catch(() => []);
+  let jolpicaError = null;
+  let openF1Error = null;
+
+  const jolpicaRows = await fetchJolpicaSessionRows(weekend, session).catch(error => {
+    jolpicaError = error;
+    console.warn(`Jolpica session lookup failed for ${session.key}: ${error.message}`);
+    return [];
+  });
   const useJolpica = jolpicaRows.length > 0 && sessionMatchesWeekend(jolpicaRows[0], weekend);
-  const openF1Rows = useJolpica ? [] : await fetchOpenF1TimingRows(weekend, session).catch(() => []);
+  const openF1Rows = useJolpica ? [] : await fetchOpenF1TimingRows(weekend, session).catch(error => {
+    openF1Error = error;
+    console.warn(`OpenF1 session lookup failed for ${session.key}: ${error.message}`);
+    return [];
+  });
   const mappedRows = useJolpica ? jolpicaRows : openF1Rows;
 
   if (mappedRows.length > 0 && sessionMatchesWeekend(mappedRows[0], weekend)) {
@@ -126,6 +150,10 @@ async function fetchSessionRowsForSession(weekend, session) {
     raceName: weekend.RaceName || '',
     country: weekend.Country || '',
     date: weekend[session.dateCol] || '',
+    providerErrors: {
+      jolpica: jolpicaError?.message || '',
+      openf1: openF1Error?.message || ''
+    },
     rows: []
   };
 }
@@ -231,7 +259,38 @@ async function fetchJolpicaSessionRows(weekend, session) {
     if (session.key === 'race') return mapJolpicaClassificationRows(race, weekend, session, resultKey);
   }
 
+  if (session.key === 'qualy' || session.key === 'sprintQualy') {
+    return fetchJolpicaSeasonQualifyingRows(weekend, session);
+  }
+
   return [];
+}
+
+async function fetchJolpicaSeasonQualifyingRows(weekend, session) {
+  const season = encodeURIComponent(getSeason(weekend));
+  const payload = await fetchJson(`https://api.jolpi.ca/ergast/f1/${season}/qualifying.json?limit=2000`).catch(() => null);
+  const races = payload?.MRData?.RaceTable?.Races;
+  if (!Array.isArray(races) || races.length === 0) return [];
+
+  const weekendRound = String(weekend.Round || '');
+  const matchingRace = races.find(race => String(race.round || '') === weekendRound)
+    || races.find(race => raceMatchesWeekend(race, weekend));
+  if (!matchingRace) return [];
+
+  const resultKey = pickJolpicaResultKey(matchingRace, session);
+  if (!resultKey) return [];
+
+  return mapJolpicaQualifyingRows(matchingRace, weekend, session, resultKey);
+}
+
+function raceMatchesWeekend(race, weekend) {
+  const raceCountry = normalize(race?.Circuit?.Location?.country || '');
+  const raceName = normalize(race?.raceName || '');
+  const localCountry = normalize(weekend.Country || '');
+  const localRaceName = normalize(weekend.RaceName || '');
+
+  return (raceCountry && countryMatches(raceCountry, localCountry))
+    || (raceName && localRaceName && (raceName.includes(localRaceName) || localRaceName.includes(raceName)));
 }
 
 function getJolpicaPathCandidates(session) {
@@ -430,18 +489,29 @@ async function fetchOpenF1TimingRows(weekend, session) {
 
 async function fetchJson(url) {
   let lastError = null;
+  const isOpenF1Url = String(url).includes('api.openf1.org');
 
   for (let attempt = 1; attempt <= FETCH_ATTEMPTS; attempt++) {
     try {
+      const headers = {
+        Accept: 'application/json',
+        'User-Agent': 'mysportzone-f1-session-results/1.0'
+      };
+
+      if (isOpenF1Url && OPENF1_API_KEY) {
+        headers.Authorization = `Bearer ${OPENF1_API_KEY}`;
+        headers['X-API-Key'] = OPENF1_API_KEY;
+      }
+
       const response = await fetch(url, {
-        headers: {
-          Accept: 'application/json',
-          'User-Agent': 'mysportzone-f1-session-results/1.0'
-        }
+        headers
       });
 
       if (!response.ok) {
         const responseText = await response.text().catch(() => '');
+        if (isOpenF1Url && response.status === 401) {
+          throw new Error(`OPENF1_AUTH_REQUIRED HTTP 401 for ${url}${responseText ? ` :: ${responseText.slice(0, 160)}` : ''}`);
+        }
         throw new Error(`HTTP ${response.status} for ${url}${responseText ? ` :: ${responseText.slice(0, 120)}` : ''}`);
       }
 

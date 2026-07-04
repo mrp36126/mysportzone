@@ -49,12 +49,6 @@ const TEAM_ALIASES = {
   lions: 'south africa'
 };
 
-if (!API_KEY) {
-  console.error('Error: HIGHLIGHTLY_API_KEY environment variable not set');
-  process.exitCode = 1;
-  process.exit(1);
-}
-
 main().catch(error => {
   console.error(`Rugby update failed: ${error.message}`);
   process.exitCode = 1;
@@ -62,6 +56,10 @@ main().catch(error => {
 
 async function main() {
   await assertDataDir();
+
+  if (!API_KEY && !SPORTDB_API_KEY) {
+    throw new Error('No rugby data provider configured. Set HIGHLIGHTLY_API_KEY and/or SPORTDB_API_KEY.');
+  }
 
   console.log('Reading expected rugby fixtures...');
   const fixtures = await readCsvIfExists(FILES.rugbyFixtures, ['Date', 'HomeTeam', 'AwayTeam', 'Venue', 'Competition', 'KickOffTime']);
@@ -71,10 +69,12 @@ async function main() {
     return;
   }
 
-  console.log(`Found ${fixtures.length} fixtures. Fetching results from Highlightly first...`);
+  console.log(`Found ${fixtures.length} fixtures. Fetching results from configured providers...`);
 
   const completedFixtures = fixtures.filter(isFixtureCompleted);
-  const highlightlyRaw = await fetchHighlightlyResults();
+  const highlightlyRaw = API_KEY
+    ? await fetchHighlightlyResults()
+    : (console.warn('HIGHLIGHTLY_API_KEY is not set. Skipping Highlightly and using SportDB fallback only.'), []);
   const highlightlyResults = filterResultsToFixtures(highlightlyRaw, completedFixtures);
 
   console.log(`Matched ${highlightlyResults.length} completed fixtures from Highlightly.`);

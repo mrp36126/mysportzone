@@ -70,6 +70,8 @@ Add these GitHub repository secrets for the workflow:
 
 The latest F1 session result section uses `/api/f1-latest-session`. It checks the latest completed session from `data/f1_calendar.csv`, tries Jolpica first, and then uses OpenF1 as the backup data source when Jolpica has no matching or published rows. When a run succeeds, the workflow also persists the latest confirmed payload to `data/f1_latest_session.json`, so temporary API failures do not erase the most recent completed session from the app.
 
+OpenF1 now restricts historical requests during live session windows unless you are authenticated. Add `OPENF1_API_KEY` in Vercel environment variables so the latest completed sessions (for example sprint qualifying or practice sessions) remain available during those windows.
+
 The `Update F1 Session Results` GitHub Actions workflow pings `/api/f1-latest-session` every 30 minutes from Thursday through Tuesday UTC so completed session results are retried automatically shortly after they finish in any race-time zone. It also runs `npm run update:f1-favourites`, which recalculates and saves the favourites index in Supabase after each scheduled session refresh. Add a GitHub repository variable named `SITE_URL` if the deployed site URL is not:
 
 ```text
@@ -111,6 +113,20 @@ Each API request is retried before the updater fails, which helps avoid missing 
 
 - If no files change, Jolpica may not have published new data yet, or the CSV files may already be up to date. The schedule will keep checking every 30 minutes from Thursday through Tuesday UTC.
 - If the workflow fails with a network or API error after retries, the next scheduled run should try again automatically.
+- If `/api/f1-latest-session` keeps returning `pending-session-results` during a live window, set `OPENF1_API_KEY` in Vercel so OpenF1 requests can continue.
 - If Vercel does not redeploy, check that Vercel is still connected to the GitHub repository and deploys from commits to the selected branch.
 - If a constructor table is empty, the frontend falls back to calculating constructors from `data/f1_drivers.csv`.
 - Do not use social media posts as the source of truth for official race results. The automation uses structured API data from Jolpica.
+
+## Rugby Results Automation
+
+`scripts/update-rugby-results.js` now supports either provider independently.
+
+- Preferred: set both `HIGHLIGHTLY_API_KEY` and `SPORTDB_API_KEY`.
+- Supported fallback: set only `SPORTDB_API_KEY` if Highlightly is unavailable.
+- Failure condition: when both keys are missing, the updater fails with a clear error instead of silently producing stale data.
+
+The `Update Rugby Results` GitHub Actions workflow should therefore include at least one of these repository secrets:
+
+- `HIGHLIGHTLY_API_KEY`
+- `SPORTDB_API_KEY`
