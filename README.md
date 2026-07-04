@@ -125,6 +125,8 @@ Each API request is retried before the updater fails, which helps avoid missing 
 - Preferred: set both `HIGHLIGHTLY_API_KEY` and `SPORTDB_API_KEY`.
 - Supported fallback: set only `SPORTDB_API_KEY` if Highlightly is unavailable.
 - Failure condition: when both keys are missing, the updater fails with a clear error instead of silently producing stale data.
+- Highlightly base URL is `https://rugby.highlightly.net` and requests use the `x-rapidapi-key` header.
+- Optional overrides: `HIGHLIGHTLY_BASE_URL` and `HIGHLIGHTLY_RAPIDAPI_HOST`.
 
 The `Update Rugby Results` GitHub Actions workflow should therefore include at least one of these repository secrets:
 

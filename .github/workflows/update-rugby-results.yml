@@ -16,6 +16,7 @@ permissions:
 jobs:
   update-rugby-results:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - name: Check out repository
@@ -26,11 +27,26 @@ jobs:
         with:
           node-version: "24"
 
+      - name: Validate provider secrets
+        env:
+          HIGHLIGHTLY_API_KEY: ${{ secrets.HIGHLIGHTLY_API_KEY }}
+          SPORTDB_API_KEY: ${{ secrets.SPORTDB_API_KEY }}
+        run: |
+          echo "[Rugby workflow] Started at $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+          if [ -z "$HIGHLIGHTLY_API_KEY" ] && [ -z "$SPORTDB_API_KEY" ]; then
+            echo "Neither HIGHLIGHTLY_API_KEY nor SPORTDB_API_KEY is configured."
+            exit 1
+          fi
+          echo "[Rugby workflow] Provider availability: Highlightly=$([ -n "$HIGHLIGHTLY_API_KEY" ] && echo yes || echo no), SportDB=$([ -n "$SPORTDB_API_KEY" ] && echo yes || echo no)"
+
       - name: Run Rugby results updater
         env:
           HIGHLIGHTLY_API_KEY: ${{ secrets.HIGHLIGHTLY_API_KEY }}
           SPORTDB_API_KEY: ${{ secrets.SPORTDB_API_KEY }}
-        run: npm run update:rugby
+        run: |
+          node --version
+          npm --version
+          npm run update:rugby
 
       - name: Commit updated CSV files
         uses: stefanzweifel/git-auto-commit-action@v5

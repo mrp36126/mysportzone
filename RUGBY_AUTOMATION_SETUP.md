@@ -37,6 +37,8 @@ HIGHLIGHTLY_API_KEY=your_highlightly_key SPORTDB_API_KEY=your_sportdb_key npm ru
 Optional local override:
 
 ```bash
+HIGHLIGHTLY_BASE_URL=https://rugby.highlightly.net
+HIGHLIGHTLY_RAPIDAPI_HOST=rugby-highlights-api.p.rapidapi.com
 SPORTDB_BASE_URL=https://api.sportdb.dev
 ```
 
@@ -89,6 +91,7 @@ The script automatically:
 
 The updater:
 - Polls Highlightly first for completed rugby matches
+- Uses Highlightly Rugby API (`https://rugby.highlightly.net`) with `x-rapidapi-key`
 - Automatically checks SportDB.dev rugby-union data for completed fixtures still missing after Highlightly
 - Handles graceful failures (returns empty if API is unavailable)
 - Logs all results fetched to console during workflow run
