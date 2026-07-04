@@ -10,7 +10,7 @@ const FETCH_RETRY_DELAY_MS = 1000;
 const SESSION_DEFS = [
   { key: 'fp1', label: 'Free Practice 1', shortLabel: 'FP1', dateCol: 'FP1Date', timeCol: 'FP1Time', path: 'fp1', resultKey: 'fp1Results', durationMinutes: 75 },
   { key: 'fp2', label: 'Free Practice 2', shortLabel: 'FP2', dateCol: 'FP2Date', timeCol: 'FP2Time', path: 'fp2', resultKey: 'fp2Results', durationMinutes: 75 },
-  { key: 'sprintQualy', label: 'Sprint Qualifying', shortLabel: 'Sprint Qualifying', dateCol: 'SprintQualiDate', timeCol: 'SprintQualiTime', path: 'sprint/qualy', resultKey: 'sprintQualyResults', durationMinutes: 75 },
+  { key: 'sprintQualy', label: 'Sprint Qualifying', shortLabel: 'Sprint Qualifying', dateCol: 'SprintQualiDate', timeCol: 'SprintQualiTime', path: 'sprint/qualy', jolpicaPaths: ['sprintqualifying', 'sprintshootout', 'sprintqualy'], resultKey: 'sprintQualyResults', durationMinutes: 75 },
   { key: 'sprint', label: 'Sprint Result', shortLabel: 'Sprint', dateCol: 'SprintDate', timeCol: 'SprintTime', path: 'sprint/race', resultKey: 'sprintRaceResults', jolpicaPath: 'sprint', durationMinutes: 90 },
   { key: 'fp3', label: 'Free Practice 3', shortLabel: 'FP3', dateCol: 'FP3Date', timeCol: 'FP3Time', path: 'fp3', resultKey: 'fp3Results', durationMinutes: 75 },
   { key: 'qualy', label: 'Qualifying Result', shortLabel: 'Qualifying', dateCol: 'QualiDate', timeCol: 'QualiTime', path: 'qualy', resultKey: 'qualyResults', jolpicaPath: 'qualifying', durationMinutes: 90 },
@@ -40,13 +40,11 @@ module.exports = async function handler(req, res) {
     const completedSessions = buildSessions(weekend)
       .filter(session => session.completedAt <= now)
       .sort((a, b) => b.completedAt - a.completedAt);
-    const latestCompletedSession = completedSessions[0];
-
-    if (!latestCompletedSession) {
+    if (!completedSessions.length) {
       return res.status(200).json({ status: 'no-completed-session', session: null, rows: [] });
     }
 
-    const payload = await resolveLatestSessionPayload(weekend, latestCompletedSession);
+    const payload = await resolveLatestSessionPayload(weekend, completedSessions);
     return res.status(200).json(payload);
   } catch (error) {
     console.error('Latest F1 session API error:', error);
@@ -64,7 +62,36 @@ module.exports = async function handler(req, res) {
   }
 };
 
-async function resolveLatestSessionPayload(weekend, session) {
+async function resolveLatestSessionPayload(weekend, completedSessions) {
+  for (const session of completedSessions) {
+    const payload = await fetchSessionRowsForSession(weekend, session);
+    if (payload.rows.length > 0) {
+      return payload;
+    }
+  }
+
+  const cached = await readCachedLatestSession().catch(() => null);
+  if (cached) {
+    return { ...cached, cached: true };
+  }
+
+  const session = completedSessions[0];
+  return {
+    status: 'no-session-results',
+    source: null,
+    label: session.label,
+    shortLabel: session.shortLabel,
+    sessionKey: session.key,
+    season: getSeason(weekend),
+    round: String(weekend.Round || ''),
+    raceName: weekend.RaceName || '',
+    country: weekend.Country || '',
+    date: weekend[session.dateCol] || '',
+    rows: []
+  };
+}
+
+async function fetchSessionRowsForSession(weekend, session) {
   const jolpicaRows = await fetchJolpicaSessionRows(weekend, session).catch(() => []);
   const useJolpica = jolpicaRows.length > 0 && sessionMatchesWeekend(jolpicaRows[0], weekend);
   const openF1Rows = useJolpica ? [] : await fetchOpenF1TimingRows(weekend, session).catch(() => []);
@@ -87,7 +114,7 @@ async function resolveLatestSessionPayload(weekend, session) {
   }
 
   return {
-    status: 'pending-session-results',
+    status: 'session-results-pending',
     source: null,
     label: session.label,
     shortLabel: session.shortLabel,
@@ -182,20 +209,48 @@ function buildSessions(row) {
 }
 
 async function fetchJolpicaSessionRows(weekend, session) {
-  if (!session.jolpicaPath) return [];
-
   const season = encodeURIComponent(getSeason(weekend));
   const round = encodeURIComponent(weekend.Round || '');
   if (!round) return [];
 
-  const payload = await fetchJson(`https://api.jolpi.ca/ergast/f1/${season}/${round}/${session.jolpicaPath}.json`);
-  const race = payload?.MRData?.RaceTable?.Races?.[0];
-  if (!race) return [];
+  for (const jolpicaPath of getJolpicaPathCandidates(session)) {
+    const payload = await fetchJson(`https://api.jolpi.ca/ergast/f1/${season}/${round}/${jolpicaPath}.json`).catch(() => null);
+    const race = payload?.MRData?.RaceTable?.Races?.[0];
+    if (!race) continue;
 
-  if (session.key === 'qualy') return mapJolpicaQualifyingRows(race, weekend, session);
-  if (session.key === 'sprint') return mapJolpicaClassificationRows(race, weekend, session, 'SprintResults');
-  if (session.key === 'race') return mapJolpicaClassificationRows(race, weekend, session, 'Results');
+    const resultKey = pickJolpicaResultKey(race, session);
+    if (!resultKey) continue;
+
+    if (session.key === 'qualy' || session.key === 'sprintQualy') {
+      return mapJolpicaQualifyingRows(race, weekend, session, resultKey);
+    }
+
+    if (session.key === 'sprint') return mapJolpicaClassificationRows(race, weekend, session, resultKey);
+    if (session.key === 'race') return mapJolpicaClassificationRows(race, weekend, session, resultKey);
+  }
+
   return [];
+}
+
+function getJolpicaPathCandidates(session) {
+  if (Array.isArray(session.jolpicaPaths) && session.jolpicaPaths.length > 0) {
+    return session.jolpicaPaths;
+  }
+
+  if (session.jolpicaPath) return [session.jolpicaPath];
+  return [];
+}
+
+function pickJolpicaResultKey(race, session) {
+  const resultKeysBySession = {
+    sprintQualy: ['QualifyingResults', 'SprintQualifyingResults', 'SprintShootoutResults'],
+    qualy: ['QualifyingResults'],
+    sprint: ['SprintResults', 'Results'],
+    race: ['Results']
+  };
+
+  const candidateKeys = resultKeysBySession[session.key] || [];
+  return candidateKeys.find(key => Array.isArray(race[key]) && race[key].length > 0) || '';
 }
 
 function mapJolpicaClassificationRows(race, weekend, session, resultKey) {
@@ -228,8 +283,8 @@ function mapJolpicaClassificationRows(race, weekend, session, resultKey) {
   }).filter(row => row.Driver);
 }
 
-function mapJolpicaQualifyingRows(race, weekend, session) {
-  const results = Array.isArray(race.QualifyingResults) ? race.QualifyingResults : [];
+function mapJolpicaQualifyingRows(race, weekend, session, resultKey = 'QualifyingResults') {
+  const results = Array.isArray(race[resultKey]) ? race[resultKey] : [];
   return results.map(result => {
     const driver = result.Driver || {};
     const constructor = result.Constructor || {};
@@ -408,7 +463,8 @@ function findOpenF1Session(sessions, weekend, session) {
   return sessions.find(row => {
     const apiName = normalize(row.session_name);
     const apiDate = String(row.date_start || '').slice(0, 10);
-    return targetNames.includes(apiName) && (localDates.length === 0 || localDates.includes(apiDate));
+    return targetNames.some(targetName => apiName.includes(targetName) || targetName.includes(apiName))
+      && (localDates.length === 0 || localDates.includes(apiDate));
   }) || sessions.find(row => targetNames.includes(normalize(row.session_name))) || null;
 }
 
