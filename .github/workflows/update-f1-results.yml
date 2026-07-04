@@ -3,9 +3,9 @@ name: Update F1 Results
 on:
   workflow_dispatch:
   schedule:
-    # Poll through and after race weekends so late-published classifications
-    # still update automatically without waiting for manual intervention.
-    - cron: "*/30 * * * 5,6,0,1,2"
+    # Poll from Thursday through Tuesday UTC so race and sprint data refreshes
+    # shortly after sessions finish in any race-time zone.
+    - cron: "*/30 * * * 4,5,6,0,1,2"
 
 concurrency:
   group: update-f1-results

@@ -3,16 +3,16 @@ name: Update F1 Session Results
 on:
   workflow_dispatch:
   schedule:
-    # Poll every 30 minutes through race weekends so each completed session is
-    # retried automatically until Jolpica or, if needed, OpenF1 has data.
-    - cron: "*/30 * * * 5,6,0,1,2"
+    # Poll every 30 minutes from Thursday through Tuesday UTC so session
+    # results are retried shortly after they finish in any race-time zone.
+    - cron: "*/30 * * * 4,5,6,0,1,2"
 
 concurrency:
   group: update-f1-session-results
   cancel-in-progress: false
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   update-f1-session-results:
@@ -39,8 +39,29 @@ jobs:
             SITE_URL="https://mysportzone.vercel.app"
           fi
 
-          curl --fail --show-error --silent "$SITE_URL/api/f1-latest-session?refresh=$(date +%s)" > /tmp/f1-latest-session.json
+          curl --fail --show-error --silent --retry 3 --retry-all-errors --retry-delay 5 --connect-timeout 10 "$SITE_URL/api/f1-latest-session?refresh=$(date +%s)" > /tmp/f1-latest-session.json
           cat /tmp/f1-latest-session.json
+
+      - name: Cache latest completed session
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const payload = JSON.parse(fs.readFileSync('/tmp/f1-latest-session.json', 'utf8'));
+
+          if (payload.status !== 'ok' || !Array.isArray(payload.rows) || payload.rows.length === 0) {
+            console.log('Latest F1 session is still pending; cache not updated.');
+            process.exit(0);
+          }
+
+          fs.writeFileSync('data/f1_latest_session.json', `${JSON.stringify(payload, null, 2)}\n`);
+          console.log(`Cached ${payload.label} for ${payload.season} round ${payload.round}.`);
+          NODE
+
+      - name: Commit latest session cache
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Update latest F1 session cache"
+          file_pattern: "data/f1_latest_session.json"
 
       - name: Refresh F1 favourites cache
         run: |

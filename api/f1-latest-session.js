@@ -3,6 +3,9 @@ const path = require('path');
 
 const DATA_DIR = path.join(__dirname, '..', 'data');
 const CALENDAR_FILE = path.join(DATA_DIR, 'f1_calendar.csv');
+const CACHE_FILE = path.join(DATA_DIR, 'f1_latest_session.json');
+const FETCH_ATTEMPTS = 3;
+const FETCH_RETRY_DELAY_MS = 1000;
 
 const SESSION_DEFS = [
   { key: 'fp1', label: 'Free Practice 1', shortLabel: 'FP1', dateCol: 'FP1Date', timeCol: 'FP1Time', path: 'fp1', resultKey: 'fp1Results', durationMinutes: 75 },
@@ -43,45 +46,60 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ status: 'no-completed-session', session: null, rows: [] });
     }
 
-    const jolpicaRows = await fetchJolpicaSessionRows(weekend, latestCompletedSession).catch(() => []);
-    const useJolpica = jolpicaRows.length > 0 && sessionMatchesWeekend(jolpicaRows[0], weekend);
-    const openF1Rows = useJolpica ? [] : await fetchOpenF1TimingRows(weekend, latestCompletedSession).catch(() => []);
-    const mappedRows = useJolpica ? jolpicaRows : openF1Rows;
-
-    if (mappedRows.length > 0 && sessionMatchesWeekend(mappedRows[0], weekend)) {
-      return res.status(200).json({
-        status: 'ok',
-        source: useJolpica ? 'jolpica' : 'openf1.org',
-        label: latestCompletedSession.label,
-        shortLabel: latestCompletedSession.shortLabel,
-        sessionKey: latestCompletedSession.key,
-        season: mappedRows[0].Season,
-        round: mappedRows[0].Round,
-        raceName: mappedRows[0].RaceName,
-        country: mappedRows[0].Country,
-        date: mappedRows[0].Date,
-        rows: mappedRows
-      });
-    }
-
-    return res.status(200).json({
-      status: 'pending-session-results',
-      source: null,
-      label: latestCompletedSession.label,
-      shortLabel: latestCompletedSession.shortLabel,
-      sessionKey: latestCompletedSession.key,
-      season: getSeason(weekend),
-      round: String(weekend.Round || ''),
-      raceName: weekend.RaceName || '',
-      country: weekend.Country || '',
-      date: weekend[latestCompletedSession.dateCol] || '',
-      rows: []
-    });
+    const payload = await resolveLatestSessionPayload(weekend, latestCompletedSession);
+    return res.status(200).json(payload);
   } catch (error) {
     console.error('Latest F1 session API error:', error);
+    try {
+      const cached = await readCachedLatestSession();
+      if (cached) {
+        console.warn('Latest F1 session API using cached payload after live lookup failure.');
+        return res.status(200).json({ ...cached, cached: true });
+      }
+    } catch (cacheError) {
+      console.error('Latest F1 session cache read failed:', cacheError);
+    }
+
     return res.status(500).json({ error: true, message: 'Latest F1 session unavailable' });
   }
 };
+
+async function resolveLatestSessionPayload(weekend, session) {
+  const jolpicaRows = await fetchJolpicaSessionRows(weekend, session).catch(() => []);
+  const useJolpica = jolpicaRows.length > 0 && sessionMatchesWeekend(jolpicaRows[0], weekend);
+  const openF1Rows = useJolpica ? [] : await fetchOpenF1TimingRows(weekend, session).catch(() => []);
+  const mappedRows = useJolpica ? jolpicaRows : openF1Rows;
+
+  if (mappedRows.length > 0 && sessionMatchesWeekend(mappedRows[0], weekend)) {
+    return {
+      status: 'ok',
+      source: useJolpica ? 'jolpica' : 'openf1.org',
+      label: session.label,
+      shortLabel: session.shortLabel,
+      sessionKey: session.key,
+      season: mappedRows[0].Season,
+      round: mappedRows[0].Round,
+      raceName: mappedRows[0].RaceName,
+      country: mappedRows[0].Country,
+      date: mappedRows[0].Date,
+      rows: mappedRows
+    };
+  }
+
+  return {
+    status: 'pending-session-results',
+    source: null,
+    label: session.label,
+    shortLabel: session.shortLabel,
+    sessionKey: session.key,
+    season: getSeason(weekend),
+    round: String(weekend.Round || ''),
+    raceName: weekend.RaceName || '',
+    country: weekend.Country || '',
+    date: weekend[session.dateCol] || '',
+    rows: []
+  };
+}
 
 function findRelevantWeekend(calendar, now) {
   const weekends = calendar
@@ -110,9 +128,32 @@ function sessionMatchesWeekend(row, weekend) {
   const localRaceName = normalize(weekend.RaceName);
   const localCircuit = normalize(weekend.Circuit);
 
-  return (apiCountry && apiCountry === localCountry)
+  return (apiCountry && countryMatches(apiCountry, localCountry))
     || (apiRaceName && localRaceName && (apiRaceName.includes(localRaceName) || localRaceName.includes(apiRaceName)))
     || (apiCircuit && localCircuit && (apiCircuit.includes(localCircuit) || localCircuit.includes(apiCircuit)));
+}
+
+function countryMatches(apiCountry, localCountry) {
+  const apiCountries = expandCountryAliases(apiCountry);
+  const localCountries = expandCountryAliases(localCountry);
+
+  return apiCountries.some(country => localCountries.includes(country));
+}
+
+function expandCountryAliases(value) {
+  const normalized = normalize(value);
+  if (!normalized) return [];
+
+  const aliases = {
+    uk: ['united kingdom', 'great britain', 'britain'],
+    usa: ['united states', 'united states of america', 'america'],
+    uae: ['united arab emirates'],
+    ksa: ['saudi arabia'],
+    'south korea': ['korea'],
+    'czech republic': ['czechia']
+  };
+
+  return [normalized, ...(aliases[normalized] || [])];
 }
 
 function normalize(value) {
@@ -218,29 +259,13 @@ function mapJolpicaQualifyingRows(race, weekend, session) {
 }
 
 async function fetchOpenF1TimingRows(weekend, session) {
-  const openF1SessionName = {
-    fp1: 'Practice 1',
-    fp2: 'Practice 2',
-    fp3: 'Practice 3',
-    sprintQualy: 'Sprint Qualifying',
-    sprint: 'Sprint',
-    qualy: 'Qualifying',
-    race: 'Race'
-  }[session.key];
-
-  if (!openF1SessionName) return [];
-
   const year = encodeURIComponent(getSeason(weekend));
   const country = encodeURIComponent(weekend.Country || '');
   let sessions = await fetchJson(`https://api.openf1.org/v1/sessions?year=${year}&country_name=${country}`);
   if (!Array.isArray(sessions) || sessions.length === 0) {
     sessions = await fetchJson(`https://api.openf1.org/v1/sessions?year=${year}`);
   }
-  const openF1Session = sessions.find(row => {
-    const localDate = weekend[session.dateCol] || '';
-    return row.session_name === openF1SessionName
-      && (!localDate || String(row.date_start || '').slice(0, 10) === localDate);
-  });
+  const openF1Session = findOpenF1Session(sessions, weekend, session);
 
   if (!openF1Session?.session_key) return [];
 
@@ -347,15 +372,89 @@ async function fetchOpenF1TimingRows(weekend, session) {
 }
 
 async function fetchJson(url) {
-  const response = await fetch(url, {
-    headers: {
-      Accept: 'application/json',
-      'User-Agent': 'mysportzone-f1-session-results/1.0'
-    }
-  });
+  let lastError = null;
 
-  if (!response.ok) throw new Error(`HTTP ${response.status} for ${url}`);
-  return response.json();
+  for (let attempt = 1; attempt <= FETCH_ATTEMPTS; attempt++) {
+    try {
+      const response = await fetch(url, {
+        headers: {
+          Accept: 'application/json',
+          'User-Agent': 'mysportzone-f1-session-results/1.0'
+        }
+      });
+
+      if (!response.ok) {
+        const responseText = await response.text().catch(() => '');
+        throw new Error(`HTTP ${response.status} for ${url}${responseText ? ` :: ${responseText.slice(0, 120)}` : ''}`);
+      }
+
+      return response.json();
+    } catch (error) {
+      lastError = error;
+      if (attempt < FETCH_ATTEMPTS) {
+        await delay(FETCH_RETRY_DELAY_MS * attempt);
+      }
+    }
+  }
+
+  throw lastError || new Error(`Unable to fetch ${url}`);
+}
+
+function findOpenF1Session(sessions, weekend, session) {
+  const targetNames = openF1SessionNameCandidates(session);
+  const localDate = weekend[session.dateCol] || '';
+  const localDates = expandDateWindow(localDate);
+
+  return sessions.find(row => {
+    const apiName = normalize(row.session_name);
+    const apiDate = String(row.date_start || '').slice(0, 10);
+    return targetNames.includes(apiName) && (localDates.length === 0 || localDates.includes(apiDate));
+  }) || sessions.find(row => targetNames.includes(normalize(row.session_name))) || null;
+}
+
+function openF1SessionNameCandidates(session) {
+  const namesByKey = {
+    fp1: ['Practice 1', 'FP1'],
+    fp2: ['Practice 2', 'FP2'],
+    fp3: ['Practice 3', 'FP3'],
+    sprintQualy: ['Sprint Qualifying', 'Sprint Shootout', 'Sprint Qualy'],
+    sprint: ['Sprint'],
+    qualy: ['Qualifying', 'Qualifying Session'],
+    race: ['Race', 'Grand Prix']
+  };
+
+  return (namesByKey[session.key] || [session.shortLabel || session.label || session.key])
+    .map(normalize)
+    .filter(Boolean);
+}
+
+function expandDateWindow(date) {
+  if (!date) return [];
+
+  const parsed = new Date(`${date}T12:00:00Z`);
+  if (Number.isNaN(parsed.getTime())) return [date];
+
+  return [
+    toIsoDate(parsed),
+    toIsoDate(new Date(parsed.getTime() - (24 * 60 * 60 * 1000))),
+    toIsoDate(new Date(parsed.getTime() + (24 * 60 * 60 * 1000)))
+  ];
+}
+
+function toIsoDate(date) {
+  return date.toISOString().slice(0, 10);
+}
+
+async function readCachedLatestSession() {
+  const text = await fs.readFile(CACHE_FILE, 'utf8');
+  const cached = JSON.parse(text);
+  if (!cached || typeof cached !== 'object' || !Array.isArray(cached.rows)) return null;
+  if (cached.status !== 'ok' || cached.rows.length === 0) return null;
+  return cached;
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function formatJolpicaDriverName(driver) {
