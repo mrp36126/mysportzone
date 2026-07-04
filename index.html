@@ -3077,11 +3077,12 @@ const upcomingF1 = calendar
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const payload = await res.json();
           if (!Array.isArray(payload.rows) || payload.rows.length === 0) {
-            if (payload.status === 'pending-session-results') {
+            if (['pending-session-results', 'session-results-pending', 'no-session-results'].includes(payload.status)) {
               return {
                 label: payload.label || 'Session Result',
                 season: Number(payload.season || 0),
                 round: Number(payload.round || 0),
+                sessionKey: payload.sessionKey || '',
                 pendingMessage: `${payload.label || 'Latest session'} is complete. Results are being checked automatically every 30 minutes.`,
                 rows: []
               };

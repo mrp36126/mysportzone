@@ -28,10 +28,12 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: true, message: 'Method not allowed' });
   }
 
+  let weekend = null;
+
   try {
     const calendar = parseCsv(await fs.readFile(CALENDAR_FILE, 'utf8'));
     const now = currentDate();
-    const weekend = findRelevantWeekend(calendar, now);
+    weekend = findRelevantWeekend(calendar, now);
 
     if (!weekend) {
       return res.status(200).json({ status: 'no-current-session', session: null, rows: [] });
@@ -49,7 +51,7 @@ module.exports = async function handler(req, res) {
   } catch (error) {
     console.error('Latest F1 session API error:', error);
     try {
-      const cached = await readCachedLatestSession();
+      const cached = await readCachedLatestSession(weekend);
       if (cached) {
         console.warn('Latest F1 session API using cached payload after live lookup failure.');
         return res.status(200).json({ ...cached, cached: true });
@@ -70,14 +72,14 @@ async function resolveLatestSessionPayload(weekend, completedSessions) {
     }
   }
 
-  const cached = await readCachedLatestSession().catch(() => null);
+  const cached = await readCachedLatestSession(weekend).catch(() => null);
   if (cached) {
     return { ...cached, cached: true };
   }
 
   const session = completedSessions[0];
   return {
-    status: 'no-session-results',
+    status: 'pending-session-results',
     source: null,
     label: session.label,
     shortLabel: session.shortLabel,
@@ -501,11 +503,23 @@ function toIsoDate(date) {
   return date.toISOString().slice(0, 10);
 }
 
-async function readCachedLatestSession() {
+async function readCachedLatestSession(weekend = null) {
   const text = await fs.readFile(CACHE_FILE, 'utf8');
   const cached = JSON.parse(text);
   if (!cached || typeof cached !== 'object' || !Array.isArray(cached.rows)) return null;
   if (cached.status !== 'ok' || cached.rows.length === 0) return null;
+
+  if (weekend) {
+    const weekendSeason = String(getSeason(weekend));
+    const weekendRound = String(weekend.Round || '');
+    const cachedSeason = String(cached.season || cached.rows[0]?.Season || '');
+    const cachedRound = String(cached.round || cached.rows[0]?.Round || '');
+
+    if (!weekendRound || cachedSeason !== weekendSeason || cachedRound !== weekendRound) {
+      return null;
+    }
+  }
+
   return cached;
 }
 
