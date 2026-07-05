@@ -199,3 +199,53 @@
 [2026-07-05T06:25:21.902Z] [INFO] Ambiguous matches: 0
 [2026-07-05T06:25:21.902Z] [INFO] Skipped fixtures: 38
 [2026-07-05T06:25:21.903Z] [INFO] Execution time: 15524ms
+[2026-07-05T06:40:14.315Z] [INFO] Loaded fixtures: 45
+[2026-07-05T06:40:14.586Z] [INFO] Opening Rugby365 results page (attempt 1/3)
+[2026-07-05T06:40:23.200Z] [INFO] Detected Rugby365 endpoint: https://rugby365.com/results
+[2026-07-05T06:40:29.498Z] [INFO] Collected game-day blocks: 51
+[2026-07-05T06:40:30.743Z] [INFO] Scraped Rugby365 fixtures: 309
+[2026-07-05T06:40:31.084Z] [WARN] No match found for fixture: 2026-07-11 South Africa vs Scotland (Nations Championship 2026)
+[2026-07-05T06:40:31.123Z] [WARN] No match found for fixture: 2026-07-11 Australia vs France (Nations Championship 2026)
+[2026-07-05T06:40:31.204Z] [WARN] No match found for fixture: 2026-07-11 Fiji vs England (Nations Championship 2026)
+[2026-07-05T06:40:31.162Z] [WARN] No match found for fixture: 2026-07-11 Japan vs Ireland (Nations Championship 2026)
+[2026-07-05T06:40:31.243Z] [WARN] No match found for fixture: 2026-07-11 Argentina vs Wales (Nations Championship 2026)
+[2026-07-05T06:40:31.287Z] [WARN] No match found for fixture: 2026-07-11 New Zealand vs Italy (Nations Championship 2026)
+[2026-07-05T06:40:31.328Z] [WARN] No match found for fixture: 2026-07-18 New Zealand vs Ireland (Nations Championship 2026)
+[2026-07-05T06:40:31.408Z] [WARN] No match found for fixture: 2026-07-18 South Africa vs Wales (Nations Championship 2026)
+[2026-07-05T06:40:31.368Z] [WARN] No match found for fixture: 2026-07-18 Japan vs France (Nations Championship 2026)
+[2026-07-05T06:40:31.458Z] [WARN] No match found for fixture: 2026-07-18 Australia vs Italy (Nations Championship 2026)
+[2026-07-05T06:40:31.500Z] [WARN] No match found for fixture: 2026-07-18 Scotland vs Fiji (Nations Championship 2026)
+[2026-07-05T06:40:31.539Z] [WARN] No match found for fixture: 2026-07-18 Argentina vs England (Nations Championship 2026)
+[2026-07-05T06:40:31.581Z] [WARN] No match found for fixture: 2026-08-07 Stormers vs New Zealand (Rugby's Greatest Rivalry Tour 2026)
+[2026-07-05T06:40:31.697Z] [WARN] No match found for fixture: 2026-08-22 South Africa vs New Zealand (Rugby's Greatest Rivalry Tour 2026 (First Test))
+[2026-07-05T06:40:31.657Z] [WARN] No match found for fixture: 2026-08-15 Bulls vs New Zealand (Rugby's Greatest Rivalry Tour 2026)
+[2026-07-05T06:40:31.619Z] [WARN] No match found for fixture: 2026-08-11 Sharks vs New Zealand (Rugby's Greatest Rivalry Tour 2026)
+[2026-07-05T06:40:31.778Z] [WARN] No match found for fixture: 2026-08-29 South Africa vs New Zealand (Rugby's Greatest Rivalry Tour 2026 (Second Test))
+[2026-07-05T06:40:31.817Z] [WARN] No match found for fixture: 2026-09-05 South Africa vs New Zealand (Rugby's Greatest Rivalry Tour 2026 (Third Test))
+[2026-07-05T06:40:31.736Z] [WARN] No match found for fixture: 2026-08-25 Lions vs New Zealand (Rugby's Greatest Rivalry Tour 2026)
+[2026-07-05T06:40:31.858Z] [WARN] No match found for fixture: 2026-09-12 South Africa vs New Zealand (Rugby's Greatest Rivalry Tour 2026 (Fourth Test))
+[2026-07-05T06:40:31.938Z] [WARN] No match found for fixture: 2026-11-07 Italy vs South Africa (Nations Championship 2026)
+[2026-07-05T06:40:31.980Z] [WARN] No match found for fixture: 2026-11-07 Scotland vs New Zealand (Nations Championship 2026)
+[2026-07-05T06:40:32.024Z] [WARN] No match found for fixture: 2026-11-07 Wales vs Japan (Nations Championship 2026)
+[2026-07-05T06:40:31.899Z] [WARN] No match found for fixture: 2026-11-06 Ireland vs Argentina (Nations Championship 2026)
+[2026-07-05T06:40:32.066Z] [WARN] No match found for fixture: 2026-11-07 France vs Fiji (Nations Championship 2026)
+[2026-07-05T06:40:32.146Z] [WARN] No match found for fixture: 2026-11-13 France vs South Africa (Nations Championship 2026)
+[2026-07-05T06:40:32.106Z] [WARN] No match found for fixture: 2026-11-08 England vs Australia (Nations Championship 2026)
+[2026-07-05T06:40:32.308Z] [WARN] No match found for fixture: 2026-11-14 England vs Japan (Nations Championship 2026)
+[2026-07-05T06:40:32.225Z] [WARN] No match found for fixture: 2026-11-14 Wales vs New Zealand (Nations Championship 2026)
+[2026-07-05T06:40:32.185Z] [WARN] No match found for fixture: 2026-11-14 Italy vs Argentina (Nations Championship 2026)
+[2026-07-05T06:40:32.352Z] [WARN] No match found for fixture: 2026-11-14 Ireland vs Fiji (Nations Championship 2026)
+[2026-07-05T06:40:32.431Z] [WARN] No match found for fixture: 2026-11-21 England vs New Zealand (Nations Championship 2026)
+[2026-07-05T06:40:32.475Z] [WARN] No match found for fixture: 2026-11-21 Scotland vs Japan (Nations Championship 2026)
+[2026-07-05T06:40:32.514Z] [WARN] No match found for fixture: 2026-11-21 Ireland vs South Africa (Nations Championship 2026)
+[2026-07-05T06:40:32.553Z] [WARN] No match found for fixture: 2026-11-21 Italy vs Fiji (Nations Championship 2026)
+[2026-07-05T06:40:32.392Z] [WARN] No match found for fixture: 2026-11-15 Scotland vs Australia (Nations Championship 2026)
+[2026-07-05T06:40:32.638Z] [WARN] No match found for fixture: 2026-11-21 Wales vs Australia (Nations Championship 2026)
+[2026-07-05T06:40:32.596Z] [WARN] No match found for fixture: 2026-11-21 France vs Argentina (Nations Championship 2026)
+[2026-07-05T06:40:32.654Z] [INFO] JSON updated: yes
+[2026-07-05T06:40:32.655Z] [INFO] CSV sync: changed=yes, inserted=0, score_updates=0, rows=8
+[2026-07-05T06:40:32.656Z] [INFO] Successful updates: 7
+[2026-07-05T06:40:32.657Z] [INFO] Unmatched fixtures: 38
+[2026-07-05T06:40:32.658Z] [INFO] Ambiguous matches: 0
+[2026-07-05T06:40:32.659Z] [INFO] Skipped fixtures: 38
+[2026-07-05T06:40:32.660Z] [INFO] Execution time: 18345ms

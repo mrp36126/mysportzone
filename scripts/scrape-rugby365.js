@@ -22,8 +22,10 @@ const { matchAndUpdateFixtures } = require("./matcher.js");
 const SOURCE_URL = "https://rugby365.com/results/";
 const FIXTURES_CSV = path.join(DATA_DIR, "rugby_fixtures.csv");
 const OUTPUT_JSON = path.join(DATA_DIR, "rugby-results.json");
+const OUTPUT_CSV = path.join(DATA_DIR, "rugby_results.csv");
 const DEBUG_HTML = path.join(LOG_DIR, "rugby365-debug-page.html");
 const DEBUG_SCREENSHOT = path.join(LOG_DIR, "rugby365-error.png");
+const RESULTS_CSV_HEADERS = ["Date", "HomeTeam", "HomeScore", "AwayScore", "AwayTeam", "Competition", "KickOffTimeSAST"];
 
 main().catch(async error => {
   console.error(`[${formatNowIso()}] [FATAL] ${error.stack || error.message}`);
@@ -60,7 +62,12 @@ async function main() {
     throw new Error(`Invariant violated: output rows (${updatedRecords.length}) differ from fixture rows (${fixtures.length}).`);
   }
 
-  await writeIfChanged(OUTPUT_JSON, updatedRecords);
+  const jsonChanged = await writeIfChanged(OUTPUT_JSON, updatedRecords);
+  const csvSyncStats = await syncResultsCsvFromJson(updatedRecords, OUTPUT_CSV);
+  await logger.info(`JSON updated: ${jsonChanged ? "yes" : "no"}`);
+  await logger.info(
+    `CSV sync: changed=${csvSyncStats.changed ? "yes" : "no"}, inserted=${csvSyncStats.inserted}, score_updates=${csvSyncStats.scoreUpdates}, rows=${csvSyncStats.totalRows}`
+  );
 
   const tookMs = Date.now() - started;
   await logger.info(`Successful updates: ${stats.successfulUpdates}`);
@@ -250,6 +257,102 @@ async function writeIfChanged(filePath, rows) {
   if (current === next) return false;
   await fs.writeFile(filePath, next, "utf8");
   return true;
+}
+
+async function syncResultsCsvFromJson(updatedRecords, csvPath) {
+  const existingRows = await loadExistingResultsCsv(csvPath);
+  const rowByKey = new Map(existingRows.map(row => [resultKey(row.Date, row.HomeTeam, row.AwayTeam), row]));
+
+  let inserted = 0;
+  let scoreUpdates = 0;
+
+  for (const record of updatedRecords) {
+    const homeScore = normalizeWhitespace(record.HomeScore);
+    const awayScore = normalizeWhitespace(record.AwayScore);
+    if (!homeScore || !awayScore) continue;
+
+    const row = {
+      Date: normalizeWhitespace(record.MatchDate),
+      HomeTeam: normalizeWhitespace(record.HomeTeam),
+      HomeScore: homeScore,
+      AwayScore: awayScore,
+      AwayTeam: normalizeWhitespace(record.AwayTeam),
+      Competition: normalizeWhitespace(record.Competition),
+      KickOffTimeSAST: normalizeWhitespace(record.KickOffTime)
+    };
+
+    const key = resultKey(row.Date, row.HomeTeam, row.AwayTeam);
+    const existing = rowByKey.get(key);
+
+    if (existing) {
+      if (existing.HomeScore !== row.HomeScore || existing.AwayScore !== row.AwayScore) {
+        existing.HomeScore = row.HomeScore;
+        existing.AwayScore = row.AwayScore;
+        scoreUpdates += 1;
+      }
+    } else {
+      existingRows.push(row);
+      rowByKey.set(key, row);
+      inserted += 1;
+    }
+  }
+
+  existingRows.sort((a, b) => {
+    const dateTimeA = `${normalizeWhitespace(a.Date)} ${normalizeSortTime(a.KickOffTimeSAST)}`;
+    const dateTimeB = `${normalizeWhitespace(b.Date)} ${normalizeSortTime(b.KickOffTimeSAST)}`;
+    return dateTimeB.localeCompare(dateTimeA);
+  });
+
+  const hasScoreDelta = inserted > 0 || scoreUpdates > 0;
+  const changed = hasScoreDelta
+    ? await writeCsvIfChanged(csvPath, RESULTS_CSV_HEADERS, existingRows)
+    : false;
+  return { changed, inserted, scoreUpdates, totalRows: existingRows.length };
+}
+
+async function loadExistingResultsCsv(filePath) {
+  if (!(await fs.pathExists(filePath))) return [];
+  const csv = await fs.readFile(filePath, "utf8");
+  const rows = parseCsv(csv);
+
+  return rows.map(row => ({
+    Date: normalizeWhitespace(row.Date),
+    HomeTeam: normalizeWhitespace(row.HomeTeam),
+    HomeScore: normalizeWhitespace(row.HomeScore),
+    AwayScore: normalizeWhitespace(row.AwayScore),
+    AwayTeam: normalizeWhitespace(row.AwayTeam),
+    Competition: normalizeWhitespace(row.Competition),
+    KickOffTimeSAST: normalizeWhitespace(row.KickOffTimeSAST)
+  }));
+}
+
+function resultKey(date, homeTeam, awayTeam) {
+  return [normalizeWhitespace(date), normalizeWhitespace(homeTeam).toLowerCase(), normalizeWhitespace(awayTeam).toLowerCase()].join("|");
+}
+
+function normalizeSortTime(value) {
+  const time = normalizeWhitespace(value);
+  return /^\d{1,2}:\d{2}$/.test(time) ? time.padStart(5, "0") : "00:00";
+}
+
+async function writeCsvIfChanged(filePath, headers, rows) {
+  const lines = [headers.join(",")];
+  for (const row of rows) {
+    lines.push(headers.map(header => escapeCsvField(row[header] ?? "")).join(","));
+  }
+
+  const next = `${lines.join("\n")}\n`;
+  const current = (await fs.pathExists(filePath)) ? await fs.readFile(filePath, "utf8") : "";
+  if (current === next) return false;
+
+  await fs.writeFile(filePath, next, "utf8");
+  return true;
+}
+
+function escapeCsvField(value) {
+  const text = String(value ?? "");
+  if (!/[",\n]/.test(text)) return text;
+  return `"${text.replace(/"/g, '""')}"`;
 }
 
 function parseCsv(input) {

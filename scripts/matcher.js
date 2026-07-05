@@ -67,7 +67,7 @@ function matchAndUpdateFixtures({ fixtures, scrapedMatches, existingRecords, log
       MatchStatus: normalizeWhitespace(selected.status) || base.MatchStatus,
       KickOffTime: parseKickoff(selected.kickoff) || base.KickOffTime,
       Venue: normalizeWhitespace(selected.venue) || base.Venue,
-      MatchDate: parseHumanDate(selected.matchDate) || base.MatchDate
+      MatchDate: base.MatchDate
     };
 
     if (hasMeaningfulUpdate(base, merged)) {
