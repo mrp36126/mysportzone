@@ -1,0 +1,300 @@
+#!/usr/bin/env node
+
+const path = require("node:path");
+const fs = require("fs-extra");
+const { chromium } = require("playwright");
+const {
+  DATA_DIR,
+  LOG_DIR,
+  normalizeWhitespace,
+  parseHumanDate,
+  retryWithBackoff,
+  formatNowIso
+} = require("./helpers.js");
+const { Logger } = require("./logger.js");
+const {
+  extractInitialDateToken,
+  parseMatchesFromGameDayHtml,
+  parseMatchesFromFullPageHtml
+} = require("./parser.js");
+const { matchAndUpdateFixtures } = require("./matcher.js");
+
+const SOURCE_URL = "https://rugby365.com/results/";
+const FIXTURES_CSV = path.join(DATA_DIR, "rugby_fixtures.csv");
+const OUTPUT_JSON = path.join(DATA_DIR, "rugby-results.json");
+const DEBUG_HTML = path.join(LOG_DIR, "rugby365-debug-page.html");
+const DEBUG_SCREENSHOT = path.join(LOG_DIR, "rugby365-error.png");
+
+main().catch(async error => {
+  console.error(`[${formatNowIso()}] [FATAL] ${error.stack || error.message}`);
+  process.exitCode = 1;
+});
+
+async function main() {
+  const started = Date.now();
+  const logger = new Logger(path.join(LOG_DIR, "scraper.log"));
+  await logger.init();
+
+  await fs.ensureDir(DATA_DIR);
+  await fs.ensureDir(LOG_DIR);
+
+  const fixtures = await loadFixtures(FIXTURES_CSV);
+  if (fixtures.length === 0) {
+    throw new Error("No fixtures found in data/rugby_fixtures.csv.");
+  }
+
+  await logger.info(`Loaded fixtures: ${fixtures.length}`);
+
+  const { matches, snapshotHtml } = await scrapeRugby365(logger);
+  await logger.info(`Scraped Rugby365 fixtures: ${matches.length}`);
+
+  const existingRecords = await loadExistingRecords(OUTPUT_JSON);
+  const { updatedRecords, stats } = matchAndUpdateFixtures({
+    fixtures,
+    scrapedMatches: matches,
+    existingRecords,
+    logger
+  });
+
+  if (updatedRecords.length !== fixtures.length) {
+    throw new Error(`Invariant violated: output rows (${updatedRecords.length}) differ from fixture rows (${fixtures.length}).`);
+  }
+
+  await writeIfChanged(OUTPUT_JSON, updatedRecords);
+
+  const tookMs = Date.now() - started;
+  await logger.info(`Successful updates: ${stats.successfulUpdates}`);
+  await logger.info(`Unmatched fixtures: ${stats.unmatchedFixtures}`);
+  await logger.info(`Ambiguous matches: ${stats.ambiguousMatches}`);
+  await logger.info(`Skipped fixtures: ${stats.skippedFixtures}`);
+  await logger.info(`Execution time: ${tookMs}ms`);
+
+  // Keep latest page payload for troubleshooting if parser logic ever regresses.
+  await fs.writeFile(DEBUG_HTML, snapshotHtml, "utf8");
+}
+
+async function scrapeRugby365(logger) {
+  const browser = await chromium.launch({ headless: true });
+  const context = await browser.newContext({ timezoneId: "Africa/Johannesburg" });
+  const page = await context.newPage();
+
+  try {
+    await retryWithBackoff(async attempt => {
+      await logger.info(`Opening Rugby365 results page (attempt ${attempt}/3)`);
+      await page.goto(SOURCE_URL, { waitUntil: "domcontentloaded", timeout: 45000 });
+      await page.waitForLoadState("networkidle", { timeout: 20000 });
+    }, { retries: 3, initialDelayMs: 1000 });
+
+    const pageHtml = await page.content();
+    const token = extractInitialDateToken(pageHtml);
+
+    const endpoint = await detectResultsEndpoint(page, pageHtml);
+    await logger.info(`Detected Rugby365 endpoint: ${endpoint}`);
+
+    let matches = [];
+    if (endpoint && token) {
+      matches = await scrapeViaEndpoint(page, endpoint, token, logger);
+    }
+
+    if (matches.length === 0) {
+      await logger.warn("Endpoint scrape returned no matches; falling back to full-page parser.");
+      matches = parseMatchesFromFullPageHtml(pageHtml);
+    }
+
+    return { matches, snapshotHtml: pageHtml };
+  } catch (error) {
+    await logger.error(`Scraping failed: ${error.message}`);
+    await page.screenshot({ path: DEBUG_SCREENSHOT, fullPage: true });
+    await fs.writeFile(DEBUG_HTML, await page.content(), "utf8");
+    throw error;
+  } finally {
+    await context.close();
+    await browser.close();
+  }
+}
+
+async function detectResultsEndpoint(page, pageHtml) {
+  const bundleUrlMatch = pageHtml.match(/<script[^>]+src="([^"]*load-js\?bundle=fixtures-results[^"]*)"/i);
+  if (bundleUrlMatch?.[1]) {
+    const bundleUrl = new URL(bundleUrlMatch[1], page.url()).toString();
+    const response = await page.request.get(bundleUrl, { timeout: 20000 });
+    if (response.ok()) {
+      const js = await response.text();
+      const usesResultActions = /action:\s*'load-today'/.test(js) && /action:\s*'load-more'/.test(js);
+      if (usesResultActions) {
+        return new URL("/results", page.url()).toString();
+      }
+    }
+  }
+
+  return new URL("/results", page.url()).toString();
+}
+
+async function scrapeViaEndpoint(page, endpoint, dateToken, logger) {
+  const gameDayBlocks = [];
+
+  const loadToday = await postJson(page, endpoint, {
+    action: "load-today",
+    index: "0",
+    date: dateToken,
+    isContent: "1",
+    json: "1"
+  });
+
+  if (loadToday?.content?.gameDays) {
+    if (Array.isArray(loadToday.content.gameDays)) {
+      gameDayBlocks.push(...loadToday.content.gameDays);
+    } else {
+      gameDayBlocks.push(loadToday.content.gameDays);
+    }
+  }
+
+  for (let index = 1; index <= 12; index += 1) {
+    const payload = await postJson(page, endpoint, {
+      action: "load-more",
+      index: String(index),
+      date: dateToken,
+      isContent: "1",
+      json: "1"
+    });
+
+    const hasGames = payload?.content?.hasGames;
+    const chunks = Array.isArray(payload?.content?.gameDays)
+      ? payload.content.gameDays
+      : [];
+
+    if (chunks.length === 0 && !hasGames) {
+      break;
+    }
+
+    gameDayBlocks.push(...chunks);
+  }
+
+  await logger.info(`Collected game-day blocks: ${gameDayBlocks.length}`);
+
+  const matches = gameDayBlocks.flatMap(html => parseMatchesFromGameDayHtml(html, "endpoint"));
+  return dedupe(matches);
+}
+
+async function postJson(page, url, form) {
+  const response = await retryWithBackoff(async () => {
+    const res = await page.request.post(url, {
+      form,
+      timeout: 25000,
+      headers: {
+        "content-type": "application/x-www-form-urlencoded"
+      }
+    });
+
+    if (!res.ok()) {
+      throw new Error(`HTTP ${res.status()} for ${url}`);
+    }
+
+    return res;
+  }, { retries: 3, initialDelayMs: 600 });
+
+  return response.json();
+}
+
+function dedupe(matches) {
+  const byKey = new Map();
+  for (const match of matches) {
+    const key = [
+      normalizeWhitespace(match.competition),
+      normalizeWhitespace(match.homeTeam),
+      normalizeWhitespace(match.awayTeam),
+      normalizeWhitespace(parseHumanDate(match.matchDate) || match.matchDate),
+      normalizeWhitespace(match.externalId)
+    ].join("|");
+
+    if (!byKey.has(key)) {
+      byKey.set(key, match);
+    }
+  }
+
+  return [...byKey.values()];
+}
+
+async function loadFixtures(filePath) {
+  const csv = await fs.readFile(filePath, "utf8");
+  const rows = parseCsv(csv);
+
+  return rows.map(row => ({
+    Date: normalizeWhitespace(row.Date),
+    HomeTeam: normalizeWhitespace(row.HomeTeam),
+    AwayTeam: normalizeWhitespace(row.AwayTeam),
+    Venue: normalizeWhitespace(row.Venue),
+    Competition: normalizeWhitespace(row.Competition),
+    KickOffTime: normalizeWhitespace(row.KickOffTime)
+  }));
+}
+
+async function loadExistingRecords(filePath) {
+  if (!(await fs.pathExists(filePath))) return [];
+
+  const raw = await fs.readFile(filePath, "utf8");
+  if (!normalizeWhitespace(raw)) return [];
+
+  try {
+    const data = JSON.parse(raw);
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
+
+async function writeIfChanged(filePath, rows) {
+  const next = `${JSON.stringify(rows, null, 2)}\n`;
+  const current = (await fs.pathExists(filePath)) ? await fs.readFile(filePath, "utf8") : "";
+
+  if (current === next) return false;
+  await fs.writeFile(filePath, next, "utf8");
+  return true;
+}
+
+function parseCsv(input) {
+  const lines = input.replace(/\r/g, "").split("\n").filter(Boolean);
+  if (lines.length === 0) return [];
+
+  const headers = splitCsvLine(lines[0]);
+  return lines.slice(1).map(line => {
+    const fields = splitCsvLine(line);
+    const row = {};
+    headers.forEach((header, idx) => {
+      row[header] = fields[idx] ?? "";
+    });
+    return row;
+  });
+}
+
+function splitCsvLine(line) {
+  const out = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i += 1) {
+    const char = line[i];
+    const next = line[i + 1];
+
+    if (char === '"') {
+      if (inQuotes && next === '"') {
+        current += '"';
+        i += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+      continue;
+    }
+
+    if (char === "," && !inQuotes) {
+      out.push(current);
+      current = "";
+      continue;
+    }
+
+    current += char;
+  }
+
+  out.push(current);
+  return out;
+}

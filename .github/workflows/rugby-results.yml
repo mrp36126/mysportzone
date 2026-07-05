@@ -1,0 +1,54 @@
+name: Rugby365 Results Update
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/30 * * * *"
+
+concurrency:
+  group: rugby365-results-update
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  update-rugby-results:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Rugby365 scraper
+        run: npm run update:rugby
+
+      - name: Check for data changes
+        id: changes
+        run: |
+          if git diff --quiet -- data/rugby-results.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit and push updates
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/rugby-results.json
+          git commit -m "Update rugby results from Rugby365"
+          git push

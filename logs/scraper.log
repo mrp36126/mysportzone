@@ -1,0 +1,201 @@
+[2026-07-05T06:23:34.759Z] [INFO] Loaded fixtures: 45
+[2026-07-05T06:24:18.324Z] [INFO] Loaded fixtures: 45
+[2026-07-05T06:24:18.706Z] [INFO] Opening Rugby365 results page (attempt 1/3)
+[2026-07-05T06:24:27.689Z] [INFO] Detected Rugby365 endpoint: https://rugby365.com/results
+[2026-07-05T06:24:34.003Z] [INFO] Collected game-day blocks: 49
+[2026-07-05T06:24:34.005Z] [ERROR] Scraping failed: Cannot create property 'prev' on string '            
+            <div class="games-list-item out">
+                <div class="date">
+                Sun Jul 5, 2026
+                </div>        <div class="comp" data-id="119">            <h2>
+                World Rugby Nations Cup
+            </h2>            <div class="games">        <div class="game scores today Result" data-seo="world-rugby-nations-cup-">
+            <div class="time ">
+                <div class="state">
+                    FT
+         
+                </div>
+                <div class="venue">
+                    Estadio Nacional Julio Martínez Prádanos
+                </div>
+            </div>
+            <div class="team home">
+                <span> 
+
+                        <img src="https://eu-cdn.rugbypass.com/webp-images/images/team-images/logos/png/821.png.webp" alt="Chile" class="lazy">
+             
+                </span>
+                Chile
+            </div>
+            <div class="logo home">
+                 <img src="https://eu-cdn.rugbypass.com/webp-images/images/team-images/logos/png/821.png.webp" alt="Chile" class="lazy">
+            </div>
+            <div class="dash ">-</div>
+            <div class="game-time">12:00am</div>
+            <div class="logo away">
+                <img src="https://eu-cdn.rugbypass.com/webp-images/images/team-images/logos/png/812.png.webp" alt="Romania" class="lazy">
+            </div>
+            <div class="team away">
+                <span>
+                  <img src="https://eu-cdn.rugbypass.com/webp-images/images/team-images/logos/png/812.png.webp" alt="Romania" class="lazy">
+                </span>
+                Romania
+            </div>            <div class="round ">Round 1</div>
+            <div class="live-note ">LIVE</div>
+
+            <div class="score home ">48</div>
+            <div class="score away ">31</div>                <a href="https://rugby365.com/live/chile-vs-romania/?g=950884" class="link-box"></a>        </div>        <div class="game scores today Result" data-seo="world-rugby-nations-cup-">
+            <div class="time ">
+                <div class="state">
+                    FT
+         
+                </div>
+                <div class="venue">
+                    Dick's Sporting Goods Park
+                </div>
+            </div>
+            <div class="team home">
+                <span> 
+
+                        <img src="https://eu-cdn.rugbypass.com/webp-images/images/team-images/logos/png/816.png.webp" alt="Tonga" class="lazy">
+             
+                </span>
+                Tonga
+            </div>
+            <div class="logo home">
+                 <img src="https://eu-cdn.rugbypass.com/webp-images/images/team-images/logos/png/816.png.webp" alt="Tonga" class="lazy">
+            </div>
+            <div class="dash ">-</div>
+            <div class="game-time">12:15am</div>
+            <div class="logo away">
+                <img src="https://eu-cdn.rugbypass.com/webp-images/images/team-images/logos/png/1000955.png.webp" alt="Zimbabwe" class="lazy">
+            </div>
+            <div class="team away">
+                <span>
+                  <img src="https://eu-cdn.rugbypass.com/webp-images/images/team-images/logos/png/1000955.png.webp" alt="Zimbabwe" class="lazy">
+                </span>
+                Zimbabwe
+            </div>            <div class="round ">Round 1</div>
+            <div class="live-note ">LIVE</div>
+
+            <div class="score home ">36</div>
+            <div class="score away ">26</div>                <a href="https://rugby365.com/live/tonga-vs-zimbabwe/?g=950885" class="link-box"></a>        </div>        <div class="game scores today Result" data-seo="world-rugby-nations-cup-">
+            <div class="time ">
+                <div class="state">
+                    FT
+         
+                </div>
+                <div class="venue">
+                    Dick's Sporting Goods Park
+                </div>
+            </div>
+            <div class="team home">
+                <span> 
+
+                        <img src="https://eu-cdn.rugbypass.com/webp-images/images/team-images/logos/png/817.png.webp" alt="USA" class="lazy">
+             
+                </span>
+                USA
+            </div>
+            <div class="logo home">
+                 <img src="https://eu-cdn.rugbypass.com/webp-images/images/team-images/logos/png/817.png.webp" alt="USA" class="lazy">
+            </div>
+            <div class="dash ">-</div>
+            <div class="game-time">3:00am</div>
+            <div class="logo away">
+                <img src="https://eu-cdn.rugbypass.com/webp-images/images/team-images/logos/png/825.png.webp" alt="Portugal" class="lazy">
+            </div>
+            <div class="team away">
+                <span>
+                  <img src="https://eu-cdn.rugbypass.com/webp-images/images/team-images/logos/png/825.png.webp" alt="Portugal" class="lazy">
+                </span>
+                Portugal
+            </div>            <div class="round ">Round 1</div>
+            <div class="live-note ">LIVE</div>
+
+            <div class="score home ">30</div>
+            <div class="score away ">29</div>                <a href="https://rugby365.com/live/portugal-vs-usa/?g=950886" class="link-box"></a>        </div>        <div class="game scores today Result" data-seo="world-rugby-nations-cup-">
+            <div class="time ">
+                <div class="state">
+                    FT
+         
+                </div>
+                <div class="venue">
+                    Clarke Stadium
+                </div>
+            </div>
+            <div class="team home">
+                <span> 
+
+                        <img src="https://eu-cdn.rugbypass.com/webp-images/images/team-images/logos/png/803.png.webp" alt="Canada" class="lazy">
+             
+                </span>
+                Canada
+            </div>
+            <div class="logo home">
+                 <img src="https://eu-cdn.rugbypass.com/webp-images/images/team-images/logos/png/803.png.webp" alt="Canada" class="lazy">
+            </div>
+            <div class="dash ">-</div>
+            <div class="game-time">3:00am</div>
+            <div class="logo away">
+                <img src="https://eu-cdn.rugbypass.com/webp-images/images/team-images/logos/png/827.png.webp" alt="Spain" class="lazy">
+            </div>
+            <div class="team away">
+                <span>
+                  <img src="https://eu-cdn.rugbypass.com/webp-images/images/team-images/logos/png/827.png.webp" alt="Spain" class="lazy">
+                </span>
+                Spain
+            </div>            <div class="round ">Round 1</div>
+            <div class="live-note ">LIVE</div>
+
+            <div class="score home ">42</div>
+            <div class="score away ">42</div>                <a href="https://rugby365.com/live/canada-vs-spain/?g=950887" class="link-box"></a>        </div>            </div>
+        </div>            </div>'
+[2026-07-05T06:25:06.380Z] [INFO] Loaded fixtures: 45
+[2026-07-05T06:25:06.672Z] [INFO] Opening Rugby365 results page (attempt 1/3)
+[2026-07-05T06:25:12.489Z] [INFO] Detected Rugby365 endpoint: https://rugby365.com/results
+[2026-07-05T06:25:18.795Z] [INFO] Collected game-day blocks: 51
+[2026-07-05T06:25:20.006Z] [INFO] Scraped Rugby365 fixtures: 309
+[2026-07-05T06:25:20.360Z] [WARN] No match found for fixture: 2026-07-11 South Africa vs Scotland (Nations Championship 2026)
+[2026-07-05T06:25:20.437Z] [WARN] No match found for fixture: 2026-07-11 Japan vs Ireland (Nations Championship 2026)
+[2026-07-05T06:25:20.475Z] [WARN] No match found for fixture: 2026-07-11 Fiji vs England (Nations Championship 2026)
+[2026-07-05T06:25:20.518Z] [WARN] No match found for fixture: 2026-07-11 Argentina vs Wales (Nations Championship 2026)
+[2026-07-05T06:25:20.558Z] [WARN] No match found for fixture: 2026-07-11 New Zealand vs Italy (Nations Championship 2026)
+[2026-07-05T06:25:20.641Z] [WARN] No match found for fixture: 2026-07-18 Japan vs France (Nations Championship 2026)
+[2026-07-05T06:25:20.722Z] [WARN] No match found for fixture: 2026-07-18 Australia vs Italy (Nations Championship 2026)
+[2026-07-05T06:25:20.682Z] [WARN] No match found for fixture: 2026-07-18 South Africa vs Wales (Nations Championship 2026)
+[2026-07-05T06:25:20.766Z] [WARN] No match found for fixture: 2026-07-18 Scotland vs Fiji (Nations Championship 2026)
+[2026-07-05T06:25:20.809Z] [WARN] No match found for fixture: 2026-07-18 Argentina vs England (Nations Championship 2026)
+[2026-07-05T06:25:20.850Z] [WARN] No match found for fixture: 2026-08-07 Stormers vs New Zealand (Rugby's Greatest Rivalry Tour 2026)
+[2026-07-05T06:25:20.932Z] [WARN] No match found for fixture: 2026-08-15 Bulls vs New Zealand (Rugby's Greatest Rivalry Tour 2026)
+[2026-07-05T06:25:20.974Z] [WARN] No match found for fixture: 2026-08-22 South Africa vs New Zealand (Rugby's Greatest Rivalry Tour 2026 (First Test))
+[2026-07-05T06:25:20.598Z] [WARN] No match found for fixture: 2026-07-18 New Zealand vs Ireland (Nations Championship 2026)
+[2026-07-05T06:25:21.016Z] [WARN] No match found for fixture: 2026-08-25 Lions vs New Zealand (Rugby's Greatest Rivalry Tour 2026)
+[2026-07-05T06:25:21.056Z] [WARN] No match found for fixture: 2026-08-29 South Africa vs New Zealand (Rugby's Greatest Rivalry Tour 2026 (Second Test))
+[2026-07-05T06:25:21.095Z] [WARN] No match found for fixture: 2026-09-05 South Africa vs New Zealand (Rugby's Greatest Rivalry Tour 2026 (Third Test))
+[2026-07-05T06:25:21.136Z] [WARN] No match found for fixture: 2026-09-12 South Africa vs New Zealand (Rugby's Greatest Rivalry Tour 2026 (Fourth Test))
+[2026-07-05T06:25:20.890Z] [WARN] No match found for fixture: 2026-08-11 Sharks vs New Zealand (Rugby's Greatest Rivalry Tour 2026)
+[2026-07-05T06:25:21.224Z] [WARN] No match found for fixture: 2026-11-07 Italy vs South Africa (Nations Championship 2026)
+[2026-07-05T06:25:21.271Z] [WARN] No match found for fixture: 2026-11-07 Scotland vs New Zealand (Nations Championship 2026)
+[2026-07-05T06:25:21.317Z] [WARN] No match found for fixture: 2026-11-07 Wales vs Japan (Nations Championship 2026)
+[2026-07-05T06:25:21.359Z] [WARN] No match found for fixture: 2026-11-07 France vs Fiji (Nations Championship 2026)
+[2026-07-05T06:25:21.440Z] [WARN] No match found for fixture: 2026-11-13 France vs South Africa (Nations Championship 2026)
+[2026-07-05T06:25:21.177Z] [WARN] No match found for fixture: 2026-11-06 Ireland vs Argentina (Nations Championship 2026)
+[2026-07-05T06:25:21.480Z] [WARN] No match found for fixture: 2026-11-14 Italy vs Argentina (Nations Championship 2026)
+[2026-07-05T06:25:21.520Z] [WARN] No match found for fixture: 2026-11-14 Wales vs New Zealand (Nations Championship 2026)
+[2026-07-05T06:25:21.559Z] [WARN] No match found for fixture: 2026-11-14 England vs Japan (Nations Championship 2026)
+[2026-07-05T06:25:21.600Z] [WARN] No match found for fixture: 2026-11-14 Ireland vs Fiji (Nations Championship 2026)
+[2026-07-05T06:25:21.639Z] [WARN] No match found for fixture: 2026-11-15 Scotland vs Australia (Nations Championship 2026)
+[2026-07-05T06:25:21.678Z] [WARN] No match found for fixture: 2026-11-21 England vs New Zealand (Nations Championship 2026)
+[2026-07-05T06:25:21.717Z] [WARN] No match found for fixture: 2026-11-21 Scotland vs Japan (Nations Championship 2026)
+[2026-07-05T06:25:21.756Z] [WARN] No match found for fixture: 2026-11-21 Ireland vs South Africa (Nations Championship 2026)
+[2026-07-05T06:25:21.801Z] [WARN] No match found for fixture: 2026-11-21 Italy vs Fiji (Nations Championship 2026)
+[2026-07-05T06:25:21.842Z] [WARN] No match found for fixture: 2026-11-21 France vs Argentina (Nations Championship 2026)
+[2026-07-05T06:25:20.399Z] [WARN] No match found for fixture: 2026-07-11 Australia vs France (Nations Championship 2026)
+[2026-07-05T06:25:21.401Z] [WARN] No match found for fixture: 2026-11-08 England vs Australia (Nations Championship 2026)
+[2026-07-05T06:25:21.897Z] [WARN] No match found for fixture: 2026-11-21 Wales vs Australia (Nations Championship 2026)
+[2026-07-05T06:25:21.900Z] [INFO] Successful updates: 7
+[2026-07-05T06:25:21.901Z] [INFO] Unmatched fixtures: 38
+[2026-07-05T06:25:21.902Z] [INFO] Ambiguous matches: 0
+[2026-07-05T06:25:21.902Z] [INFO] Skipped fixtures: 38
+[2026-07-05T06:25:21.903Z] [INFO] Execution time: 15524ms
