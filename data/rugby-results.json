@@ -94,20 +94,20 @@
     "MatchDate": "2026-07-11",
     "Venue": "Suncorp Stadium",
     "KickOffTime": "09:40",
-    "HomeScore": "21",
-    "AwayScore": "34",
-    "MatchStatus": "LIVE 2nd half"
+    "HomeScore": "26",
+    "AwayScore": "42",
+    "MatchStatus": "FT"
   },
   {
     "Competition": "Nations Championship 2026",
     "HomeTeam": "Japan",
     "AwayTeam": "Ireland",
     "MatchDate": "2026-07-11",
-    "Venue": "Newcastle Stadium in Newcastle | Awabakal-Worimi: Australia",
+    "Venue": "McDonald Jones Stadium",
     "KickOffTime": "12:10",
-    "HomeScore": "0",
+    "HomeScore": "7",
     "AwayScore": "0",
-    "MatchStatus": "12:10pm SAST"
+    "MatchStatus": "LIVE 1st Half"
   },
   {
     "Competition": "Nations Championship 2026",
