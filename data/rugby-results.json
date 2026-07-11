@@ -103,7 +103,7 @@
     "HomeTeam": "Japan",
     "AwayTeam": "Ireland",
     "MatchDate": "2026-07-11",
-    "Venue": "McDonald Jones Stadium",
+    "Venue": "Newcastle Stadium in Newcastle | Awabakal-Worimi: Australia",
     "KickOffTime": "12:10",
     "HomeScore": "20",
     "AwayScore": "36",
@@ -114,11 +114,11 @@
     "HomeTeam": "Fiji",
     "AwayTeam": "England",
     "MatchDate": "2026-07-11",
-    "Venue": "Hill Dickinson Stadium in Liverpool: England",
+    "Venue": "Hill Dickinson Stadium",
     "KickOffTime": "15:10",
-    "HomeScore": "0",
-    "AwayScore": "0",
-    "MatchStatus": "3:10pm SAST"
+    "HomeScore": "3",
+    "AwayScore": "35",
+    "MatchStatus": "LIVE Half Time"
   },
   {
     "Competition": "Nations Championship 2026",
