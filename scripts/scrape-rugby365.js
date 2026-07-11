@@ -18,6 +18,13 @@ const {
   parseMatchesFromFullPageHtml
 } = require("./parser.js");
 const { matchAndUpdateFixtures } = require("./matcher.js");
+const {
+  RESULT_CHECK_INTERVAL_MINUTES,
+  RESULT_CHECK_WINDOW_HOURS,
+  hasKickoffStarted,
+  isWithinPollingWindow,
+  hasFinalResult
+} = require("./rugby-result-polling.js");
 
 const SOURCE_URL = "https://rugby365.com/results/";
 const FIXTURES_CSV = path.join(DATA_DIR, "rugby_fixtures.csv");
@@ -47,15 +54,32 @@ async function main() {
 
   await logger.info(`Loaded fixtures: ${fixtures.length}`);
 
-  const { matches, snapshotHtml } = await scrapeRugby365(logger);
-  await logger.info(`Scraped Rugby365 fixtures: ${matches.length}`);
-
   const existingRecords = await loadExistingRecords(OUTPUT_JSON);
+  const currentTime = new Date();
+  const fixturesToPoll = getFixturesToPoll({ fixtures, existingRecords, currentTime });
+
+  await logger.info(
+    `Polling plan: interval=${RESULT_CHECK_INTERVAL_MINUTES}m, window=${RESULT_CHECK_WINDOW_HOURS}h, eligible_fixtures=${fixturesToPoll.length}`
+  );
+
+  let matches = [];
+  let snapshotHtml = "";
+
+  if (fixturesToPoll.length > 0) {
+    const scraped = await scrapeRugby365(logger);
+    matches = scraped.matches;
+    snapshotHtml = scraped.snapshotHtml;
+    await logger.info(`Scraped Rugby365 fixtures: ${matches.length}`);
+  } else {
+    await logger.info("No fixtures within kickoff polling window. Skipping Rugby365 network requests for this run.");
+  }
+
   const { updatedRecords, stats } = matchAndUpdateFixtures({
     fixtures,
     scrapedMatches: matches,
     existingRecords,
-    logger
+    logger,
+    currentTime
   });
 
   if (updatedRecords.length !== fixtures.length) {
@@ -71,13 +95,30 @@ async function main() {
 
   const tookMs = Date.now() - started;
   await logger.info(`Successful updates: ${stats.successfulUpdates}`);
+  await logger.info(`Pre-kickoff skipped: ${stats.preKickoffSkipped}`);
+  await logger.info(`Outside polling window skipped: ${stats.outsideWindowSkipped}`);
+  await logger.info(`Fixtures checked in polling window: ${stats.pendingResultChecks}`);
   await logger.info(`Unmatched fixtures: ${stats.unmatchedFixtures}`);
   await logger.info(`Ambiguous matches: ${stats.ambiguousMatches}`);
   await logger.info(`Skipped fixtures: ${stats.skippedFixtures}`);
   await logger.info(`Execution time: ${tookMs}ms`);
 
   // Keep latest page payload for troubleshooting if parser logic ever regresses.
-  await fs.writeFile(DEBUG_HTML, snapshotHtml, "utf8");
+  await fs.writeFile(DEBUG_HTML, snapshotHtml || "", "utf8");
+}
+
+function getFixturesToPoll({ fixtures, existingRecords, currentTime }) {
+  const existingByKey = new Map(
+    existingRecords.map(record => [fixtureKey(record), record])
+  );
+
+  return fixtures.filter(fixture => {
+    const existing = existingByKey.get(fixtureKey(fixture));
+    if (existing && hasFinalResult(existing)) return false;
+    if (!hasKickoffStarted(fixture, currentTime)) return false;
+    if (!isWithinPollingWindow(fixture, currentTime)) return false;
+    return true;
+  });
 }
 
 async function scrapeRugby365(logger) {
@@ -261,15 +302,22 @@ async function writeIfChanged(filePath, rows) {
 
 async function syncResultsCsvFromJson(updatedRecords, csvPath) {
   const existingRows = await loadExistingResultsCsv(csvPath);
-  const rowByKey = new Map(existingRows.map(row => [resultKey(row.Date, row.HomeTeam, row.AwayTeam), row]));
+  const finalResultKeys = new Set(
+    updatedRecords
+      .filter(record => hasFinalResult(record))
+      .map(record => resultKey(record.MatchDate, record.HomeTeam, record.AwayTeam))
+  );
+  const filteredExistingRows = existingRows.filter(row => finalResultKeys.has(resultKey(row.Date, row.HomeTeam, row.AwayTeam)));
+  const rowByKey = new Map(filteredExistingRows.map(row => [resultKey(row.Date, row.HomeTeam, row.AwayTeam), row]));
 
   let inserted = 0;
   let scoreUpdates = 0;
 
   for (const record of updatedRecords) {
+    if (!hasFinalResult(record)) continue;
+
     const homeScore = normalizeWhitespace(record.HomeScore);
     const awayScore = normalizeWhitespace(record.AwayScore);
-    if (!homeScore || !awayScore) continue;
 
     const row = {
       Date: normalizeWhitespace(record.MatchDate),
@@ -291,23 +339,24 @@ async function syncResultsCsvFromJson(updatedRecords, csvPath) {
         scoreUpdates += 1;
       }
     } else {
-      existingRows.push(row);
+      filteredExistingRows.push(row);
       rowByKey.set(key, row);
       inserted += 1;
     }
   }
 
-  existingRows.sort((a, b) => {
+  filteredExistingRows.sort((a, b) => {
     const dateTimeA = `${normalizeWhitespace(a.Date)} ${normalizeSortTime(a.KickOffTimeSAST)}`;
     const dateTimeB = `${normalizeWhitespace(b.Date)} ${normalizeSortTime(b.KickOffTimeSAST)}`;
     return dateTimeB.localeCompare(dateTimeA);
   });
 
-  const hasScoreDelta = inserted > 0 || scoreUpdates > 0;
+  const hasRowCountDelta = existingRows.length !== filteredExistingRows.length;
+  const hasScoreDelta = inserted > 0 || scoreUpdates > 0 || hasRowCountDelta;
   const changed = hasScoreDelta
-    ? await writeCsvIfChanged(csvPath, RESULTS_CSV_HEADERS, existingRows)
+    ? await writeCsvIfChanged(csvPath, RESULTS_CSV_HEADERS, filteredExistingRows)
     : false;
-  return { changed, inserted, scoreUpdates, totalRows: existingRows.length };
+  return { changed, inserted, scoreUpdates, totalRows: filteredExistingRows.length };
 }
 
 async function loadExistingResultsCsv(filePath) {
@@ -328,6 +377,14 @@ async function loadExistingResultsCsv(filePath) {
 
 function resultKey(date, homeTeam, awayTeam) {
   return [normalizeWhitespace(date), normalizeWhitespace(homeTeam).toLowerCase(), normalizeWhitespace(awayTeam).toLowerCase()].join("|");
+}
+
+function fixtureKey(row) {
+  return [
+    normalizeWhitespace(row.Date || row.MatchDate),
+    normalizeWhitespace(row.HomeTeam).toLowerCase(),
+    normalizeWhitespace(row.AwayTeam).toLowerCase()
+  ].join("|");
 }
 
 function normalizeSortTime(value) {

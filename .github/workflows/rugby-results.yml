@@ -3,7 +3,7 @@ name: Rugby365 Results Update
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "*/15 * * * *"
 
 concurrency:
   group: rugby365-results-update
