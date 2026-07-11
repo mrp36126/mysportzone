@@ -1,59 +1,38 @@
 # Rugby Results Automation Setup Guide
 
-Your sports app now has automatic rugby results updates with a two-source chain:
-- Primary: Highlightly API
-- Fallback: SportDB.dev API when Highlightly has no completed score yet
+Your sports app now has automatic rugby results updates from one source only:
+- Rugby365 scraping from https://rugby365.com/results/
 
 Here's how to complete the setup:
 
-## Step 1: Add Both API Keys to GitHub Secrets
+## Step 1: Verify the Workflow
 
-1. Go to your GitHub repository: **Settings → Secrets and variables → Actions**
-2. Click **New repository secret**
-3. Create a secret named: `HIGHLIGHTLY_API_KEY`
-4. Paste your Highlightly API key as the value
-5. Click **Add secret**
-6. Click **New repository secret** again
-7. Create a secret named: `SPORTDB_API_KEY`
-8. Paste your SportDB.dev API key as the value
-9. Click **Add secret**
-
-## Step 2: Verify the Workflow
-
-The workflow is now active at `.github/workflows/update-rugby-results.yml`:
-- **Schedule**: Runs every 2 hours (around the clock)
+The workflow is active at `.github/workflows/rugby-results.yml`:
+- **Schedule**: Runs every 30 minutes (around the clock)
 - **Trigger**: Manual dispatch available via "Run workflow" button on GitHub Actions tab
-- **Updates**: `data/rugby_results.csv` automatically after each match
+- **Updates**: `data/rugby-results.json` and `data/rugby_results.csv`
 - **Auto-commits**: Changes committed directly to your repository
 
-## Step 3: Test Locally (Optional)
+## Step 2: Test Locally (Optional)
 
-To test the updater locally before relying on the automated workflow:
-
-```bash
-HIGHLIGHTLY_API_KEY=your_highlightly_key SPORTDB_API_KEY=your_sportdb_key npm run update:rugby
-```
-
-Optional local override:
+To test the scraper locally before relying on the automated workflow:
 
 ```bash
-HIGHLIGHTLY_BASE_URL=https://rugby.highlightly.net
-HIGHLIGHTLY_RAPIDAPI_HOST=rugby-highlights-api.p.rapidapi.com
-SPORTDB_BASE_URL=https://api.sportdb.dev
+npm run update:rugby
 ```
 
 This will:
-1. Fetch completed rugby results from Highlightly first
-2. Detect completed fixtures that still have no score
-3. Query SportDB for those missing completed fixtures
-4. Merge both sources and deduplicate by date + teams
-5. Update `data/rugby_results.csv` if changes detected
+1. Scrape rugby results from Rugby365
+2. Match scraped matches against existing fixtures in `data/rugby_fixtures.csv`
+3. Update only matched fixture records
+4. Write updated data to `data/rugby-results.json`
+5. Sync `data/rugby_results.csv` from the JSON results data when scores changed
 
-## Step 4: Monitor Updates
+## Step 3: Monitor Updates
 
 - Visit **GitHub Actions** tab to see workflow run history
 - Green checkmarks = successful update
-- Check commit history to verify `rugby_results.csv` updates
+- Check commit history to verify `data/rugby-results.json` and `data/rugby_results.csv` updates
 - The frontend automatically reloads the latest CSV
 
 ## CSV Format
@@ -65,41 +44,36 @@ Date,HomeTeam,HomeScore,AwayScore,AwayTeam,Competition
 ```
 
 The script automatically:
-- Fetches completed international men's rugby matches
-- Deduplicates by date + teams
-- Sorts by most recent first
-- Replaces/upserts existing records
+- Scrapes Rugby365 result entries
+- Matches only against existing fixture rows
+- Preserves fixture-bound output records
+- Updates scores where matches are confidently matched
 
 ## What Gets Updated
 
+- **data/rugby-results.json** - Fixture-aligned match state
 - **data/rugby_results.csv** - Completed match results
 - No changes to `rugby_fixtures.csv` (manually maintained for upcoming matches)
 
 ## Troubleshooting
 
-**"API returned status 401"** - Your `HIGHLIGHTLY_API_KEY` is invalid or has expired. Update it in GitHub Secrets.
+**"No match found for fixture"** - A scraped match could not be confidently matched to the corresponding fixture row, so that fixture was left unchanged.
 
-**"SportDB fallback skipped because SPORTDB_API_KEY is not set"** - Add the `SPORTDB_API_KEY` GitHub secret so fallback checks run automatically.
+**"Ambiguous match for fixture"** - Multiple scraped matches looked equally valid; the fixture was intentionally skipped to avoid bad score writes.
 
-**SportDB.dev auth note** - The fallback uses the `X-API-Key` header against `https://api.sportdb.dev`.
+**Manual workflow trigger** - Go to **Actions → Rugby365 Results Update → Run workflow** to force an immediate update.
 
-**"No completed matches found from Highlightly or SportDB fallback"** - Neither source has published completed score data for your tracked fixtures yet.
-
-**Manual workflow trigger** - Go to **Actions → Update Rugby Results → Run workflow** to force an immediate update.
-
-## API Behavior
+## Scraper Behavior
 
 The updater:
-- Polls Highlightly first for completed rugby matches
-- Uses Highlightly Rugby API (`https://rugby.highlightly.net`) with `x-rapidapi-key`
-- Automatically checks SportDB.dev rugby-union data for completed fixtures still missing after Highlightly
-- Handles graceful failures (returns empty if API is unavailable)
-- Logs all results fetched to console during workflow run
+- Scrapes `https://rugby365.com/results/`
+- Parses result rows from Rugby365 content blocks
+- Matches rows to existing fixtures using date/team/competition scoring
+- Never inserts new fixtures that are not already in `data/rugby_fixtures.csv`
 - Only writes CSV if changes detected (saves git history)
 
 ## Next Steps
 
-1. Confirm both API keys are in GitHub Secrets
-2. Check that the workflow has at least one successful run
-3. Verify `data/rugby_results.csv` is being updated with new match results
-4. The frontend will display results from the latest CSV on page reload
+1. Check that the workflow has at least one successful run
+2. Verify `data/rugby-results.json` and `data/rugby_results.csv` are being updated
+3. The frontend will display results from the latest CSV on page reload

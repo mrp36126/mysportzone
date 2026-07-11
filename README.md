@@ -120,15 +120,12 @@ Each API request is retried before the updater fails, which helps avoid missing 
 
 ## Rugby Results Automation
 
-`scripts/update-rugby-results.js` now supports either provider independently.
+Rugby results are updated only through the Rugby365 scraper flow.
 
-- Preferred: set both `HIGHLIGHTLY_API_KEY` and `SPORTDB_API_KEY`.
-- Supported fallback: set only `SPORTDB_API_KEY` if Highlightly is unavailable.
-- Failure condition: when both keys are missing, the updater fails with a clear error instead of silently producing stale data.
-- Highlightly base URL is `https://rugby.highlightly.net` and requests use the `x-rapidapi-key` header.
-- Optional overrides: `HIGHLIGHTLY_BASE_URL` and `HIGHLIGHTLY_RAPIDAPI_HOST`.
+- Script: `scripts/scrape-rugby365.js`
+- Source: `https://rugby365.com/results/`
+- Workflow: `.github/workflows/rugby-results.yml`
+- Outputs: `data/rugby-results.json` and `data/rugby_results.csv`
 
-The `Update Rugby Results` GitHub Actions workflow should therefore include at least one of these repository secrets:
-
-- `HIGHLIGHTLY_API_KEY`
-- `SPORTDB_API_KEY`
+The scraper updates results only for fixtures that already exist in `data/rugby_fixtures.csv`.
+No external rugby API keys are required for rugby updates.
