@@ -127,9 +127,9 @@
     "MatchDate": "2026-07-11",
     "Venue": "Estadio Bicentenario",
     "KickOffTime": "21:10",
-    "HomeScore": "40",
-    "AwayScore": "14",
-    "MatchStatus": "LIVE 2nd half"
+    "HomeScore": "35",
+    "AwayScore": "21",
+    "MatchStatus": "FT"
   },
   {
     "Competition": "Nations Championship 2026",
