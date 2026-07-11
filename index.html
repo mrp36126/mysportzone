@@ -3911,7 +3911,35 @@ return `
       const results = await fetchCSV('data/rugby_results.csv');
       const nowRugby = new Date();
 
-      const recentResults = results
+      const resultRowsByKey = new Map(
+        results
+          .map(r => [rugbyMatchKey(r.Date, r.HomeTeam, r.AwayTeam), r])
+          .filter(([key]) => Boolean(key))
+      );
+
+      const kickoffReachedPendingRows = fixtures
+        .filter(fixture => {
+          const fixtureKey = rugbyMatchKey(fixture.Date, fixture.HomeTeam, fixture.AwayTeam);
+          if (!fixtureKey || resultRowsByKey.has(fixtureKey)) return false;
+
+          const kickoffInfo = rugbyFixtureKickoffInfo(fixture);
+          return kickoffInfo.kickoffDate <= nowRugby;
+        })
+        .map(fixture => {
+          const kickoffInfo = rugbyFixtureKickoffInfo(fixture);
+          return {
+            Date: fixture.Date,
+            HomeTeam: fixture.HomeTeam,
+            HomeScore: '',
+            AwayScore: '',
+            AwayTeam: fixture.AwayTeam,
+            Competition: fixture.Competition || 'International',
+            KickOffTimeSAST: kickoffInfo.kickoffDisplay,
+            MatchStatus: 'PENDING'
+          };
+        });
+
+      const recentResults = [...results, ...kickoffReachedPendingRows]
         .sort((a, b) => new Date(b.Date) - new Date(a.Date));
 
       const resultsHTML = recentResults.length === 0
