@@ -94,9 +94,9 @@
     "MatchDate": "2026-07-11",
     "Venue": "Suncorp Stadium",
     "KickOffTime": "09:40",
-    "HomeScore": "7",
-    "AwayScore": "12",
-    "MatchStatus": "LIVE 1st Half"
+    "HomeScore": "21",
+    "AwayScore": "34",
+    "MatchStatus": "LIVE 2nd half"
   },
   {
     "Competition": "Nations Championship 2026",
@@ -136,7 +136,7 @@
     "HomeTeam": "New Zealand",
     "AwayTeam": "Italy",
     "MatchDate": "2026-07-11",
-    "Venue": "Hnry Stadium",
+    "Venue": "Sky Stadium in Wellington: New Zealand",
     "KickOffTime": "07:10",
     "HomeScore": "47",
     "AwayScore": "17",
