@@ -3911,32 +3911,7 @@ return `
       const results = await fetchCSV('data/rugby_results.csv');
       const nowRugby = new Date();
 
-      const resultRowsByKey = new Map(
-        results
-          .map(r => [rugbyMatchKey(r.Date, r.HomeTeam, r.AwayTeam), r])
-          .filter(([key]) => Boolean(key))
-      );
-
-      const completedFixturesWithoutResult = fixtures
-        .filter(fixture => {
-          const fixtureKey = rugbyMatchKey(fixture.Date, fixture.HomeTeam, fixture.AwayTeam);
-          const kickoffInfo = rugbyFixtureKickoffInfo(fixture);
-          return fixtureKey && kickoffInfo.kickoffDate <= nowRugby && !resultRowsByKey.has(fixtureKey);
-        })
-        .map(fixture => {
-          const kickoffInfo = rugbyFixtureKickoffInfo(fixture);
-          return {
-            Date: fixture.Date,
-            HomeTeam: fixture.HomeTeam,
-            HomeScore: '',
-            AwayScore: '',
-            AwayTeam: fixture.AwayTeam,
-            Competition: fixture.Competition || 'International',
-            KickOffTimeSAST: kickoffInfo.kickoffDisplay
-          };
-        });
-
-      const recentResults = [...results, ...completedFixturesWithoutResult]
+      const recentResults = results
         .sort((a, b) => new Date(b.Date) - new Date(a.Date));
 
       const resultsHTML = recentResults.length === 0
@@ -4018,8 +3993,7 @@ return `
         .filter(fixture => {
           const fixtureKey = rugbyMatchKey(fixture.Date, fixture.HomeTeam, fixture.AwayTeam);
           const isCompleted = fixtureKey && completedMatchKeys.has(fixtureKey);
-          const kickoffInfo = rugbyFixtureKickoffInfo(fixture);
-          return !isCompleted && kickoffInfo.kickoffDate > nowRugby;
+          return !isCompleted;
         })
         .sort((a, b) => {
           const aKickoff = rugbyFixtureKickoffInfo(a).kickoffDate;

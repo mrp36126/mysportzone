@@ -63,19 +63,7 @@ function hasFinalResult(resultLike) {
   const awayScore = parseNumericScore(resultLike?.AwayScore ?? resultLike?.awayScore);
   const status = normalizeStatus(resultLike?.MatchStatus ?? resultLike?.status);
 
-  if (isFinalStatus(status)) {
-    return homeScore !== null && awayScore !== null;
-  }
-
-  if (isNonFinalStatus(status)) {
-    return false;
-  }
-
-  if (!status) {
-    return homeScore !== null && awayScore !== null;
-  }
-
-  return false;
+  return isFinalStatus(status) && homeScore !== null && awayScore !== null;
 }
 
 function shouldMoveToRecentResults({ fixture, currentTime = new Date(), resultLike }) {
