@@ -3928,8 +3928,11 @@ return `
       // --- RESULTS ---
       // CSV columns: Date, HomeTeam, HomeScore, AwayScore, AwayTeam, Competition
       const fixtures = allFixtures;
-      const results = await fetchCSV('data/rugby_results.csv');
-      const rugbyJson = await fetch('data/rugby-results.json').then(res => res.ok ? res.json() : []).catch(() => []);
+      const rugbyDataQuery = `?t=${Date.now()}`;
+      const results = await fetchCSV(`data/rugby_results.csv${rugbyDataQuery}`);
+      const rugbyJson = await fetch(`data/rugby-results.json${rugbyDataQuery}`, { cache: 'no-store' })
+        .then(res => res.ok ? res.json() : [])
+        .catch(() => []);
       const nowRugby = new Date();
 
       const resultRowsByKey = new Map(
