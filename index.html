@@ -3840,7 +3840,27 @@ return `
     }
 
     function hasFinalRugbyScores(row) {
-      return hasRugbyScore(row.HomeScore) && hasRugbyScore(row.AwayScore);
+      const status = String(row?.MatchStatus || '').trim().toLowerCase();
+      if (!hasRugbyScore(row.HomeScore) || !hasRugbyScore(row.AwayScore)) return false;
+      if (!status) return true;
+      return /^(ft|full[ -]?time|final|finished|ended|after extra time|after penalties)/i.test(status);
+    }
+
+    function hasLiveRugbyScores(row) {
+      const status = String(row?.MatchStatus || '').trim();
+      if (!hasRugbyScore(row.HomeScore) || !hasRugbyScore(row.AwayScore)) return false;
+      if (!status) return false;
+      if (/^pending$/i.test(status)) return false;
+      if (/^\d{1,2}:\d{2}(?::\d{2})?\s*(am|pm)?(\s*sast)?$/i.test(status)) return false;
+      if (/^(ft|full[ -]?time|final|finished|ended|after extra time|after penalties)/i.test(status)) return false;
+      return true;
+    }
+
+    function rugbyResultLabel(row) {
+      const status = String(row?.MatchStatus || '').trim();
+      if (hasFinalRugbyScores(row)) return '';
+      if (hasLiveRugbyScores(row)) return status.toUpperCase();
+      return 'PENDING';
     }
 
     let rugbyCountdownIntervalId = null;
@@ -3909,6 +3929,7 @@ return `
       // CSV columns: Date, HomeTeam, HomeScore, AwayScore, AwayTeam, Competition
       const fixtures = allFixtures;
       const results = await fetchCSV('data/rugby_results.csv');
+      const rugbyJson = await fetch('data/rugby-results.json').then(res => res.ok ? res.json() : []).catch(() => []);
       const nowRugby = new Date();
 
       const resultRowsByKey = new Map(
@@ -3917,10 +3938,31 @@ return `
           .filter(([key]) => Boolean(key))
       );
 
+      const liveRowsByKey = new Map(
+        (Array.isArray(rugbyJson) ? rugbyJson : [])
+          .filter(row => {
+            const key = rugbyMatchKey(row.MatchDate, row.HomeTeam, row.AwayTeam);
+            return Boolean(key) && hasLiveRugbyScores(row);
+          })
+          .map(row => [
+            rugbyMatchKey(row.MatchDate, row.HomeTeam, row.AwayTeam),
+            {
+              Date: row.MatchDate,
+              HomeTeam: row.HomeTeam,
+              HomeScore: row.HomeScore,
+              AwayScore: row.AwayScore,
+              AwayTeam: row.AwayTeam,
+              Competition: row.Competition || 'International',
+              KickOffTimeSAST: row.KickOffTime || '',
+              MatchStatus: row.MatchStatus || ''
+            }
+          ])
+      );
+
       const kickoffReachedPendingRows = fixtures
         .filter(fixture => {
           const fixtureKey = rugbyMatchKey(fixture.Date, fixture.HomeTeam, fixture.AwayTeam);
-          if (!fixtureKey || resultRowsByKey.has(fixtureKey)) return false;
+          if (!fixtureKey || resultRowsByKey.has(fixtureKey) || liveRowsByKey.has(fixtureKey)) return false;
 
           const kickoffInfo = rugbyFixtureKickoffInfo(fixture);
           return kickoffInfo.kickoffDate <= nowRugby;
@@ -3939,7 +3981,7 @@ return `
           };
         });
 
-      const recentResults = [...results, ...kickoffReachedPendingRows]
+      const recentResults = [...results, ...liveRowsByKey.values(), ...kickoffReachedPendingRows]
         .sort((a, b) => new Date(b.Date) - new Date(a.Date));
 
       const resultsHTML = recentResults.length === 0
@@ -3960,6 +4002,8 @@ return `
             <tbody>
               ${recentResults.map(r => {
                 const hasFinalScore = hasFinalRugbyScores(r);
+                const hasLiveScore = hasLiveRugbyScores(r);
+                const resultLabel = rugbyResultLabel(r);
                 return `
                 <tr>
                   <!-- DATE column -->
@@ -3975,17 +4019,17 @@ return `
 
                   <!-- HOME RESULT ICON: WIN / LOSS / DRAW from home team's view -->
                   <td style="text-align:center;">
-                    ${hasFinalScore ? resultIcon(r.HomeScore, r.AwayScore, 'home') : '<span style="color:var(--text-secondary);font-size:0.8rem;font-weight:700;">PENDING</span>'}
+                    ${hasFinalScore ? resultIcon(r.HomeScore, r.AwayScore, 'home') : `<span style="color:var(--text-secondary);font-size:0.8rem;font-weight:700;">${escapeHTML(resultLabel)}</span>`}
                   </td>
 
                   <!-- SCORE: displayed in Orbitron font, centred -->
                   <td style="font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:700;text-align:center;white-space:nowrap;">
-                    ${hasFinalScore ? `${escapeHTML(r.HomeScore)} – ${escapeHTML(r.AwayScore)}` : '<span style="color:var(--text-secondary);">TBD</span>'}
+                    ${hasFinalScore || hasLiveScore ? `${escapeHTML(r.HomeScore)} – ${escapeHTML(r.AwayScore)}` : '<span style="color:var(--text-secondary);">TBD</span>'}
                   </td>
 
                   <!-- AWAY RESULT ICON: WIN / LOSS / DRAW from away team's view -->
                   <td style="text-align:center;">
-                    ${hasFinalScore ? resultIcon(r.HomeScore, r.AwayScore, 'away') : '<span style="color:var(--text-secondary);font-size:0.8rem;font-weight:700;">PENDING</span>'}
+                    ${hasFinalScore ? resultIcon(r.HomeScore, r.AwayScore, 'away') : `<span style="color:var(--text-secondary);font-size:0.8rem;font-weight:700;">${escapeHTML(resultLabel)}</span>`}
                   </td>
 
                   <!-- AWAY TEAM: flag image + team name side by side -->

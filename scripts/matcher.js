@@ -10,6 +10,7 @@ const {
   hasKickoffStarted,
   isWithinPollingWindow,
   hasFinalResult,
+  hasLiveResult,
   shouldMoveToRecentResults,
   updateFixtureResult,
   nextPollingCheckAt,
@@ -125,6 +126,24 @@ function matchAndUpdateFixtures({ fixtures, scrapedMatches, existingRecords, log
     }
 
     const selected = best[0].match;
+    if (hasLiveResult(selected)) {
+      const merged = updateFixtureResult(base, selected);
+
+      logInfo(logger, [
+        `Fixture: ${fixtureLabel}`,
+        `Interim score found (${normalizeWhitespace(selected.status) || "LIVE"}).`,
+        "Updating JSON...",
+        nextCheckAt ? `Next check: ${formatSastDateTime(nextCheckAt)}` : "Next check: waiting for next workflow cycle"
+      ].join("\n"));
+
+      if (hasMeaningfulUpdate(base, merged)) {
+        stats.successfulUpdates += 1;
+      }
+
+      updatedRecords.push(merged);
+      continue;
+    }
+
     if (!shouldMoveToRecentResults({ fixture, currentTime, resultLike: selected })) {
       stats.skippedFixtures += 1;
       logInfo(logger, [

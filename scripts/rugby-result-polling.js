@@ -21,10 +21,6 @@ const NON_FINAL_STATUS_PATTERNS = [
   /scheduled/i,
   /kick\s*off/i,
   /not started/i,
-  /live/i,
-  /in progress/i,
-  /half[- ]?time/i,
-  /^ht$/i,
   /postponed/i,
   /delayed/i,
   /abandoned/i,
@@ -32,6 +28,17 @@ const NON_FINAL_STATUS_PATTERNS = [
   /to be confirmed/i,
   /^tbc$/i,
   /^\d{1,2}:\d{2}(?::\d{2})?\s*(am|pm)?(\s*sast)?$/i
+];
+
+const LIVE_STATUS_PATTERNS = [
+  /live/i,
+  /in progress/i,
+  /half[- ]?time/i,
+  /^ht$/i,
+  /1st half/i,
+  /2nd half/i,
+  /second half/i,
+  /extra time/i
 ];
 
 function fixtureKickoffDate(fixture) {
@@ -64,6 +71,20 @@ function hasFinalResult(resultLike) {
   const status = normalizeStatus(resultLike?.MatchStatus ?? resultLike?.status);
 
   return isFinalStatus(status) && homeScore !== null && awayScore !== null;
+}
+
+function hasLiveResult(resultLike) {
+  const homeScore = parseNumericScore(resultLike?.HomeScore ?? resultLike?.homeScore);
+  const awayScore = parseNumericScore(resultLike?.AwayScore ?? resultLike?.awayScore);
+  const status = normalizeStatus(resultLike?.MatchStatus ?? resultLike?.status);
+
+  if (isFinalStatus(status) || isScheduledStatus(status)) return false;
+  if (isLiveStatus(status)) return true;
+  return homeScore !== null && awayScore !== null && Boolean(status);
+}
+
+function hasDisplayableResult(resultLike) {
+  return hasFinalResult(resultLike) || hasLiveResult(resultLike);
 }
 
 function shouldMoveToRecentResults({ fixture, currentTime = new Date(), resultLike }) {
@@ -129,6 +150,15 @@ function isNonFinalStatus(status) {
   return NON_FINAL_STATUS_PATTERNS.some(pattern => pattern.test(status));
 }
 
+function isScheduledStatus(status) {
+  return isNonFinalStatus(status);
+}
+
+function isLiveStatus(status) {
+  if (!status) return false;
+  return LIVE_STATUS_PATTERNS.some(pattern => pattern.test(status));
+}
+
 function parseNumericScore(value) {
   const text = normalizeWhitespace(value);
   if (!text) return null;
@@ -144,6 +174,8 @@ module.exports = {
   hasKickoffStarted,
   isWithinPollingWindow,
   hasFinalResult,
+  hasLiveResult,
+  hasDisplayableResult,
   shouldMoveToRecentResults,
   updateFixtureResult,
   nextPollingCheckAt,
