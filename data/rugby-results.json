@@ -158,7 +158,7 @@
     "HomeTeam": "Japan",
     "AwayTeam": "France",
     "MatchDate": "2026-07-18",
-    "Venue": "MUFG Stadium",
+    "Venue": "National Olympic Stadium in Tokyo: Japan",
     "KickOffTime": "10:40",
     "HomeScore": "15",
     "AwayScore": "42",
@@ -182,9 +182,9 @@
     "MatchDate": "2026-07-18",
     "Venue": "HBF Park",
     "KickOffTime": "12:10",
-    "HomeScore": "38",
-    "AwayScore": "5",
-    "MatchStatus": "LIVE Half Time"
+    "HomeScore": "50",
+    "AwayScore": "10",
+    "MatchStatus": "LIVE 2nd half"
   },
   {
     "Competition": "Nations Championship 2026",
