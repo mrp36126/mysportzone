@@ -147,7 +147,7 @@
     "HomeTeam": "New Zealand",
     "AwayTeam": "Ireland",
     "MatchDate": "2026-07-18",
-    "Venue": "Eden Park",
+    "Venue": "Eden Park in Auckland: New Zealand",
     "KickOffTime": "09:10",
     "HomeScore": "40",
     "AwayScore": "21",
@@ -162,7 +162,7 @@
     "KickOffTime": "10:40",
     "HomeScore": "15",
     "AwayScore": "42",
-    "MatchStatus": "LIVE 2nd half"
+    "MatchStatus": "FT"
   },
   {
     "Competition": "Nations Championship 2026",
@@ -180,11 +180,11 @@
     "HomeTeam": "Australia",
     "AwayTeam": "Italy",
     "MatchDate": "2026-07-18",
-    "Venue": "HBF Park in Perth | Boorloo: Australia",
+    "Venue": "HBF Park",
     "KickOffTime": "12:10",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "38",
+    "AwayScore": "5",
+    "MatchStatus": "LIVE Half Time"
   },
   {
     "Competition": "Nations Championship 2026",
