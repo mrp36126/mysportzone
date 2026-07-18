@@ -147,11 +147,11 @@
     "HomeTeam": "New Zealand",
     "AwayTeam": "Ireland",
     "MatchDate": "2026-07-18",
-    "Venue": "Eden Park in Auckland: New Zealand",
+    "Venue": "Eden Park",
     "KickOffTime": "09:10",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "28",
+    "AwayScore": "7",
+    "MatchStatus": "LIVE Half Time"
   },
   {
     "Competition": "Nations Championship 2026",
