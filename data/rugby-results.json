@@ -149,20 +149,20 @@
     "MatchDate": "2026-07-18",
     "Venue": "Eden Park",
     "KickOffTime": "09:10",
-    "HomeScore": "28",
-    "AwayScore": "7",
-    "MatchStatus": "LIVE Half Time"
+    "HomeScore": "40",
+    "AwayScore": "21",
+    "MatchStatus": "FT"
   },
   {
     "Competition": "Nations Championship 2026",
     "HomeTeam": "Japan",
     "AwayTeam": "France",
     "MatchDate": "2026-07-18",
-    "Venue": "National Olympic Stadium in Tokyo: Japan",
+    "Venue": "MUFG Stadium",
     "KickOffTime": "10:40",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "15",
+    "AwayScore": "42",
+    "MatchStatus": "LIVE 2nd half"
   },
   {
     "Competition": "Nations Championship 2026",
