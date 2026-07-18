@@ -169,11 +169,11 @@
     "HomeTeam": "South Africa",
     "AwayTeam": "Wales",
     "MatchDate": "2026-07-18",
-    "Venue": "Hollywoodbets Kings Park in Durban: South Africa",
+    "Venue": "Hollywoodbets Kings Park",
     "KickOffTime": "17:40",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "14",
+    "AwayScore": "0",
+    "MatchStatus": "LIVE 1st Half"
   },
   {
     "Competition": "Nations Championship 2026",
