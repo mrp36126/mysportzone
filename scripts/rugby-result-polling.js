@@ -1,7 +1,7 @@
 const { normalizeWhitespace, parseKickoff } = require("./helpers.js");
 
 const RESULT_CHECK_INTERVAL_MINUTES = 15;
-const RESULT_CHECK_WINDOW_HOURS = 3;
+const RESULT_CHECK_WINDOW_HOURS = 24;
 
 const RESULT_CHECK_WINDOW_MS =
   RESULT_CHECK_WINDOW_HOURS * 60 * 60 * 1000;
