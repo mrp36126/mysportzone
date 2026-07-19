@@ -180,7 +180,7 @@
     "HomeTeam": "Australia",
     "AwayTeam": "Italy",
     "MatchDate": "2026-07-18",
-    "Venue": "HBF Park",
+    "Venue": "HBF Park in Perth | Boorloo: Australia",
     "KickOffTime": "12:10",
     "HomeScore": "57",
     "AwayScore": "10",
@@ -188,28 +188,28 @@
   },
   {
     "Competition": "Nations Championship 2026",
-    "HomeTeam": "Scotland",
-    "AwayTeam": "Fiji",
+    "HomeTeam": "Fiji",
+    "AwayTeam": "Scotland",
     "MatchDate": "2026-07-18",
-    "Venue": "Murrayfield in Edinburgh: Scotland",
+    "Venue": "Scottish Gas Murrayfield",
     "KickOffTime": "15:10",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "17",
+    "AwayScore": "33",
+    "MatchStatus": "FT"
   },
   {
     "Competition": "Nations Championship 2026",
     "HomeTeam": "Argentina",
     "AwayTeam": "England",
     "MatchDate": "2026-07-18",
-    "Venue": "Estadio Único Madre de Ciudades",
+    "Venue": "Estadio Único Madre de Ciudades in Santiago del Estero: Argentina",
     "KickOffTime": "21:10",
     "HomeScore": "24",
     "AwayScore": "31",
     "MatchStatus": "FT"
   },
   {
-    "Competition": "Rugby's Greatest Rivalry Tour 2026",
+    "Competition": "Rugby Union Hybrid Friendlies",
     "HomeTeam": "Stormers",
     "AwayTeam": "New Zealand",
     "MatchDate": "2026-08-07",
@@ -220,7 +220,7 @@
     "MatchStatus": ""
   },
   {
-    "Competition": "Rugby's Greatest Rivalry Tour 2026",
+    "Competition": "Rugby Union Hybrid Friendlies",
     "HomeTeam": "Sharks",
     "AwayTeam": "New Zealand",
     "MatchDate": "2026-08-11",
@@ -231,7 +231,7 @@
     "MatchStatus": ""
   },
   {
-    "Competition": "Rugby's Greatest Rivalry Tour 2026",
+    "Competition": "Rugby Union Hybrid Friendlies",
     "HomeTeam": "Bulls",
     "AwayTeam": "New Zealand",
     "MatchDate": "2026-08-15",
@@ -253,7 +253,7 @@
     "MatchStatus": ""
   },
   {
-    "Competition": "Rugby's Greatest Rivalry Tour 2026",
+    "Competition": "Rugby Union Hybrid Friendlies",
     "HomeTeam": "Lions",
     "AwayTeam": "New Zealand",
     "MatchDate": "2026-08-25",
