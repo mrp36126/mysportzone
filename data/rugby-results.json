@@ -180,11 +180,11 @@
     "HomeTeam": "Australia",
     "AwayTeam": "Italy",
     "MatchDate": "2026-07-18",
-    "Venue": "HBF Park in Perth | Boorloo: Australia",
+    "Venue": "HBF Park",
     "KickOffTime": "12:10",
-    "HomeScore": "50",
+    "HomeScore": "57",
     "AwayScore": "10",
-    "MatchStatus": "LIVE 2nd half"
+    "MatchStatus": "FT"
   },
   {
     "Competition": "Nations Championship 2026",
@@ -202,11 +202,11 @@
     "HomeTeam": "Argentina",
     "AwayTeam": "England",
     "MatchDate": "2026-07-18",
-    "Venue": "Estadio Único Madre de Ciudades in Santiago del Estero: Argentina",
+    "Venue": "Estadio Único Madre de Ciudades",
     "KickOffTime": "21:10",
     "HomeScore": "24",
     "AwayScore": "31",
-    "MatchStatus": "LIVE 2nd half"
+    "MatchStatus": "FT"
   },
   {
     "Competition": "Rugby's Greatest Rivalry Tour 2026",
