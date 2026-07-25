@@ -1,7 +1,7 @@
 Position,Change,Driver,Team,CarNumber,Points,PointsChange
 1,0,Kimi Antonelli,Mercedes,12,204,25
-2,1,Lewis Hamilton,Ferrari,44,159,12
-3,-1,George Russell,Mercedes,63,154,0
+2,0,Lewis Hamilton,Ferrari,44,159,12
+3,0,George Russell,Mercedes,63,154,0
 4,0,Charles Leclerc,Ferrari,16,126,18
 5,0,Lando Norris,McLaren,1,103,6
 6,0,Oscar Piastri,McLaren,81,92,10
@@ -10,8 +10,8 @@ Position,Change,Driver,Team,CarNumber,Points,PointsChange
 9,0,Pierre Gasly,Alpine,10,42,0
 10,0,Liam Lawson,Racing Bulls,30,39,0
 11,0,Arvid Lindblad,Racing Bulls,41,22,2
-12,1,Franco Colapinto,Alpine,43,19,1
-13,-1,Oliver Bearman,Haas F1 Team,87,18,0
+12,0,Franco Colapinto,Alpine,43,19,1
+13,0,Oliver Bearman,Haas F1 Team,87,18,0
 14,0,Gabriel Bortoleto,Audi,5,10,4
 15,0,Carlos Sainz,Williams,55,6,0
 16,0,Alexander Albon,Williams,23,5,0
