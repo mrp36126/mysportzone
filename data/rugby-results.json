@@ -213,11 +213,11 @@
     "HomeTeam": "Stormers",
     "AwayTeam": "New Zealand",
     "MatchDate": "2026-08-07",
-    "Venue": "DHL Stadium in Cape Town: South Africa",
+    "Venue": "DHL Stadium",
     "KickOffTime": "19:00",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "7",
+    "AwayScore": "7",
+    "MatchStatus": "LIVE 1st Half"
   },
   {
     "Competition": "Internationals",
