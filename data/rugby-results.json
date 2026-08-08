@@ -226,9 +226,9 @@
     "MatchDate": "2026-08-08",
     "Venue": "Hanazono Rugby Stadium",
     "KickOffTime": "12:05",
-    "HomeScore": "25",
-    "AwayScore": "28",
-    "MatchStatus": "LIVE 2nd half"
+    "HomeScore": "32",
+    "AwayScore": "35",
+    "MatchStatus": "FT"
   },
   {
     "Competition": "Internationals",
