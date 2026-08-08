@@ -235,11 +235,11 @@
     "HomeTeam": "Argentina",
     "AwayTeam": "South Africa",
     "MatchDate": "2026-08-08",
-    "Venue": "Estadio Jose Amalfitani",
+    "Venue": "Estadio José Amalfitani",
     "KickOffTime": "21:00",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "3",
+    "AwayScore": "0",
+    "MatchStatus": "LIVE 1st Half"
   },
   {
     "Competition": "Rugby Union Hybrid Friendlies",
