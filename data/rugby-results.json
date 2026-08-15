@@ -259,9 +259,9 @@
     "MatchDate": "2026-08-15",
     "Venue": "Queensland Country Bank Stadium",
     "KickOffTime": "07:15",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "14",
+    "AwayScore": "5",
+    "MatchStatus": "LIVE 1st Half"
   },
   {
     "Competition": "Rugby Union Hybrid Friendlies",
