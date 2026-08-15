@@ -268,11 +268,11 @@
     "HomeTeam": "Bulls",
     "AwayTeam": "New Zealand",
     "MatchDate": "2026-08-15",
-    "Venue": "Loftus Versfeld in Pretoria: South Africa",
+    "Venue": "Loftus Versfeld",
     "KickOffTime": "19:00",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "0",
+    "AwayScore": "0",
+    "MatchStatus": "LIVE 1st Half"
   },
   {
     "Competition": "Internationals",
