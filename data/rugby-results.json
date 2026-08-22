@@ -279,11 +279,11 @@
     "HomeTeam": "South Africa",
     "AwayTeam": "New Zealand",
     "MatchDate": "2026-08-22",
-    "Venue": "Ellis Park Stadium in Johannesburg: South Africa",
-    "KickOffTime": "17:00",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "Venue": "Ellis Park",
+    "KickOffTime": "17:10",
+    "HomeScore": "3",
+    "AwayScore": "0",
+    "MatchStatus": "LIVE 1st Half"
   },
   {
     "Competition": "Rugby Union Hybrid Friendlies",
