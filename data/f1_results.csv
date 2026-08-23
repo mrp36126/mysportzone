@@ -175,25 +175,25 @@ Season,Round,RaceName,Circuit,Country,Date,Position,Driver,Team,Grid,Laps,Time,S
 2026,11,Hungarian Grand Prix,Hungaroring,Hungary,2026-07-26,R,Oscar Piastri,McLaren,3,55,,Retired,0,10,1:23.896,35
 2026,11,Hungarian Grand Prix,Hungaroring,Hungary,2026-07-26,R,Sergio Perez,Cadillac,22,48,,Retired,0,21,1:26.342,23
 2026,11,Hungarian Grand Prix,Hungaroring,Hungary,2026-07-26,R,Valtteri Bottas,Cadillac,21,13,,Retired,0,22,1:27.959,4
-2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,1,Lando Norris,McLaren,,72,2:04:44.859,Finished,25,,,
-2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,2,Kimi Antonelli,Mercedes,,72,+11.536,Finished,18,,,
-2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,3,George Russell,Mercedes,,72,+15.906,Finished,15,,,
-2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,4,Lewis Hamilton,Ferrari,,72,+16.755,Finished,12,,,
-2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,5,Charles Leclerc,Ferrari,,72,+17.258,Finished,10,,,
-2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,6,Oscar Piastri,McLaren,,72,+32.332,Finished,8,,,
-2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,7,Liam Lawson,Red Bull Racing,,72,+1:19.915,Finished,6,,,
-2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,8,Nico Hulkenberg,Audi,,71,+36.049,Lapped,4,,,
-2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,9,Fernando Alonso,Aston Martin,,71,+48.393,Lapped,2,,,
-2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,10,Pierre Gasly,Alpine,,71,+49.640,Lapped,1,,,
-2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,11,Yuki Tsunoda,Racing Bulls,,71,+54.322,Lapped,0,,,
-2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,12,Arvid Lindblad,Racing Bulls,,71,+1:05.680,Lapped,0,,,
-2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,13,Gabriel Bortoleto,Audi,,71,+1:06.235,Lapped,0,,,
-2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,14,Franco Colapinto,Alpine,,70,+20.534,Lapped,0,,,
-2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,15,Sergio Perez,Cadillac,,70,+58.582,Lapped,0,,,
-2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,16,Carlos Sainz,Williams,,70,+1:10.271,Lapped,0,,,
-2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,17,Alexander Albon,Williams,,66,,Retired,0,,,
-2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,R,Valtteri Bottas,Cadillac,,61,,Retired,0,,,
-2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,R,Esteban Ocon,Haas F1 Team,,52,,Retired,0,,,
-2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,R,Lance Stroll,Aston Martin,,45,,Retired,0,,,
-2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,R,Oliver Bearman,Haas F1 Team,,2,,Retired,0,,,
-2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,R,Max Verstappen,Red Bull Racing,,0,,Retired,0,,,
+2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,1,Lando Norris,McLaren,1,72,2:04:44.859,Finished,25,3,1:14.321,49
+2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,2,Kimi Antonelli,Mercedes,3,72,+11.536,Finished,18,5,1:14.571,59
+2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,3,George Russell,Mercedes,2,72,+15.906,Finished,15,6,1:15.393,46
+2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,4,Lewis Hamilton,Ferrari,5,72,+16.755,Finished,12,4,1:14.566,61
+2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,5,Charles Leclerc,Ferrari,6,72,+17.258,Finished,10,1,1:14.230,60
+2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,6,Oscar Piastri,McLaren,4,72,+32.332,Finished,8,2,1:14.303,61
+2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,7,Liam Lawson,Red Bull Racing,8,72,+1:19.915,Finished,6,7,1:15.435,61
+2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,8,Nico Hulkenberg,Audi,13,71,+36.049,Lapped,4,10,1:16.048,62
+2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,9,Fernando Alonso,Aston Martin,18,71,+48.393,Lapped,2,14,1:16.946,59
+2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,10,Pierre Gasly,Alpine,11,71,+49.640,Lapped,1,11,1:16.220,58
+2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,11,Yuki Tsunoda,Racing Bulls,12,71,+54.322,Lapped,0,12,1:16.639,49
+2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,12,Arvid Lindblad,Racing Bulls,10,71,+1:05.680,Lapped,0,13,1:16.653,60
+2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,13,Gabriel Bortoleto,Audi,9,71,+1:06.235,Lapped,0,8,1:15.515,57
+2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,14,Franco Colapinto,Alpine,14,70,+20.534,Lapped,0,9,1:15.578,48
+2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,15,Sergio Perez,Cadillac,22,70,+58.582,Lapped,0,17,1:17.523,70
+2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,16,Carlos Sainz,Williams,17,70,+1:10.271,Lapped,0,16,1:17.328,69
+2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,17,Alexander Albon,Williams,16,66,,Retired,0,15,1:17.147,51
+2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,R,Valtteri Bottas,Cadillac,21,61,,Retired,0,19,1:17.822,60
+2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,R,Esteban Ocon,Haas F1 Team,15,52,,Retired,0,18,1:17.588,48
+2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,R,Lance Stroll,Aston Martin,19,45,,Retired,0,20,1:17.883,37
+2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,R,Oliver Bearman,Haas F1 Team,20,2,,Retired,0,,,
+2026,12,Dutch Grand Prix,Circuit Park Zandvoort,Netherlands,2026-08-23,R,Max Verstappen,Red Bull Racing,7,0,,Retired,0,,,
