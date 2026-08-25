@@ -290,11 +290,11 @@
     "HomeTeam": "Lions",
     "AwayTeam": "New Zealand",
     "MatchDate": "2026-08-25",
-    "Venue": "Ellis Park Stadium in Johannesburg: South Africa",
+    "Venue": "Ellis Park",
     "KickOffTime": "19:00",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "14",
+    "AwayScore": "12",
+    "MatchStatus": "LIVE 1st Half"
   },
   {
     "Competition": "Internationals",
