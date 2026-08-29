@@ -301,8 +301,8 @@
     "HomeTeam": "South Africa",
     "AwayTeam": "New Zealand",
     "MatchDate": "2026-08-29",
-    "Venue": "DHL Stadium",
-    "KickOffTime": "17:10",
+    "Venue": "DHL Stadium in Cape Town: South Africa",
+    "KickOffTime": "17:00",
     "HomeScore": "33",
     "AwayScore": "26",
     "MatchStatus": "FT"
@@ -314,9 +314,9 @@
     "MatchDate": "2026-08-29",
     "Venue": "Estadio 23 de Agosto",
     "KickOffTime": "21:00",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "21",
+    "AwayScore": "27",
+    "MatchStatus": "FT"
   },
   {
     "Competition": "Internationals",
