@@ -325,9 +325,9 @@
     "MatchDate": "2026-09-05",
     "Venue": "Denka Big Swan Stadium",
     "KickOffTime": "07:50",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "57",
+    "AwayScore": "12",
+    "MatchStatus": "FT"
   },
   {
     "Competition": "Internationals",
