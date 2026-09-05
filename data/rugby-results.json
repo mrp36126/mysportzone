@@ -334,11 +334,11 @@
     "HomeTeam": "South Africa",
     "AwayTeam": "New Zealand",
     "MatchDate": "2026-09-05",
-    "Venue": "FNB Stadium in Johannesburg: South Africa",
-    "KickOffTime": "17:00",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "Venue": "FNB Stadium",
+    "KickOffTime": "17:10",
+    "HomeScore": "0",
+    "AwayScore": "7",
+    "MatchStatus": "LIVE 1st Half"
   },
   {
     "Competition": "Internationals",
