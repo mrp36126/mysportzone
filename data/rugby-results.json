@@ -347,9 +347,9 @@
     "MatchDate": "2026-09-05",
     "Venue": "Estadio Malvinas Argentinas",
     "KickOffTime": "23:00",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "0",
+    "AwayScore": "0",
+    "MatchStatus": "LIVE 1st Half"
   },
   {
     "Competition": "Internationals",
