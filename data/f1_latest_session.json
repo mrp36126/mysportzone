@@ -20,14 +20,14 @@
       "Position": "1",
       "Driver": "Andrea Kimi Antonelli",
       "Team": "Mercedes",
-      "Grid": "",
+      "Grid": "19",
       "Laps": "53",
       "Time": "1:51:15.281",
       "Status": "Finished",
       "Points": "25",
-      "FastestLapRank": "",
-      "FastestLapTime": "",
-      "FastestLapLap": ""
+      "FastestLapRank": "1",
+      "FastestLapTime": "1:23.504",
+      "FastestLapLap": "53"
     },
     {
       "Season": "2026",
@@ -39,14 +39,14 @@
       "Position": "2",
       "Driver": "George Russell",
       "Team": "Mercedes",
-      "Grid": "",
+      "Grid": "2",
       "Laps": "53",
       "Time": "+3.857",
       "Status": "Finished",
       "Points": "18",
-      "FastestLapRank": "",
-      "FastestLapTime": "",
-      "FastestLapLap": ""
+      "FastestLapRank": "4",
+      "FastestLapTime": "1:24.390",
+      "FastestLapLap": "51"
     },
     {
       "Season": "2026",
@@ -58,14 +58,14 @@
       "Position": "3",
       "Driver": "Max Verstappen",
       "Team": "Red Bull",
-      "Grid": "",
+      "Grid": "5",
       "Laps": "53",
       "Time": "+14.718",
       "Status": "Finished",
       "Points": "15",
-      "FastestLapRank": "",
-      "FastestLapTime": "",
-      "FastestLapLap": ""
+      "FastestLapRank": "2",
+      "FastestLapTime": "1:24.242",
+      "FastestLapLap": "37"
     },
     {
       "Season": "2026",
@@ -77,14 +77,14 @@
       "Position": "4",
       "Driver": "Lando Norris",
       "Team": "McLaren",
-      "Grid": "",
+      "Grid": "8",
       "Laps": "53",
       "Time": "+19.056",
       "Status": "Finished",
       "Points": "12",
-      "FastestLapRank": "",
-      "FastestLapTime": "",
-      "FastestLapLap": ""
+      "FastestLapRank": "5",
+      "FastestLapTime": "1:24.864",
+      "FastestLapLap": "48"
     },
     {
       "Season": "2026",
@@ -96,14 +96,14 @@
       "Position": "5",
       "Driver": "Oscar Piastri",
       "Team": "McLaren",
-      "Grid": "",
+      "Grid": "6",
       "Laps": "53",
       "Time": "+19.253",
       "Status": "Finished",
       "Points": "10",
-      "FastestLapRank": "",
-      "FastestLapTime": "",
-      "FastestLapLap": ""
+      "FastestLapRank": "8",
+      "FastestLapTime": "1:25.125",
+      "FastestLapLap": "45"
     },
     {
       "Season": "2026",
@@ -115,14 +115,14 @@
       "Position": "6",
       "Driver": "Lewis Hamilton",
       "Team": "Ferrari",
-      "Grid": "",
+      "Grid": "4",
       "Laps": "53",
       "Time": "+24.655",
       "Status": "Finished",
       "Points": "8",
-      "FastestLapRank": "",
-      "FastestLapTime": "",
-      "FastestLapLap": ""
+      "FastestLapRank": "9",
+      "FastestLapTime": "1:25.300",
+      "FastestLapLap": "23"
     },
     {
       "Season": "2026",
@@ -134,14 +134,14 @@
       "Position": "7",
       "Driver": "Pierre Gasly",
       "Team": "Alpine F1 Team",
-      "Grid": "",
+      "Grid": "1",
       "Laps": "53",
       "Time": "+27.351",
       "Status": "Finished",
       "Points": "6",
-      "FastestLapRank": "",
-      "FastestLapTime": "",
-      "FastestLapLap": ""
+      "FastestLapRank": "6",
+      "FastestLapTime": "1:24.927",
+      "FastestLapLap": "53"
     },
     {
       "Season": "2026",
@@ -153,14 +153,14 @@
       "Position": "8",
       "Driver": "Arvid Lindblad",
       "Team": "RB F1 Team",
-      "Grid": "",
+      "Grid": "9",
       "Laps": "53",
       "Time": "+45.136",
       "Status": "Finished",
       "Points": "4",
-      "FastestLapRank": "",
-      "FastestLapTime": "",
-      "FastestLapLap": ""
+      "FastestLapRank": "14",
+      "FastestLapTime": "1:26.028",
+      "FastestLapLap": "47"
     },
     {
       "Season": "2026",
@@ -172,14 +172,14 @@
       "Position": "9",
       "Driver": "Franco Colapinto",
       "Team": "Alpine F1 Team",
-      "Grid": "",
+      "Grid": "7",
       "Laps": "53",
       "Time": "+47.353",
       "Status": "Finished",
       "Points": "2",
-      "FastestLapRank": "",
-      "FastestLapTime": "",
-      "FastestLapLap": ""
+      "FastestLapRank": "7",
+      "FastestLapTime": "1:24.933",
+      "FastestLapLap": "53"
     },
     {
       "Season": "2026",
@@ -191,14 +191,14 @@
       "Position": "10",
       "Driver": "Yuki Tsunoda",
       "Team": "RB F1 Team",
-      "Grid": "",
+      "Grid": "15",
       "Laps": "53",
       "Time": "+58.187",
       "Status": "Finished",
       "Points": "1",
-      "FastestLapRank": "",
-      "FastestLapTime": "",
-      "FastestLapLap": ""
+      "FastestLapRank": "16",
+      "FastestLapTime": "1:26.320",
+      "FastestLapLap": "42"
     },
     {
       "Season": "2026",
@@ -210,14 +210,14 @@
       "Position": "11",
       "Driver": "Gabriel Bortoleto",
       "Team": "Audi",
-      "Grid": "",
+      "Grid": "10",
       "Laps": "53",
       "Time": "+1:05.187",
       "Status": "Finished",
       "Points": "0",
-      "FastestLapRank": "",
-      "FastestLapTime": "",
-      "FastestLapLap": ""
+      "FastestLapRank": "15",
+      "FastestLapTime": "1:26.188",
+      "FastestLapLap": "31"
     },
     {
       "Season": "2026",
@@ -229,14 +229,14 @@
       "Position": "12",
       "Driver": "Nico Hülkenberg",
       "Team": "Audi",
-      "Grid": "",
+      "Grid": "12",
       "Laps": "53",
       "Time": "+1:06.187",
       "Status": "Finished",
       "Points": "0",
-      "FastestLapRank": "",
-      "FastestLapTime": "",
-      "FastestLapLap": ""
+      "FastestLapRank": "3",
+      "FastestLapTime": "1:24.364",
+      "FastestLapLap": "53"
     },
     {
       "Season": "2026",
@@ -248,14 +248,14 @@
       "Position": "13",
       "Driver": "Carlos Sainz",
       "Team": "Williams",
-      "Grid": "",
+      "Grid": "13",
       "Laps": "53",
       "Time": "+1:14.117",
       "Status": "Finished",
       "Points": "0",
-      "FastestLapRank": "",
-      "FastestLapTime": "",
-      "FastestLapLap": ""
+      "FastestLapRank": "12",
+      "FastestLapTime": "1:25.683",
+      "FastestLapLap": "46"
     },
     {
       "Season": "2026",
@@ -267,14 +267,14 @@
       "Position": "14",
       "Driver": "Liam Lawson",
       "Team": "Red Bull",
-      "Grid": "",
+      "Grid": "22",
       "Laps": "53",
       "Time": "+1:15.609",
       "Status": "Finished",
       "Points": "0",
-      "FastestLapRank": "",
-      "FastestLapTime": "",
-      "FastestLapLap": ""
+      "FastestLapRank": "11",
+      "FastestLapTime": "1:25.578",
+      "FastestLapLap": "53"
     },
     {
       "Season": "2026",
@@ -286,14 +286,14 @@
       "Position": "15",
       "Driver": "Oliver Bearman",
       "Team": "Haas F1 Team",
-      "Grid": "",
+      "Grid": "11",
       "Laps": "53",
       "Time": "+1:18.958",
       "Status": "Finished",
       "Points": "0",
-      "FastestLapRank": "",
-      "FastestLapTime": "",
-      "FastestLapLap": ""
+      "FastestLapRank": "17",
+      "FastestLapTime": "1:26.356",
+      "FastestLapLap": "31"
     },
     {
       "Season": "2026",
@@ -305,14 +305,14 @@
       "Position": "16",
       "Driver": "Esteban Ocon",
       "Team": "Haas F1 Team",
-      "Grid": "",
+      "Grid": "14",
       "Laps": "52",
       "Time": "+6.591",
       "Status": "Lapped",
       "Points": "0",
-      "FastestLapRank": "",
-      "FastestLapTime": "",
-      "FastestLapLap": ""
+      "FastestLapRank": "13",
+      "FastestLapTime": "1:25.711",
+      "FastestLapLap": "52"
     },
     {
       "Season": "2026",
@@ -324,14 +324,14 @@
       "Position": "17",
       "Driver": "Alexander Albon",
       "Team": "Williams",
-      "Grid": "",
+      "Grid": "20",
       "Laps": "52",
       "Time": "+20.268",
       "Status": "Lapped",
       "Points": "0",
-      "FastestLapRank": "",
-      "FastestLapTime": "",
-      "FastestLapLap": ""
+      "FastestLapRank": "10",
+      "FastestLapTime": "1:25.341",
+      "FastestLapLap": "52"
     },
     {
       "Season": "2026",
@@ -343,14 +343,14 @@
       "Position": "18",
       "Driver": "Sergio Pérez",
       "Team": "Cadillac F1 Team",
-      "Grid": "",
+      "Grid": "17",
       "Laps": "52",
       "Time": "+1:13.372",
       "Status": "Lapped",
       "Points": "0",
-      "FastestLapRank": "",
-      "FastestLapTime": "",
-      "FastestLapLap": ""
+      "FastestLapRank": "18",
+      "FastestLapTime": "1:26.914",
+      "FastestLapLap": "51"
     },
     {
       "Season": "2026",
@@ -362,14 +362,14 @@
       "Position": "19",
       "Driver": "Valtteri Bottas",
       "Team": "Cadillac F1 Team",
-      "Grid": "",
+      "Grid": "16",
       "Laps": "51",
       "Time": "+12.880",
       "Status": "Lapped",
       "Points": "0",
-      "FastestLapRank": "",
-      "FastestLapTime": "",
-      "FastestLapLap": ""
+      "FastestLapRank": "19",
+      "FastestLapTime": "1:27.325",
+      "FastestLapLap": "51"
     },
     {
       "Season": "2026",
@@ -381,14 +381,14 @@
       "Position": "R",
       "Driver": "Lance Stroll",
       "Team": "Aston Martin",
-      "Grid": "",
+      "Grid": "18",
       "Laps": "26",
       "Time": "",
       "Status": "Retired",
       "Points": "0",
-      "FastestLapRank": "",
-      "FastestLapTime": "",
-      "FastestLapLap": ""
+      "FastestLapRank": "21",
+      "FastestLapTime": "1:28.415",
+      "FastestLapLap": "11"
     },
     {
       "Season": "2026",
@@ -400,14 +400,14 @@
       "Position": "R",
       "Driver": "Fernando Alonso",
       "Team": "Aston Martin",
-      "Grid": "",
+      "Grid": "21",
       "Laps": "23",
       "Time": "",
       "Status": "Retired",
       "Points": "0",
-      "FastestLapRank": "",
-      "FastestLapTime": "",
-      "FastestLapLap": ""
+      "FastestLapRank": "20",
+      "FastestLapTime": "1:27.961",
+      "FastestLapLap": "8"
     },
     {
       "Season": "2026",
@@ -419,7 +419,7 @@
       "Position": "R",
       "Driver": "Charles Leclerc",
       "Team": "Ferrari",
-      "Grid": "",
+      "Grid": "3",
       "Laps": "1",
       "Time": "",
       "Status": "Retired",
