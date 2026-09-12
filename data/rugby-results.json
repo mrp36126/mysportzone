@@ -356,11 +356,11 @@
     "HomeTeam": "South Africa",
     "AwayTeam": "New Zealand",
     "MatchDate": "2026-09-12",
-    "Venue": "M&T Bank Stadium in Baltimore: United States of America",
+    "Venue": "M&T Bank Stadium",
     "KickOffTime": "23:00",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "10",
+    "AwayScore": "7",
+    "MatchStatus": "LIVE 1st Half"
   },
   {
     "Competition": "Internationals",
