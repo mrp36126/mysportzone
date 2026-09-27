@@ -369,9 +369,9 @@
     "MatchDate": "2026-09-27",
     "Venue": "Optus Stadium",
     "KickOffTime": "11:45",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "42",
+    "AwayScore": "17",
+    "MatchStatus": "LIVE 2nd half"
   },
   {
     "Competition": "Internationals",
