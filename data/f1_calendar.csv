@@ -30,16 +30,18 @@ Round,RaceName,Circuit,Country,FP1Date,FP1Time,FP2Date,FP2Time,SprintQualiDate,S
 
 15,Azerbaijan Grand Prix,Baku City Circuit,Azerbaijan,2026-09-24,10:30,2026-09-24,14:00,,,,,2026-09-25,10:30,2026-09-25,14:00,2026-09-26,13:00,images/tracks/azerbaijan.png
 
-16,Singapore Grand Prix,Marina Bay Circuit,Singapore,2026-10-09,10:30,,,2026-10-09,14:30,2026-10-10,11:00,,,2026-10-10,15:00,2026-10-11,14:00,images/tracks/singapore.png
+16,Bahrain Grand Prix,Sepang Circuit,Malaysia,2026-10-02,06:30,2026-10-02,10:00,,,,,2026-10-03,06:30,2026-10-03,10:00,2026-10-04,09:00,images/tracks/bahrain.png
 
-17,United States Grand Prix,Circuit of the Americas,USA,2026-10-23,19:30,2026-10-23,23:00,,,,,2026-10-24,19:30,2026-10-24,23:00,2026-10-25,22:00,images/tracks/united-states.png
+17,Singapore Grand Prix,Marina Bay Circuit,Singapore,2026-10-09,10:30,,,2026-10-09,14:30,2026-10-10,11:00,,,2026-10-10,15:00,2026-10-11,14:00,images/tracks/singapore.png
 
-18,Mexican Grand Prix,Hermanos Rodriguez Circuit,Mexico,2026-10-30,20:30,2026-10-30,00:00,,,,,2026-10-31,19:30,2026-10-31,23:00,2026-11-01,22:00,images/tracks/mexico.png
+18,United States Grand Prix,Circuit of the Americas,USA,2026-10-23,19:30,2026-10-23,23:00,,,,,2026-10-24,19:30,2026-10-24,23:00,2026-10-25,22:00,images/tracks/united-states.png
 
-19,Brazilian Grand Prix,Interlagos Circuit,Brazil,2026-11-06,17:30,2026-11-06,21:00,,,,,2026-11-07,16:30,2026-11-07,20:00,2026-11-08,19:00,images/tracks/brazil.png
+19,Mexican Grand Prix,Hermanos Rodriguez Circuit,Mexico,2026-10-30,20:30,2026-10-30,00:00,,,,,2026-10-31,19:30,2026-10-31,23:00,2026-11-01,22:00,images/tracks/mexico.png
 
-20,Las Vegas Grand Prix,Las Vegas Strip Circuit,USA,2026-11-20,02:30,2026-11-20,06:00,,,,,2026-11-21,02:30,2026-11-21,06:00,2026-11-22,06:00,images/tracks/las-vegas.png
+20,Brazilian Grand Prix,Interlagos Circuit,Brazil,2026-11-06,17:30,2026-11-06,21:00,,,,,2026-11-07,16:30,2026-11-07,20:00,2026-11-08,19:00,images/tracks/brazil.png
 
-21,Qatar Grand Prix,Lusail Circuit,Qatar,2026-11-27,15:30,2026-11-27,19:00,,,,,2026-11-28,16:30,2026-11-28,20:00,2026-11-29,18:00,images/tracks/qatar.png
+21,Las Vegas Grand Prix,Las Vegas Strip Circuit,USA,2026-11-20,02:30,2026-11-20,06:00,,,,,2026-11-21,02:30,2026-11-21,06:00,2026-11-22,06:00,images/tracks/las-vegas.png
 
-22,Abu Dhabi Grand Prix,Yas Marina Circuit,UAE,2026-12-04,11:30,2026-12-04,15:00,,,,,2026-12-05,12:30,2026-12-05,16:00,2026-12-06,15:00,images/tracks/abu-dhabi.png
+22,Qatar Grand Prix,Lusail Circuit,Qatar,2026-11-27,15:30,2026-11-27,19:00,,,,,2026-11-28,16:30,2026-11-28,20:00,2026-11-29,18:00,images/tracks/qatar.png
+
+23,Abu Dhabi Grand Prix,Yas Marina Circuit,UAE,2026-12-04,11:30,2026-12-04,15:00,,,,,2026-12-05,12:30,2026-12-05,16:00,2026-12-06,15:00,images/tracks/abu-dhabi.png
