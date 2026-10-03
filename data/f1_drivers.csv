@@ -14,9 +14,9 @@ Position,Change,Driver,Team,CarNumber,Points,PointsChange
 13,0,Oliver Bearman,Haas F1 Team,87,20,2
 14,0,Gabriel Bortoleto,Audi,5,10,0
 15,0,Nico Hulkenberg,Audi,27,7,0
-16,2,Esteban Ocon,Haas F1 Team,31,7,4
-17,-1,Carlos Sainz,Williams,55,7,1
-18,-1,Alexander Albon,Williams,23,5,0
+16,0,Esteban Ocon,Haas F1 Team,31,7,4
+17,0,Carlos Sainz,Williams,55,7,1
+18,0,Alexander Albon,Williams,23,5,0
 19,0,Fernando Alonso,Aston Martin,14,3,0
 20,0,Yuki Tsunoda,Racing Bulls,22,1,0
 21,0,Lance Stroll,Aston Martin,18,0,0
