@@ -380,9 +380,9 @@
     "MatchDate": "2026-10-10",
     "Venue": "Eden Park",
     "KickOffTime": "08:10",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "50",
+    "AwayScore": "19",
+    "MatchStatus": "FT"
   },
   {
     "Competition": "Internationals",
