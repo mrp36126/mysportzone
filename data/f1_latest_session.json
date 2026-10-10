@@ -1,9 +1,9 @@
 {
   "status": "ok",
   "source": "openf1.org",
-  "label": "Sprint Qualifying",
-  "shortLabel": "Sprint Qualifying",
-  "sessionKey": "sprintQualy",
+  "label": "Qualifying Result",
+  "shortLabel": "Qualifying",
+  "sessionKey": "qualy",
   "season": "2026",
   "round": "17",
   "raceName": "Singapore Grand Prix",
