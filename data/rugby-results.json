@@ -391,9 +391,9 @@
     "MatchDate": "2026-10-17",
     "Venue": "Accor Stadium",
     "KickOffTime": "07:00",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "21",
+    "AwayScore": "43",
+    "MatchStatus": "FT"
   },
   {
     "Competition": "Nations Championship 2026",
