@@ -5,21 +5,21 @@ Position,Change,Driver,Team,CarNumber,Points,PointsChange
 4,-2,George Russell,Mercedes,63,250,8
 5,0,Charles Leclerc,Ferrari,16,245,12
 6,0,Lando Norris,McLaren,1,221,10
-7,0,Oscar Piastri,McLaren,81,150,6
-8,0,Isack Hadjar,Red Bull Racing,6,105,0
-9,0,Liam Lawson,Racing Bulls,30,79,2
-10,0,Pierre Gasly,Alpine,10,43,1
+7,0,Oscar Piastri,McLaren,81,144,0
+8,0,Isack Hadjar,Red Bull Racing,6,107,2
+9,0,Liam Lawson,Racing Bulls,30,83,6
+10,0,Pierre Gasly,Alpine,10,42,0
 11,0,Arvid Lindblad,Racing Bulls,41,38,0
-12,0,Franco Colapinto,Alpine,43,31,4
+12,0,Franco Colapinto,Alpine,43,27,0
 13,0,Oliver Bearman,Haas F1 Team,87,23,0
-14,0,Nico Hulkenberg,Audi,27,13,0
-15,0,Gabriel Bortoleto,Audi,5,10,0
+14,1,Gabriel Bortoleto,Audi,5,14,4
+15,-1,Nico Hulkenberg,Audi,27,13,0
 16,0,Esteban Ocon,Haas F1 Team,31,7,0
 17,0,Fernando Alonso,Aston Martin,14,7,0
 18,0,Carlos Sainz,Williams,55,7,0
 19,0,Alexander Albon,Williams,23,5,0
 20,0,Yuki Tsunoda,Racing Bulls,22,1,0
-21,0,Lance Stroll,Aston Martin,18,0,0
-22,0,Valtteri Bottas,Cadillac,77,0,0
-23,0,Ryo Hirakawa,Haas F1 Team,50,0,0
+21,0,Ryo Hirakawa,Haas F1 Team,50,1,1
+22,-1,Lance Stroll,Aston Martin,18,0,0
+23,-1,Valtteri Bottas,Cadillac,77,0,0
 24,-1,Sergio Perez,Cadillac,11,0,0
