@@ -400,11 +400,11 @@
     "HomeTeam": "Ireland",
     "AwayTeam": "Argentina",
     "MatchDate": "2026-11-06",
-    "Venue": "Aviva Stadium in Dublin: Ireland",
+    "Venue": "Aviva Stadium",
     "KickOffTime": "22:10",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "12",
+    "AwayScore": "5",
+    "MatchStatus": "LIVE 1st Half"
   },
   {
     "Competition": "Nations Championship 2026",
