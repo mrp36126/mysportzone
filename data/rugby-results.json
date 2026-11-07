@@ -411,7 +411,7 @@
     "HomeTeam": "Italy",
     "AwayTeam": "South Africa",
     "MatchDate": "2026-11-07",
-    "Venue": "Allianz Stadium",
+    "Venue": "Allianz Stadium in Turin: Italy",
     "KickOffTime": "13:40",
     "HomeScore": "7",
     "AwayScore": "66",
@@ -422,7 +422,7 @@
     "HomeTeam": "Scotland",
     "AwayTeam": "New Zealand",
     "MatchDate": "2026-11-07",
-    "Venue": "Scottish Gas Murrayfield",
+    "Venue": "Murrayfield in Edinburgh: Scotland",
     "KickOffTime": "16:10",
     "HomeScore": "21",
     "AwayScore": "43",
@@ -435,20 +435,20 @@
     "MatchDate": "2026-11-07",
     "Venue": "Principality Stadium",
     "KickOffTime": "18:40",
-    "HomeScore": "21",
-    "AwayScore": "14",
-    "MatchStatus": "LIVE 1st Half"
+    "HomeScore": "28",
+    "AwayScore": "21",
+    "MatchStatus": "FT"
   },
   {
     "Competition": "Nations Championship 2026",
     "HomeTeam": "France",
     "AwayTeam": "Fiji",
     "MatchDate": "2026-11-07",
-    "Venue": "Groupama Stadium in Lyon: France",
+    "Venue": "OL Stadium",
     "KickOffTime": "22:10",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "45",
+    "AwayScore": "10",
+    "MatchStatus": "LIVE 1st Half"
   },
   {
     "Competition": "Nations Championship 2026",
