@@ -411,11 +411,11 @@
     "HomeTeam": "Italy",
     "AwayTeam": "South Africa",
     "MatchDate": "2026-11-07",
-    "Venue": "Allianz Stadium in Turin: Italy",
+    "Venue": "Allianz Stadium",
     "KickOffTime": "13:40",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "7",
+    "AwayScore": "59",
+    "MatchStatus": "LIVE 1st Half"
   },
   {
     "Competition": "Nations Championship 2026",
