@@ -402,9 +402,9 @@
     "MatchDate": "2026-11-06",
     "Venue": "Aviva Stadium",
     "KickOffTime": "22:10",
-    "HomeScore": "12",
-    "AwayScore": "5",
-    "MatchStatus": "LIVE 1st Half"
+    "HomeScore": "42",
+    "AwayScore": "12",
+    "MatchStatus": "FT"
   },
   {
     "Competition": "Nations Championship 2026",
