@@ -414,30 +414,30 @@
     "Venue": "Allianz Stadium",
     "KickOffTime": "13:40",
     "HomeScore": "7",
-    "AwayScore": "59",
-    "MatchStatus": "LIVE 1st Half"
+    "AwayScore": "66",
+    "MatchStatus": "FT"
   },
   {
     "Competition": "Nations Championship 2026",
     "HomeTeam": "Scotland",
     "AwayTeam": "New Zealand",
     "MatchDate": "2026-11-07",
-    "Venue": "Murrayfield in Edinburgh: Scotland",
+    "Venue": "Scottish Gas Murrayfield",
     "KickOffTime": "16:10",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "21",
+    "AwayScore": "43",
+    "MatchStatus": "FT"
   },
   {
     "Competition": "Nations Championship 2026",
     "HomeTeam": "Wales",
     "AwayTeam": "Japan",
     "MatchDate": "2026-11-07",
-    "Venue": "Principality Stadium in Cardiff: Wales",
+    "Venue": "Principality Stadium",
     "KickOffTime": "18:40",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "21",
+    "AwayScore": "14",
+    "MatchStatus": "LIVE 1st Half"
   },
   {
     "Competition": "Nations Championship 2026",
