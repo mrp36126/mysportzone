@@ -1,8 +1,8 @@
 Position,Change,Driver,Team,CarNumber,Points,PointsChange
 1,0,Kimi Antonelli,Mercedes,12,380,15
-2,2,Max Verstappen,Red Bull Racing,3,261,25
+2,0,Max Verstappen,Red Bull Racing,3,261,25
 3,0,Lewis Hamilton,Ferrari,44,259,18
-4,-2,George Russell,Mercedes,63,250,8
+4,0,George Russell,Mercedes,63,250,8
 5,0,Charles Leclerc,Ferrari,16,245,12
 6,0,Lando Norris,McLaren,1,221,10
 7,0,Oscar Piastri,McLaren,81,144,0
@@ -12,14 +12,15 @@ Position,Change,Driver,Team,CarNumber,Points,PointsChange
 11,0,Arvid Lindblad,Racing Bulls,41,38,0
 12,0,Franco Colapinto,Alpine,43,27,0
 13,0,Oliver Bearman,Haas F1 Team,87,23,0
-14,1,Gabriel Bortoleto,Audi,5,14,4
-15,-1,Nico Hulkenberg,Audi,27,13,0
+14,0,Gabriel Bortoleto,Audi,5,14,4
+15,0,Nico Hulkenberg,Audi,27,13,0
 16,0,Esteban Ocon,Haas F1 Team,31,7,0
 17,0,Fernando Alonso,Aston Martin,14,7,0
 18,0,Carlos Sainz,Williams,55,7,0
 19,0,Alexander Albon,Williams,23,5,0
 20,0,Yuki Tsunoda,Racing Bulls,22,1,0
 21,0,Ryo Hirakawa,Haas F1 Team,50,1,1
-22,-1,Lance Stroll,Aston Martin,18,0,0
-23,-1,Valtteri Bottas,Cadillac,77,0,0
-24,-1,Sergio Perez,Cadillac,11,0,0
+22,0,Lance Stroll,Aston Martin,18,0,0
+23,0,Valtteri Bottas,Cadillac,77,0,0
+24,0,Sergio Perez,Cadillac,11,0,0
+25,0,Rafael Camara,Haas F1 Team,,0,0
