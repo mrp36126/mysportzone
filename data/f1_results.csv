@@ -351,25 +351,25 @@ Season,Round,RaceName,Circuit,Country,Date,Position,Driver,Team,Grid,Laps,Time,S
 2026,19,Mexico City Grand Prix,Autódromo Hermanos Rodríguez,Mexico,2026-11-01,R,Valtteri Bottas,Cadillac,21,42,,Retired,0,20,1:22.487,33
 2026,19,Mexico City Grand Prix,Autódromo Hermanos Rodríguez,Mexico,2026-11-01,R,Lance Stroll,Aston Martin,19,5,,Retired,0,22,1:23.696,2
 2026,19,Mexico City Grand Prix,Autódromo Hermanos Rodríguez,Mexico,2026-11-01,R,Fernando Alonso,Aston Martin,17,5,,Retired,0,21,1:23.544,2
-2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,1,Lando Norris,McLaren,,71,1:35:23.504,Finished,25,,,
-2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,2,Max Verstappen,Red Bull Racing,,71,+14.602,Finished,18,,,
-2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,3,Isack Hadjar,Red Bull Racing,,71,+24.485,Finished,15,,,
-2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,4,George Russell,Mercedes,,71,+33.991,Finished,12,,,
-2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,5,Kimi Antonelli,Mercedes,,71,+36.017,Finished,10,,,
-2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,6,Oscar Piastri,McLaren,,71,+56.475,Finished,8,,,
-2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,7,Charles Leclerc,Ferrari,,71,+1:13.586,Finished,6,,,
-2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,8,Liam Lawson,Racing Bulls,,71,+1:15.402,Finished,4,,,
-2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,9,Lewis Hamilton,Ferrari,,70,+4.427,Lapped,2,,,
-2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,10,Nico Hulkenberg,Audi,,70,+17.105,Lapped,1,,,
-2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,11,Arvid Lindblad,Racing Bulls,,70,+19.130,Lapped,0,,,
-2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,12,Fernando Alonso,Aston Martin,,70,+36.856,Lapped,0,,,
-2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,13,Franco Colapinto,Alpine,,70,+50.488,Lapped,0,,,
-2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,14,Pierre Gasly,Alpine,,70,+58.677,Lapped,0,,,
-2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,15,Alexander Albon,Williams,,70,+1:04.101,Lapped,0,,,
-2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,16,Gabriel Bortoleto,Audi,,70,+1:16.420,Lapped,0,,,
-2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,17,Oliver Bearman,Haas F1 Team,,70,+1:26.711,Lapped,0,,,
-2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,18,Sergio Perez,Cadillac,,69,+27.120,Lapped,0,,,
-2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,19,Carlos Sainz,Williams,,69,+32.463,Lapped,0,,,
-2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,20,Rafael Camara,Haas F1 Team,,69,+51.715,Lapped,0,,,
-2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,R,Lance Stroll,Aston Martin,,30,,Retired,0,,,
-2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,W,Valtteri Bottas,Cadillac,,0,,Did not start,0,,,
+2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,1,Lando Norris,McLaren,1,71,1:35:23.504,Finished,25,3,1:12.983,52
+2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,2,Max Verstappen,Red Bull Racing,21,71,+14.602,Finished,18,5,1:13.131,48
+2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,3,Isack Hadjar,Red Bull Racing,5,71,+24.485,Finished,15,2,1:12.877,52
+2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,4,George Russell,Mercedes,7,71,+33.991,Finished,12,12,1:14.040,42
+2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,5,Kimi Antonelli,Mercedes,2,71,+41.017,Finished,10,1,1:12.689,55
+2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,6,Oscar Piastri,McLaren,10,71,+56.475,Finished,8,4,1:13.018,54
+2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,7,Liam Lawson,Racing Bulls,3,71,+1:15.402,Finished,6,6,1:13.495,51
+2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,8,Charles Leclerc,Ferrari,14,71,+1:18.586,Finished,4,13,1:14.170,51
+2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,9,Lewis Hamilton,Ferrari,20,70,+4.427,Lapped,2,8,1:13.724,45
+2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,10,Nico Hulkenberg,Audi,4,70,+17.105,Lapped,1,9,1:14.000,54
+2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,11,Arvid Lindblad,Racing Bulls,18,70,+19.130,Lapped,0,10,1:14.004,54
+2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,12,Fernando Alonso,Aston Martin,8,70,+36.856,Lapped,0,18,1:14.706,52
+2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,13,Franco Colapinto,Alpine,13,70,+50.488,Lapped,0,7,1:13.710,56
+2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,14,Pierre Gasly,Alpine,15,70,+58.677,Lapped,0,15,1:14.462,40
+2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,15,Alexander Albon,Williams,9,70,+1:04.101,Lapped,0,16,1:14.464,45
+2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,16,Gabriel Bortoleto,Audi,19,70,+1:16.420,Lapped,0,19,1:14.940,45
+2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,17,Oliver Bearman,Haas F1 Team,6,70,+1:31.711,Lapped,0,11,1:14.036,50
+2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,18,Sergio Perez,Cadillac,22,69,+27.120,Lapped,0,20,1:16.123,52
+2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,19,Carlos Sainz,Williams,12,69,+32.463,Lapped,0,17,1:14.613,48
+2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,20,Rafael Camara,Haas F1 Team,11,69,+51.715,Lapped,0,14,1:14.369,51
+2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,R,Lance Stroll,Aston Martin,16,30,,Retired,0,21,1:17.430,28
+2026,20,Brazilian Grand Prix,Autódromo José Carlos Pace,Brazil,2026-11-08,W,Valtteri Bottas,Cadillac,17,0,,Did not start,0,,,
