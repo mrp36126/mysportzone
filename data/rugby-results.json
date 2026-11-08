@@ -455,11 +455,11 @@
     "HomeTeam": "England",
     "AwayTeam": "Australia",
     "MatchDate": "2026-11-08",
-    "Venue": "Allianz Stadium in London: England",
+    "Venue": "Allianz Stadium",
     "KickOffTime": "17:10",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "45",
+    "AwayScore": "22",
+    "MatchStatus": "FT"
   },
   {
     "Competition": "Nations Championship 2026",
