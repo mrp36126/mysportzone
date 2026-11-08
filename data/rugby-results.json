@@ -433,7 +433,7 @@
     "HomeTeam": "Wales",
     "AwayTeam": "Japan",
     "MatchDate": "2026-11-07",
-    "Venue": "Principality Stadium",
+    "Venue": "Principality Stadium in Cardiff: Wales",
     "KickOffTime": "18:40",
     "HomeScore": "28",
     "AwayScore": "21",
@@ -446,9 +446,9 @@
     "MatchDate": "2026-11-07",
     "Venue": "OL Stadium",
     "KickOffTime": "22:10",
-    "HomeScore": "45",
-    "AwayScore": "10",
-    "MatchStatus": "LIVE 1st Half"
+    "HomeScore": "54",
+    "AwayScore": "17",
+    "MatchStatus": "FT"
   },
   {
     "Competition": "Nations Championship 2026",
