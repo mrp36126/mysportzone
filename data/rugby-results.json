@@ -477,7 +477,7 @@
     "HomeTeam": "Italy",
     "AwayTeam": "Argentina",
     "MatchDate": "2026-11-14",
-    "Venue": "Stadio Comunale Luigi Ferraris",
+    "Venue": "Stadio Luigi Ferraris in Genova: Italy",
     "KickOffTime": "13:40",
     "HomeScore": "14",
     "AwayScore": "19",
@@ -488,7 +488,7 @@
     "HomeTeam": "Wales",
     "AwayTeam": "New Zealand",
     "MatchDate": "2026-11-14",
-    "Venue": "Principality Stadium",
+    "Venue": "Principality Stadium in Cardiff: Wales",
     "KickOffTime": "16:10",
     "HomeScore": "35",
     "AwayScore": "28",
@@ -501,20 +501,20 @@
     "MatchDate": "2026-11-14",
     "Venue": "Allianz Stadium",
     "KickOffTime": "18:40",
-    "HomeScore": "13",
-    "AwayScore": "0",
-    "MatchStatus": "LIVE 1st Half"
+    "HomeScore": "78",
+    "AwayScore": "15",
+    "MatchStatus": "FT"
   },
   {
     "Competition": "Nations Championship 2026",
     "HomeTeam": "Ireland",
     "AwayTeam": "Fiji",
     "MatchDate": "2026-11-14",
-    "Venue": "Aviva Stadium in Dublin: Ireland",
+    "Venue": "Aviva Stadium",
     "KickOffTime": "22:10",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "17",
+    "AwayScore": "15",
+    "MatchStatus": "LIVE 1st Half"
   },
   {
     "Competition": "Nations Championship 2026",
