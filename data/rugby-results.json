@@ -499,7 +499,7 @@
     "HomeTeam": "England",
     "AwayTeam": "Japan",
     "MatchDate": "2026-11-14",
-    "Venue": "Allianz Stadium",
+    "Venue": "Allianz Stadium in London: England",
     "KickOffTime": "18:40",
     "HomeScore": "78",
     "AwayScore": "15",
@@ -512,9 +512,9 @@
     "MatchDate": "2026-11-14",
     "Venue": "Aviva Stadium",
     "KickOffTime": "22:10",
-    "HomeScore": "17",
+    "HomeScore": "43",
     "AwayScore": "15",
-    "MatchStatus": "LIVE 1st Half"
+    "MatchStatus": "FT"
   },
   {
     "Competition": "Nations Championship 2026",
