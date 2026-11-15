@@ -521,11 +521,11 @@
     "HomeTeam": "Scotland",
     "AwayTeam": "Australia",
     "MatchDate": "2026-11-15",
-    "Venue": "Murrayfield in Edinburgh: Scotland",
+    "Venue": "Scottish Gas Murrayfield",
     "KickOffTime": "17:10",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "5",
+    "AwayScore": "5",
+    "MatchStatus": "LIVE 1st Half"
   },
   {
     "Competition": "Nations Championship 2026",
