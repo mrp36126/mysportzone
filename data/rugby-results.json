@@ -532,22 +532,22 @@
     "HomeTeam": "England",
     "AwayTeam": "New Zealand",
     "MatchDate": "2026-11-21",
-    "Venue": "Allianz Stadium in London: England",
+    "Venue": "Allianz Stadium",
     "KickOffTime": "16:10",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "34",
+    "AwayScore": "12",
+    "MatchStatus": "LIVE 1st Half"
   },
   {
     "Competition": "Nations Championship 2026",
     "HomeTeam": "Scotland",
     "AwayTeam": "Japan",
     "MatchDate": "2026-11-21",
-    "Venue": "Murrayfield in Edinburgh: Scotland",
+    "Venue": "Scottish Gas Murrayfield",
     "KickOffTime": "16:10",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "48",
+    "AwayScore": "5",
+    "MatchStatus": "LIVE 1st Half"
   },
   {
     "Competition": "Nations Championship 2026",
