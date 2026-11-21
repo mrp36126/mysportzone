@@ -1,8 +1,8 @@
 Position,Change,Driver,Team,CarNumber,Points,PointsChange
 1,0,Kimi Antonelli,Mercedes,12,390,10
 2,0,Max Verstappen,Red Bull Racing,3,279,18
-3,1,George Russell,Mercedes,63,262,12
-4,-1,Lewis Hamilton,Ferrari,44,261,2
+3,0,George Russell,Mercedes,63,262,12
+4,0,Lewis Hamilton,Ferrari,44,261,2
 5,0,Charles Leclerc,Ferrari,16,249,4
 6,0,Lando Norris,McLaren,1,246,25
 7,0,Oscar Piastri,McLaren,81,152,8
