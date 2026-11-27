@@ -598,22 +598,22 @@
     "HomeTeam": "Fiji",
     "AwayTeam": "Italy",
     "MatchDate": "2026-11-27",
-    "Venue": "Principality Stadium in Cardiff: Wales",
+    "Venue": "Allianz Stadium",
     "KickOffTime": "18:40",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "21",
+    "AwayScore": "23",
+    "MatchStatus": "FT"
   },
   {
     "Competition": "Nations Championship 2026",
     "HomeTeam": "Ireland",
     "AwayTeam": "Australia",
     "MatchDate": "2026-11-27",
-    "Venue": "Aviva Stadium in Dublin: Ireland",
+    "Venue": "Allianz Stadium",
     "KickOffTime": "22:10",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "38",
+    "AwayScore": "14",
+    "MatchStatus": "FT"
   },
   {
     "Competition": "Nations Championship 2026",
