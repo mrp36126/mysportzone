@@ -622,20 +622,20 @@
     "MatchDate": "2026-11-28",
     "Venue": "Allianz Stadium",
     "KickOffTime": "15:10",
-    "HomeScore": "19",
-    "AwayScore": "0",
-    "MatchStatus": "LIVE 1st Half"
+    "HomeScore": "40",
+    "AwayScore": "10",
+    "MatchStatus": "FT"
   },
   {
     "Competition": "Nations Championship 2026",
     "HomeTeam": "England",
     "AwayTeam": "New Zealand",
     "MatchDate": "2026-11-28",
-    "Venue": "Twickenham Stadium: England",
+    "Venue": "Allianz Stadium",
     "KickOffTime": "18:40",
-    "HomeScore": "",
-    "AwayScore": "",
-    "MatchStatus": ""
+    "HomeScore": "8",
+    "AwayScore": "26",
+    "MatchStatus": "FT"
   },
   {
     "Competition": "Nations Championship 2026",
